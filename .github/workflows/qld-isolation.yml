@@ -68,7 +68,7 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
 
-          git add out_isolation_current/*.csv out_isolation_current/*.json out_isolation_current/*.geojson
+          git add -f out_isolation_current/*.csv out_isolation_current/*.json out_isolation_current/*.geojson
 
           if git diff --cached --quiet; then
             echo "No output changes to commit."
