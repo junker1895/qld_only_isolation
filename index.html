@@ -4,7 +4,11 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Queensland Road Isolation Dashboard</title>
+<<<<<<< Updated upstream
   <!-- Dashboard build v17: visible isolated divIcon markers and summed QA count -->
+=======
+  <!-- Dashboard build v18: isolated places rendered as canvas circle markers -->
+>>>>>>> Stashed changes
   <meta name="description" content="Leaflet dashboard for Queensland road closure and place-isolation outputs." />
   <link crossorigin="" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet" />
   <script crossorigin="" src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -208,10 +212,18 @@
   function placePoint(f,latlng){
     const p=f.properties||{},cat=val(p,'isolation_category');
     if(isIso(cat)){
-      return L.marker(latlng,{
+      // Keep isolated places as Leaflet canvas circle markers, the same rendering
+      // model as QA and not-isolated places. This avoids divIcon anchoring/pane
+      // issues and keeps the marker exactly on the GeoJSON point.
+      return L.circleMarker(latlng,{
         pane:'placePane',
-        icon:L.divIcon({className:'isolation-icon',html:'<span></span>',iconSize:[34,34],iconAnchor:[17,17]}),
-        zIndexOffset:2000
+        renderer:canvas,
+        radius:9,
+        color:'#ffffff',
+        weight:3,
+        fillColor:'#b00020',
+        fillOpacity:.96,
+        className:'isolated-place-dot'
       });
     }
     if(isQa(cat)){
