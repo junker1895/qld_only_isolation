@@ -342,8 +342,22 @@
     .popup-link { color: #b00020; font-weight: 800; text-decoration: none; }
     .popup-link:hover { text-decoration: underline; }
 
-    .leaflet-container { font-family: var(--sans); }
+    .leaflet-container { font-family: var(--sans); background: #dde6ef; }
     .leaflet-control-layers, .leaflet-control-zoom a { border-radius: 0 !important; }
+    .leaflet-tile { filter: none; }
+    .tile-warning {
+      position: absolute;
+      right: 16px;
+      bottom: 18px;
+      z-index: 510;
+      background: var(--panel);
+      border: 1px solid var(--line-strong);
+      box-shadow: var(--shadow);
+      padding: 8px 10px;
+      font-size: 12px;
+      color: var(--muted);
+      max-width: 340px;
+    }
 
     .iso-marker {
       width: 20px;
@@ -528,6 +542,7 @@
       <div class="map-status" id="mapStatus">
         <span><strong>Loading</strong> data from <span class="mono">out_isolation_current</span></span>
       </div>
+      <div class="tile-warning hide" id="tileWarning">Some base-map tiles failed to load. Switching base maps or reloading usually fixes this.</div>
       <div class="loading" id="loadingOverlay">
         <div class="loading-box">
           <div class="loading-title">Loading Queensland isolation outputs</div>
@@ -574,22 +589,54 @@
       zoomControl: true,
       preferCanvas: true,
       minZoom: 4,
-      maxZoom: 18
+      maxZoom: 18,
+      worldCopyJump: true
     });
 
-    const osm = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    // Use a subdomain-based basemap by default. It is less prone to the patchy/missing
+    // tile behaviour seen with the single-host OpenStreetMap tile endpoint on GitHub Pages.
+    const cartoLight = L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
+      subdomains: "abcd",
+      maxZoom: 20,
+      detectRetina: true,
+      crossOrigin: true,
+      attribution: "&copy; OpenStreetMap contributors &copy; CARTO"
+    });
+
+    const esriTopo = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}", {
+      maxZoom: 18,
+      crossOrigin: true,
+      attribution: "Tiles &copy; Esri &mdash; Source: Esri, Garmin, FAO, NOAA, USGS, OpenStreetMap contributors"
+    });
+
+    const osmStandard = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
       maxZoom: 19,
+      crossOrigin: true,
       attribution: "&copy; OpenStreetMap contributors"
     });
-    osm.addTo(map);
+
+    let tileErrorCount = 0;
+    function noteTileError() {
+      tileErrorCount += 1;
+      if (tileErrorCount >= 3) $("tileWarning").classList.remove("hide");
+    }
+    [cartoLight, esriTopo, osmStandard].forEach(layer => layer.on("tileerror", noteTileError));
+
+    cartoLight.addTo(map);
     map.fitBounds(qldBounds, { padding: [18, 18] });
+    setTimeout(() => map.invalidateSize(true), 50);
+    setTimeout(() => map.invalidateSize(true), 500);
 
     state.layers.closures.addTo(map);
     state.layers.places.addTo(map);
     state.layers.isolated.addTo(map);
 
     L.control.layers(
-      { "OpenStreetMap": osm },
+      {
+        "CARTO light": cartoLight,
+        "Esri topographic": esriTopo,
+        "OpenStreetMap": osmStandard
+      },
       {
         "Current closures": state.layers.closures,
         "Assessed places": state.layers.places,
@@ -597,6 +644,13 @@
       },
       { collapsed: false, position: "topright" }
     ).addTo(map);
+
+    map.on("baselayerchange", () => {
+      tileErrorCount = 0;
+      $("tileWarning").classList.add("hide");
+      setTimeout(() => map.invalidateSize(true), 100);
+    });
+    window.addEventListener("resize", () => setTimeout(() => map.invalidateSize(true), 100));
 
     function cacheBust(url) {
       return url + (url.includes("?") ? "&" : "?") + "v=" + Date.now();
@@ -744,7 +798,7 @@
       }
     }
 
-    function hideLoading() { $("loadingOverlay").classList.add("hide"); }
+    function hideLoading() { $("loadingOverlay").classList.add("hide"); setTimeout(() => map.invalidateSize(true), 75); }
     function showLoading() { $("loadingOverlay").classList.remove("hide"); }
 
     async function loadData() {
@@ -1003,7 +1057,7 @@
       });
       $("fitIsolatedBtn").addEventListener("click", fitIsolated);
       $("fitQldBtn").addEventListener("click", () => map.fitBounds(qldBounds, { padding: [18, 18] }));
-      $("reloadBtn").addEventListener("click", loadData);
+      $("reloadBtn").addEventListener("click", () => { tileErrorCount = 0; $("tileWarning").classList.add("hide"); loadData(); });
       $("downloadCsvBtn").addEventListener("click", downloadCsv);
       $("themeBtn").addEventListener("click", () => {
         const root = $("appRoot");
