@@ -3084,8 +3084,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          141.6192512,
-          -13.7052254
+          141.7312577,
+          -13.3705693
         ]
       },
       "properties": {
@@ -3095,14 +3095,14 @@
         "state": "QLD",
         "lga": "Aurukun Shire",
         "is_hub": false,
-        "nearest_node": "308308",
+        "nearest_node": "308787",
         "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
+        "hub_access_before": true,
+        "hub_access_impassable_only": true,
+        "hub_access_all_blocking": true,
+        "isolation_category": "not_isolated",
+        "isolation_confidence": "high",
+        "isolation_reason": "Place still has hub access under both closure scenarios.",
         "nearby_blocking_closures_json": "[]"
       }
     },
@@ -5136,8 +5136,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          145.7158298,
-          -16.8702494
+          145.7029983,
+          -16.8634599
         ]
       },
       "properties": {
@@ -5147,14 +5147,14 @@
         "state": "QLD",
         "lga": "Cairns Regional",
         "is_hub": false,
-        "nearest_node": "282675",
+        "nearest_node": "279494",
         "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
+        "hub_access_before": true,
+        "hub_access_impassable_only": true,
+        "hub_access_all_blocking": true,
+        "isolation_category": "not_isolated",
+        "isolation_confidence": "high",
+        "isolation_reason": "Place still has hub access under both closure scenarios.",
         "nearby_blocking_closures_json": "[]"
       }
     },
@@ -6270,8 +6270,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          144.2826077,
-          -16.6209952
+          144.36986,
+          -16.4946622
         ]
       },
       "properties": {
@@ -6281,14 +6281,14 @@
         "state": "QLD",
         "lga": "Mareeba Shire",
         "is_hub": false,
-        "nearest_node": "365954",
+        "nearest_node": "363912",
         "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
+        "hub_access_before": true,
+        "hub_access_impassable_only": true,
+        "hub_access_all_blocking": true,
+        "isolation_category": "not_isolated",
+        "isolation_confidence": "high",
+        "isolation_reason": "Place still has hub access under both closure scenarios.",
         "nearby_blocking_closures_json": "[]"
       }
     },
@@ -18204,8 +18204,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          147.8197566,
-          -20.5537023
+          147.8292924,
+          -20.5512299
         ]
       },
       "properties": {
@@ -18215,14 +18215,14 @@
         "state": "QLD",
         "lga": "Whitsunday Regional",
         "is_hub": false,
-        "nearest_node": "1454322",
+        "nearest_node": "1454473",
         "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
+        "hub_access_before": true,
+        "hub_access_impassable_only": true,
+        "hub_access_all_blocking": true,
+        "isolation_category": "not_isolated",
+        "isolation_confidence": "high",
+        "isolation_reason": "Place still has hub access under both closure scenarios.",
         "nearby_blocking_closures_json": "[]"
       }
     },
@@ -18609,8 +18609,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          148.2372675,
-          -24.6766318
+          148.5282022,
+          -24.6683796
         ]
       },
       "properties": {
@@ -18620,14 +18620,14 @@
         "state": "QLD",
         "lga": "Central Highlands Regional",
         "is_hub": false,
-        "nearest_node": "809898",
+        "nearest_node": "1352700",
         "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
+        "hub_access_before": true,
+        "hub_access_impassable_only": true,
+        "hub_access_all_blocking": true,
+        "isolation_category": "not_isolated",
+        "isolation_confidence": "high",
+        "isolation_reason": "Place still has hub access under both closure scenarios.",
         "nearby_blocking_closures_json": "[]"
       }
     },
@@ -20256,8 +20256,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          146.8602482,
-          -19.1172207
+          146.8374448,
+          -19.2414765
         ]
       },
       "properties": {
@@ -20267,14 +20267,14 @@
         "state": "QLD",
         "lga": "Townsville City",
         "is_hub": false,
-        "nearest_node": "1443615",
+        "nearest_node": "1479942",
         "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
+        "hub_access_before": true,
+        "hub_access_impassable_only": true,
+        "hub_access_all_blocking": true,
+        "isolation_category": "not_isolated",
+        "isolation_confidence": "high",
+        "isolation_reason": "Place still has hub access under both closure scenarios.",
         "nearby_blocking_closures_json": "[]"
       }
     },
@@ -24900,8 +24900,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          152.5326891,
-          -25.4039015
+          152.4478984,
+          -25.386236
         ]
       },
       "properties": {
@@ -24911,14 +24911,14 @@
         "state": "QLD",
         "lga": "Fraser Coast Regional",
         "is_hub": false,
-        "nearest_node": "2192677",
+        "nearest_node": "2192448",
         "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
+        "hub_access_before": true,
+        "hub_access_impassable_only": true,
+        "hub_access_all_blocking": true,
+        "isolation_category": "not_isolated",
+        "isolation_confidence": "high",
+        "isolation_reason": "Place still has hub access under both closure scenarios.",
         "nearby_blocking_closures_json": "[]"
       }
     },
@@ -29733,8 +29733,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          153.1721538,
-          -28.1024918
+          153.1662181,
+          -28.0986943
         ]
       },
       "properties": {
@@ -29744,14 +29744,14 @@
         "state": "QLD",
         "lga": "Scenic Rim Regional",
         "is_hub": false,
-        "nearest_node": "3743777",
+        "nearest_node": "3743874",
         "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
+        "hub_access_before": true,
+        "hub_access_impassable_only": true,
+        "hub_access_all_blocking": true,
+        "isolation_category": "not_isolated",
+        "isolation_confidence": "high",
+        "isolation_reason": "Place still has hub access under both closure scenarios.",
         "nearby_blocking_closures_json": "[]"
       }
     },
@@ -36024,8 +36024,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          148.4134733,
-          -21.4378706
+          148.3637255,
+          -21.4908861
         ]
       },
       "properties": {
@@ -36035,14 +36035,14 @@
         "state": "QLD",
         "lga": "Isaac Regional",
         "is_hub": false,
-        "nearest_node": "1367860",
+        "nearest_node": "1336394",
         "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
+        "hub_access_before": true,
+        "hub_access_impassable_only": true,
+        "hub_access_all_blocking": true,
+        "isolation_category": "not_isolated",
+        "isolation_confidence": "high",
+        "isolation_reason": "Place still has hub access under both closure scenarios.",
         "nearby_blocking_closures_json": "[]"
       }
     },
@@ -38022,8 +38022,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          145.1305538,
-          -15.0983038
+          145.1562676,
+          -15.3952301
         ]
       },
       "properties": {
@@ -38033,14 +38033,14 @@
         "state": "QLD",
         "lga": "Cook Shire",
         "is_hub": false,
-        "nearest_node": "147912",
+        "nearest_node": "158338",
         "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
+        "hub_access_before": true,
+        "hub_access_impassable_only": true,
+        "hub_access_all_blocking": true,
+        "isolation_category": "not_isolated",
+        "isolation_confidence": "high",
+        "isolation_reason": "Place still has hub access under both closure scenarios.",
         "nearby_blocking_closures_json": "[]"
       }
     },
@@ -38049,8 +38049,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          145.1793318,
-          -15.1063026
+          145.1695947,
+          -15.2676022
         ]
       },
       "properties": {
@@ -38060,14 +38060,14 @@
         "state": "QLD",
         "lga": "Hope Vale Aboriginal Shire",
         "is_hub": false,
-        "nearest_node": "150396",
+        "nearest_node": "150384",
         "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
+        "hub_access_before": true,
+        "hub_access_impassable_only": true,
+        "hub_access_all_blocking": true,
+        "isolation_category": "not_isolated",
+        "isolation_confidence": "high",
+        "isolation_reason": "Place still has hub access under both closure scenarios.",
         "nearby_blocking_closures_json": "[]"
       }
     },
@@ -39345,8 +39345,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          151.7486231,
-          -26.5805571
+          151.7526024,
+          -26.5948841
         ]
       },
       "properties": {
@@ -39356,14 +39356,14 @@
         "state": "QLD",
         "lga": "South Burnett Regional",
         "is_hub": false,
-        "nearest_node": "1810793",
+        "nearest_node": "1807761",
         "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
+        "hub_access_before": true,
+        "hub_access_impassable_only": true,
+        "hub_access_all_blocking": true,
+        "isolation_category": "not_isolated",
+        "isolation_confidence": "high",
+        "isolation_reason": "Place still has hub access under both closure scenarios.",
         "nearby_blocking_closures_json": "[]"
       }
     },
@@ -40155,8 +40155,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          142.7402537,
-          -11.6335239
+          142.3613735,
+          -11.1407069
         ]
       },
       "properties": {
@@ -40166,14 +40166,14 @@
         "state": "QLD",
         "lga": "Cook Shire",
         "is_hub": false,
-        "nearest_node": "329272",
+        "nearest_node": "318086",
         "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
+        "hub_access_before": true,
+        "hub_access_impassable_only": true,
+        "hub_access_all_blocking": true,
+        "isolation_category": "not_isolated",
+        "isolation_confidence": "high",
+        "isolation_reason": "Place still has hub access under both closure scenarios.",
         "nearby_blocking_closures_json": "[]"
       }
     },
@@ -40263,8 +40263,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          152.6556078,
-          -27.6467703
+          152.6575033,
+          -27.6529649
         ]
       },
       "properties": {
@@ -40274,14 +40274,14 @@
         "state": "QLD",
         "lga": "Ipswich City",
         "is_hub": false,
-        "nearest_node": "1629670",
+        "nearest_node": "2570617",
         "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
+        "hub_access_before": true,
+        "hub_access_impassable_only": true,
+        "hub_access_all_blocking": true,
+        "isolation_category": "not_isolated",
+        "isolation_confidence": "high",
+        "isolation_reason": "Place still has hub access under both closure scenarios.",
         "nearby_blocking_closures_json": "[]"
       }
     },
@@ -41883,8 +41883,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          141.8883014,
-          -17.4262271
+          141.8961436,
+          -17.3322852
         ]
       },
       "properties": {
@@ -41894,14 +41894,14 @@
         "state": "QLD",
         "lga": "Croydon Shire",
         "is_hub": false,
-        "nearest_node": "35846",
+        "nearest_node": "36140",
         "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
+        "hub_access_before": true,
+        "hub_access_impassable_only": true,
+        "hub_access_all_blocking": true,
+        "isolation_category": "not_isolated",
+        "isolation_confidence": "high",
+        "isolation_reason": "Place still has hub access under both closure scenarios.",
         "nearby_blocking_closures_json": "[]"
       }
     },
@@ -45312,8 +45312,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          152.7888348,
-          -27.4036665
+          152.7750728,
+          -27.3980628
         ]
       },
       "properties": {
@@ -45323,14 +45323,14 @@
         "state": "QLD",
         "lga": "Brisbane City",
         "is_hub": false,
-        "nearest_node": "1947382",
+        "nearest_node": "1852327",
         "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
+        "hub_access_before": true,
+        "hub_access_impassable_only": true,
+        "hub_access_all_blocking": true,
+        "isolation_category": "not_isolated",
+        "isolation_confidence": "high",
+        "isolation_reason": "Place still has hub access under both closure scenarios.",
         "nearby_blocking_closures_json": "[]"
       }
     },
@@ -45339,8 +45339,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          152.7137917,
-          -27.4759712
+          152.7367841,
+          -27.4725845
         ]
       },
       "properties": {
@@ -45350,14 +45350,14 @@
         "state": "QLD",
         "lga": "Somerset Regional",
         "is_hub": false,
-        "nearest_node": "2392053",
+        "nearest_node": "2392139",
         "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
+        "hub_access_before": true,
+        "hub_access_impassable_only": true,
+        "hub_access_all_blocking": true,
+        "isolation_category": "not_isolated",
+        "isolation_confidence": "high",
+        "isolation_reason": "Place still has hub access under both closure scenarios.",
         "nearby_blocking_closures_json": "[]"
       }
     },
@@ -48768,8 +48768,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          153.4242301,
-          -27.9580084
+          153.4249254,
+          -27.960494
         ]
       },
       "properties": {
@@ -48779,14 +48779,14 @@
         "state": "QLD",
         "lga": "Gold Coast City",
         "is_hub": false,
-        "nearest_node": "2832465",
+        "nearest_node": "2838844",
         "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
+        "hub_access_before": true,
+        "hub_access_impassable_only": true,
+        "hub_access_all_blocking": true,
+        "isolation_category": "not_isolated",
+        "isolation_confidence": "high",
+        "isolation_reason": "Place still has hub access under both closure scenarios.",
         "nearby_blocking_closures_json": "[]"
       }
     },
@@ -49443,8 +49443,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          142.0869102,
-          -11.7982306
+          142.5579756,
+          -12.0913903
         ]
       },
       "properties": {
@@ -49454,14 +49454,14 @@
         "state": "QLD",
         "lga": "Cook Shire",
         "is_hub": false,
-        "nearest_node": "319654",
+        "nearest_node": "317646",
         "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
+        "hub_access_before": true,
+        "hub_access_impassable_only": true,
+        "hub_access_all_blocking": true,
+        "isolation_category": "not_isolated",
+        "isolation_confidence": "high",
+        "isolation_reason": "Place still has hub access under both closure scenarios.",
         "nearby_blocking_closures_json": "[]"
       }
     },
@@ -53871,8 +53871,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          153.3675662,
-          -27.1529228
+          153.1905496,
+          -27.4518738
         ]
       },
       "properties": {
@@ -53882,14 +53882,14 @@
         "state": "QLD",
         "lga": "Brisbane City",
         "is_hub": false,
-        "nearest_node": "3524827",
+        "nearest_node": "3486437",
         "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
+        "hub_access_before": true,
+        "hub_access_impassable_only": true,
+        "hub_access_all_blocking": true,
+        "isolation_category": "not_isolated",
+        "isolation_confidence": "high",
+        "isolation_reason": "Place still has hub access under both closure scenarios.",
         "nearby_blocking_closures_json": "[]"
       }
     },
@@ -54438,8 +54438,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          150.5775912,
-          -23.3193789
+          150.5724418,
+          -23.333796
         ]
       },
       "properties": {
@@ -54449,14 +54449,14 @@
         "state": "QLD",
         "lga": "Rockhampton Regional",
         "is_hub": false,
-        "nearest_node": "1444283",
+        "nearest_node": "1447404",
         "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
+        "hub_access_before": true,
+        "hub_access_impassable_only": true,
+        "hub_access_all_blocking": true,
+        "isolation_category": "not_isolated",
+        "isolation_confidence": "high",
+        "isolation_reason": "Place still has hub access under both closure scenarios.",
         "nearby_blocking_closures_json": "[]"
       }
     },
@@ -60729,8 +60729,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          153.0522206,
-          -26.2621957
+          152.9963106,
+          -26.2826516
         ]
       },
       "properties": {
@@ -60740,14 +60740,14 @@
         "state": "QLD",
         "lga": "Noosa Shire",
         "is_hub": false,
-        "nearest_node": "3294045",
+        "nearest_node": "3365038",
         "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
+        "hub_access_before": true,
+        "hub_access_impassable_only": true,
+        "hub_access_all_blocking": true,
+        "isolation_category": "not_isolated",
+        "isolation_confidence": "high",
+        "isolation_reason": "Place still has hub access under both closure scenarios.",
         "nearby_blocking_closures_json": "[]"
       }
     },
@@ -63429,8 +63429,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          143.390529,
-          -15.9080191
+          143.0321359,
+          -16.1030102
         ]
       },
       "properties": {
@@ -63440,14 +63440,14 @@
         "state": "QLD",
         "lga": "Cook Shire",
         "is_hub": false,
-        "nearest_node": "135199",
+        "nearest_node": "134715",
         "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
+        "hub_access_before": true,
+        "hub_access_impassable_only": true,
+        "hub_access_all_blocking": true,
+        "isolation_category": "not_isolated",
+        "isolation_confidence": "high",
+        "isolation_reason": "Place still has hub access under both closure scenarios.",
         "nearby_blocking_closures_json": "[]"
       }
     },
@@ -71610,8 +71610,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          145.9866438,
-          -17.8200814
+          145.9929103,
+          -17.8089688
         ]
       },
       "properties": {
@@ -71621,14 +71621,14 @@
         "state": "QLD",
         "lga": "Cassowary Coast Regional",
         "is_hub": false,
-        "nearest_node": "250659",
+        "nearest_node": "251023",
         "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
+        "hub_access_before": true,
+        "hub_access_impassable_only": true,
+        "hub_access_all_blocking": true,
+        "isolation_category": "not_isolated",
+        "isolation_confidence": "high",
+        "isolation_reason": "Place still has hub access under both closure scenarios.",
         "nearby_blocking_closures_json": "[]"
       }
     },
@@ -73419,8 +73419,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          139.4964201,
-          -20.7689924
+          139.4972471,
+          -20.7662009
         ]
       },
       "properties": {
@@ -73430,14 +73430,14 @@
         "state": "QLD",
         "lga": "Mount Isa City",
         "is_hub": false,
-        "nearest_node": "402776",
+        "nearest_node": "15158",
         "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
+        "hub_access_before": true,
+        "hub_access_impassable_only": true,
+        "hub_access_all_blocking": true,
+        "isolation_category": "not_isolated",
+        "isolation_confidence": "high",
+        "isolation_reason": "Place still has hub access under both closure scenarios.",
         "nearby_blocking_closures_json": "[]"
       }
     },
@@ -74634,8 +74634,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          148.9305353,
-          -23.8006986
+          148.8900563,
+          -23.8256505
         ]
       },
       "properties": {
@@ -74645,14 +74645,14 @@
         "state": "QLD",
         "lga": "Central Highlands Regional",
         "is_hub": false,
-        "nearest_node": "1354174",
+        "nearest_node": "984905",
         "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
+        "hub_access_before": true,
+        "hub_access_impassable_only": true,
+        "hub_access_all_blocking": true,
+        "isolation_category": "not_isolated",
+        "isolation_confidence": "high",
+        "isolation_reason": "Place still has hub access under both closure scenarios.",
         "nearby_blocking_closures_json": "[]"
       }
     },
@@ -74742,8 +74742,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          150.8037714,
-          -22.8137716
+          150.7351653,
+          -22.7977751
         ]
       },
       "properties": {
@@ -74753,14 +74753,14 @@
         "state": "QLD",
         "lga": "Livingstone Shire",
         "is_hub": false,
-        "nearest_node": "1019718",
+        "nearest_node": "1022843",
         "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
+        "hub_access_before": true,
+        "hub_access_impassable_only": true,
+        "hub_access_all_blocking": true,
+        "isolation_category": "not_isolated",
+        "isolation_confidence": "high",
+        "isolation_reason": "Place still has hub access under both closure scenarios.",
         "nearby_blocking_closures_json": "[]"
       }
     },
@@ -76713,8 +76713,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          152.8557113,
-          -28.1665909
+          152.8566406,
+          -28.1674043
         ]
       },
       "properties": {
@@ -76724,14 +76724,14 @@
         "state": "QLD",
         "lga": "Scenic Rim Regional",
         "is_hub": false,
-        "nearest_node": "2449954",
+        "nearest_node": "2479273",
         "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
+        "hub_access_before": true,
+        "hub_access_impassable_only": true,
+        "hub_access_all_blocking": true,
+        "isolation_category": "not_isolated",
+        "isolation_confidence": "high",
+        "isolation_reason": "Place still has hub access under both closure scenarios.",
         "nearby_blocking_closures_json": "[]"
       }
     },
@@ -78360,8 +78360,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          152.4341754,
-          -28.2630102
+          152.4532875,
+          -28.2710539
         ]
       },
       "properties": {
@@ -78371,14 +78371,14 @@
         "state": "QLD",
         "lga": "Southern Downs Regional",
         "is_hub": false,
-        "nearest_node": "2437976",
+        "nearest_node": "2436133",
         "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
+        "hub_access_before": true,
+        "hub_access_impassable_only": true,
+        "hub_access_all_blocking": true,
+        "isolation_category": "not_isolated",
+        "isolation_confidence": "high",
+        "isolation_reason": "Place still has hub access under both closure scenarios.",
         "nearby_blocking_closures_json": "[]"
       }
     },
@@ -82005,8 +82005,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          147.3826229,
-          -25.2743144
+          147.1641371,
+          -25.1330091
         ]
       },
       "properties": {
@@ -82016,14 +82016,14 @@
         "state": "QLD",
         "lga": "Murweh Shire",
         "is_hub": false,
-        "nearest_node": "807638",
+        "nearest_node": "807101",
         "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
+        "hub_access_before": true,
+        "hub_access_impassable_only": true,
+        "hub_access_all_blocking": true,
+        "isolation_category": "not_isolated",
+        "isolation_confidence": "high",
+        "isolation_reason": "Place still has hub access under both closure scenarios.",
         "nearby_blocking_closures_json": "[]"
       }
     },
