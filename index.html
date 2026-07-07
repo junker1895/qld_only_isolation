@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Queensland Road Isolation Dashboard</title>
-  <!-- Dashboard build v15: hierarchy styling; places primary, closures secondary, roads contextual -->
+  <!-- Dashboard build v16: subdued grey road context, softer closures, prominent checked-place markers -->
   <meta name="description" content="Leaflet dashboard for Queensland road closure and place-isolation outputs." />
   <link crossorigin="" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet" />
   <script crossorigin="" src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -26,7 +26,13 @@
     .table-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}.csv{border:1px solid var(--line);padding:6px 8px;text-decoration:none;color:var(--text);font-weight:900;font-size:12px}.table-wrap{max-height:330px;overflow:auto;border:1px solid var(--line)}table{width:100%;border-collapse:collapse;font-size:12px}th{position:sticky;top:0;background:var(--soft);color:var(--muted);text-align:left;text-transform:uppercase;letter-spacing:.04em;font-size:10px;z-index:1}th,td{padding:8px;border-bottom:1px solid var(--line);vertical-align:top}tbody tr{cursor:pointer}tbody tr:hover td{background:rgba(176,0,32,.06)}.place{font-weight:900}.small{font-size:11px;color:var(--muted);margin-top:2px}.badge{display:inline-block;border:1px solid;padding:3px 5px;font-size:10px;font-weight:900}.badge.iso{color:var(--red);border-color:var(--red);background:rgba(176,0,32,.08)}.badge.qa{color:var(--purple);border-color:var(--purple);background:rgba(109,40,217,.08)}.badge.ok{color:var(--green);border-color:var(--green);background:rgba(0,143,131,.08)}
     main{grid-row:2;position:relative;min-width:0;background:#dbe5ee}#map{width:100%;height:100%;background:#dbe5ee}.leaflet-container{font-family:var(--font);background:#dbe5ee}.leaflet-tile,.leaflet-tile-container img{max-width:none!important;max-height:none!important}.leaflet-control-layers,.leaflet-control-zoom a{border-radius:0!important}.leaflet-popup-content{margin:10px 12px}.popup-title{font-weight:900;font-size:14px;margin-bottom:5px}.popup-meta{font-size:12px;line-height:1.45;color:#374151}.popup-meta b{color:#111827}.leaflet-tooltip.place-label{background:rgba(255,255,255,.96);border:1px solid #cbd5e1;color:#111827;font-weight:900;border-radius:0}
     .statusbar{position:absolute;left:14px;bottom:14px;z-index:700;background:var(--panel);border:1px solid var(--line);box-shadow:var(--shadow);padding:8px 10px;font-size:12px;max-width:calc(100% - 28px)}.statusbar b{color:var(--red)}.errorbox{position:absolute;top:12px;left:12px;right:12px;z-index:1200;background:#fff1f2;color:#7f1d1d;border:1px solid #fecdd3;padding:10px 12px;font-weight:800;box-shadow:var(--shadow)}.hidden{display:none!important}
-    .pulse-icon{position:relative;width:24px;height:24px}.pulse-icon:before{content:"";position:absolute;left:2px;top:2px;width:20px;height:20px;border-radius:50%;background:rgba(176,0,32,.28);animation:pulse 1.5s infinite ease-out}.pulse-icon:after{content:"";position:absolute;left:7px;top:7px;width:10px;height:10px;border-radius:50%;background:var(--red);border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.35)}@keyframes pulse{from{transform:scale(.6);opacity:.85}to{transform:scale(2.5);opacity:0}}
+    .pulse-icon{position:relative;width:24px;height:24px}.pulse-icon:before{content:"";position:absolute;left:2px;top:2px;width:20px;height:20px;border-radius:50%;background:rgba(176,0,32,.28);animation:pulse 1.5s infinite ease-out}.pulse-icon:after{content:"";position:absolute;left:7px;top:7px;width:10px;height:10px;border-radius:50%;background:var(--red);border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.35)}
+    .isolation-icon{position:relative;width:38px;height:38px;border-radius:50%;display:block}
+    .isolation-icon:before{content:"";position:absolute;left:6px;top:6px;width:26px;height:26px;border-radius:50%;background:#c1121f;border:5px solid #fff;box-shadow:0 0 0 2px #7f0015,0 7px 18px rgba(0,0,0,.38)}
+    .isolation-icon:after{content:"";position:absolute;left:1px;top:1px;width:36px;height:36px;border-radius:50%;border:2px solid #c1121f;animation:isoPulse 1.8s infinite}
+    .isolation-icon span{position:absolute;left:17px;top:17px;width:4px;height:4px;background:white;border-radius:50%;z-index:2}
+    @keyframes isoPulse{0%{transform:scale(.65);opacity:.8}80%{transform:scale(1.55);opacity:0}100%{opacity:0}}
+    @keyframes pulse{from{transform:scale(.6);opacity:.9}to{transform:scale(1.8);opacity:0}}
     @media(max-width:900px){body{overflow:auto}.app{display:block;height:auto}header{position:sticky;top:0}.title{font-size:14px}.sub{max-width:300px}aside{height:auto;max-height:none;border-right:0}main{height:75vh;min-height:520px}}
   </style>
 </head>
@@ -38,8 +44,8 @@
   </header>
   <aside>
     <section class="section"><h2>Current summary</h2><div class="cards"><div class="card"><div class="num red" id="countIso">–</div><div class="cap">Isolated by full closures</div></div><div class="card"><div class="num amber" id="countQa">–</div><div class="cap">Graph / hub QA</div></div><div class="card"><div class="num green" id="countOk">–</div><div class="cap">Not isolated</div></div><div class="card"><div class="num" id="countClosures">–</div><div class="cap">Current closures loaded</div></div><div class="card full"><div class="cap">Last model run</div><div class="num" id="lastRun">–</div></div></div></section>
-    <section class="section"><h2>Filters</h2><div class="grid2"><div><label>Place status</label><select id="statusFilter"><option value="all">All places</option><option value="isolated">Isolated only</option><option value="qa">Graph / hub QA</option><option value="not_isolated">Not isolated</option></select></div><div><label>Closure type</label><select id="closureFilter"><option value="all">All closures</option><option value="impassable">Full closures only</option><option value="restricted">Conditional / restricted</option></select></div></div><div style="margin-top:9px"><label>Search place, road, locality, event id</label><input id="search" placeholder="Example: Thargomindah, Bulloo, 812363"></div><label class="check"><input type="checkbox" id="showPlaces" checked> Show assessed places</label><label class="check"><input type="checkbox" id="showClosures" checked> Show current closure geometries</label><label class="check"><input type="checkbox" id="showRoads" checked> Show Queensland main road network</label><label class="check"><input type="checkbox" id="clipQld" checked> Filter out non-Queensland closure geometries</label><label class="check"><input type="checkbox" id="hideNonBlocking"> Hide non-blocking closure geometries</label></section>
-    <section class="section"><h2>Legend</h2><div class="legend-row"><span class="dot" style="background:#b00020"></span> Isolated by full closures</div><div class="legend-row"><span class="dot" style="background:#6d28d9"></span> Graph / hub QA</div><div class="legend-row"><span class="dot" style="background:#008f83"></span> Not isolated</div><div class="legend-row"><span class="line" style="border-color:#d90429"></span> Full closure geometry</div><div class="legend-row"><span class="line" style="border-color:#ff9f1c;border-top-style:dashed"></span> Restricted/conditional geometry</div><div class="legend-row"><span class="line" style="border-color:#ffffff;background:#ffffff;box-shadow:inset 0 0 0 3px #64748b"></span> Other current event</div><div class="legend-row"><span class="line" style="border-color:#9b1c31;opacity:.45"></span> QLD road network context</div></section>
+    <section class="section"><h2>Filters</h2><div class="grid2"><div><label>Place status</label><select id="statusFilter"><option value="all">All places</option><option value="isolated">Isolated only</option><option value="qa">Graph / hub QA</option><option value="not_isolated">Not isolated</option></select></div><div><label>Closure type</label><select id="closureFilter"><option value="all">All closures</option><option value="impassable">Full closures only</option><option value="restricted">Conditional / restricted</option></select></div></div><div style="margin-top:9px"><label>Search place, road, locality, event id</label><input id="search" placeholder="Example: Thargomindah, Bulloo, 812363"></div><label class="check"><input type="checkbox" id="showPlaces" checked> Show assessed places</label><label class="check"><input type="checkbox" id="showClosures" checked> Show current closure geometries</label><label class="check"><input type="checkbox" id="showRoads" checked> Show Queensland road context</label><label class="check"><input type="checkbox" id="clipQld" checked> Filter out non-Queensland closure geometries</label><label class="check"><input type="checkbox" id="hideNonBlocking"> Hide non-blocking closure geometries</label></section>
+    <section class="section"><h2>Legend</h2><div class="legend-row"><span class="dot" style="background:#b00020"></span> Isolated by full closures</div><div class="legend-row"><span class="dot" style="background:#6d28d9"></span> Graph / hub QA</div><div class="legend-row"><span class="dot" style="background:#008f83"></span> Not isolated</div><div class="legend-row"><span class="line" style="border-color:#c1121f;opacity:.75"></span> Full closure geometry</div><div class="legend-row"><span class="line" style="border-color:#b7791f;border-top-style:dashed;opacity:.7"></span> Restricted/conditional geometry</div><div class="legend-row"><span class="line" style="border-color:#ffffff;background:#ffffff;box-shadow:inset 0 0 0 3px #64748b"></span> Other current event</div><div class="legend-row"><span class="line" style="border-color:#6b7280;opacity:.35"></span> QLD road network context</div></section>
     <section class="section"><div class="table-head"><h2 style="margin:0">Isolation table</h2><a class="csv" href="out_isolation_current/isolated_places_qld.csv">CSV</a></div><div class="table-wrap"><table><thead><tr><th>Place</th><th>Status</th><th>Snap</th></tr></thead><tbody id="tbody"><tr><td colspan="3">Loading…</td></tr></tbody></table></div></section>
   </aside>
   <main><div id="map"></div><div id="error" class="errorbox hidden"></div><div class="statusbar" id="status">Loading map…</div></main>
@@ -68,6 +74,7 @@
   map.createPane('roadOverlayPane');
   map.getPane('roadOverlayPane').style.zIndex=320;
   map.getPane('roadOverlayPane').style.pointerEvents='none';
+  map.getPane('roadOverlayPane').classList.add('road-context-pane');
   map.createPane('closureCasePane');
   map.getPane('closureCasePane').style.zIndex=450;
   map.createPane('closurePane');
@@ -99,18 +106,18 @@
   function eachCoord(geom,cb){if(!geom||!geom.coordinates)return; const walk=c=>{if(!Array.isArray(c))return; if(typeof c[0]==='number'&&typeof c[1]==='number'){cb(c[0],c[1]);}else c.forEach(walk);}; walk(geom.coordinates);}
   function featureTouchesQld(f){let hit=false; eachCoord(f.geometry,(lon,lat)=>{if(!hit && pointInPoly(lon,lat,QLD_FILTER_POLY)) hit=true;}); return hit;}
   function isQldClosureFeature(f){const p=f.properties||{}; const j=String(val(p,'jurisdiction','state')).toLowerCase(); if(j && j!=='qld' && j!=='queensland') return false; return featureTouchesQld(f);}
-  function closureWeightByClass(cls){return cls==='impassable'?3.4:cls==='restricted'?2.8:2.2;}
-  function closureColorByClass(cls){return cls==='impassable'?'#d90429':cls==='restricted'?'#ff9f1c':'#475569';}
+  function closureWeightByClass(cls){return cls==='impassable'?3.0:cls==='restricted'?2.4:1.8;}
+  function closureColorByClass(cls){return cls==='impassable'?'#c1121f':cls==='restricted'?'#b7791f':'#64748b';}
   function closureStyle(f){
     const cls=closureClass(f.properties||{}); const c=closureColorByClass(cls); const w=closureWeightByClass(cls);
     return {
       pane:'closurePane',
       color:c,
       weight:w,
-      opacity:cls==='other'?.55:.82,
+      opacity:cls==='impassable'?.68:cls==='restricted'?.56:.38,
       fillColor:c,
-      fillOpacity:.10,
-      dashArray:cls==='restricted'?'6 5':cls==='other'?'4 6':null,
+      fillOpacity:.06,
+      dashArray:cls==='restricted'?'8 6':cls==='other'?'4 7':null,
       lineCap:'round',
       lineJoin:'round'
     };
@@ -120,21 +127,21 @@
     return {
       pane:'closureCasePane',
       color:'#ffffff',
-      weight:w+2.2,
-      opacity:cls==='other'?.32:.55,
+      weight:w+2.0,
+      opacity:cls==='impassable'?.42:cls==='restricted'?.34:.22,
       fillOpacity:0,
-      dashArray:cls==='restricted'?'6 5':cls==='other'?'4 6':null,
+      dashArray:cls==='restricted'?'8 6':cls==='other'?'4 7':null,
       lineCap:'round',
       lineJoin:'round'
     };
   }
   function closureCasePoint(f,latlng){
-    const cls=closureClass(f.properties||{}); const r=cls==='impassable'?5:cls==='restricted'?4:3;
-    return L.circleMarker(latlng,{pane:'closureCasePane',renderer:canvas,radius:r+2,color:'#ffffff',weight:2,fillColor:'#ffffff',fillOpacity:.75});
+    const cls=closureClass(f.properties||{}); const r=cls==='impassable'?4.5:cls==='restricted'?3.8:3;
+    return L.circleMarker(latlng,{pane:'closureCasePane',renderer:canvas,radius:r+2,color:'#ffffff',weight:2,fillColor:'#ffffff',fillOpacity:.55});
   }
   function closurePoint(f,latlng){
-    const cls=closureClass(f.properties||{}); const c=closureColorByClass(cls); const r=cls==='impassable'?5:cls==='restricted'?4:3;
-    return L.circleMarker(latlng,{pane:'closurePane',renderer:canvas,radius:r,color:'#111827',weight:.7,fillColor:c,fillOpacity:.9});
+    const cls=closureClass(f.properties||{}); const c=closureColorByClass(cls); const r=cls==='impassable'?4.5:cls==='restricted'?3.8:3;
+    return L.circleMarker(latlng,{pane:'closurePane',renderer:canvas,radius:r,color:'#ffffff',weight:.8,fillColor:c,fillOpacity:.72});
   }
   function roadWhereByZoom(z){
     if(z <= 6) return "class IN ('Motorway','Highway')";
@@ -185,7 +192,7 @@
     if(!force && key===refs.lastRoadKey && roadOverlay) return;
     refs.lastRoadKey=key; refs.roadsLoading=true; refs.roadsError=''; refs.roadsLabel=roadLabelByZoom(map.getZoom()); updateStatus();
     try{
-      const overlay=L.imageOverlay(roadExportUrl(), map.getBounds(), {pane:'roadOverlayPane',opacity:0.28,interactive:false,crossOrigin:true});
+      const overlay=L.imageOverlay(roadExportUrl(), map.getBounds(), {pane:'roadOverlayPane',opacity:0.18,interactive:false,crossOrigin:true});
       overlay.once('load',()=>{
         if(roadOverlay && roadOverlay!==overlay){map.removeLayer(roadOverlay);}
         roadOverlay=overlay;
@@ -204,14 +211,22 @@
     if(isIso(cat)){
       return L.marker(latlng,{
         pane:'placePane',
-        icon:L.divIcon({className:'isolation-icon',html:'<span></span>',iconSize:[34,34],iconAnchor:[17,17]}),
-        zIndexOffset:2000
+        icon:L.divIcon({className:'isolation-icon',html:'<span></span>',iconSize:[38,38],iconAnchor:[19,19]}),
+        zIndexOffset:3000
       });
     }
     if(isQa(cat)){
-      return L.circleMarker(latlng,{pane:'placePane',renderer:canvas,radius:8,color:'#ffffff',weight:2.5,fillColor:'#7c3aed',fillOpacity:.96});
+      return L.circleMarker(latlng,{
+        pane:'placePane',renderer:canvas,radius:8.5,
+        color:'#ffffff',weight:3,
+        fillColor:'#7c3aed',fillOpacity:.95
+      });
     }
-    return L.circleMarker(latlng,{pane:'placePane',renderer:canvas,radius:6,color:'#ffffff',weight:2,fillColor:'#008f83',fillOpacity:.92});
+    return L.circleMarker(latlng,{
+      pane:'placePane',renderer:canvas,radius:5.5,
+      color:'#ffffff',weight:2.4,
+      fillColor:'#008f83',fillOpacity:.92
+    });
   }
   function onPlace(f,l){const p=f.properties||{}; refs.placeLayers.set(String(val(p,'place_id','name')),l); if(isIso(val(p,'isolation_category'))) isolatedGroup.addLayer(l); l.bindTooltip(esc(val(p,'name')), {className:'place-label',direction:'top',offset:[0,-8],opacity:.95}); l.bindPopup(placePopup(p));}
   function onClosure(f,l){const p=f.properties||{}; l.bindPopup(closurePopup(p));}
