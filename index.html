@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Queensland Road Isolation Dashboard</title>
+  <!-- Dashboard build v14: Web Mercator-aligned QLD RoadsAndTracks export overlay -->
   <meta name="description" content="Leaflet dashboard for Queensland road closure and place-isolation outputs." />
   <link crossorigin="" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet" />
   <script crossorigin="" src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -38,7 +39,7 @@
   <aside>
     <section class="section"><h2>Current summary</h2><div class="cards"><div class="card"><div class="num red" id="countIso">–</div><div class="cap">Isolated by full closures</div></div><div class="card"><div class="num amber" id="countQa">–</div><div class="cap">Graph / hub QA</div></div><div class="card"><div class="num green" id="countOk">–</div><div class="cap">Not isolated</div></div><div class="card"><div class="num" id="countClosures">–</div><div class="cap">Current closures loaded</div></div><div class="card full"><div class="cap">Last model run</div><div class="num" id="lastRun">–</div></div></div></section>
     <section class="section"><h2>Filters</h2><div class="grid2"><div><label>Place status</label><select id="statusFilter"><option value="all">All places</option><option value="isolated">Isolated only</option><option value="qa">Graph / hub QA</option><option value="not_isolated">Not isolated</option></select></div><div><label>Closure type</label><select id="closureFilter"><option value="all">All closures</option><option value="impassable">Full closures only</option><option value="restricted">Conditional / restricted</option></select></div></div><div style="margin-top:9px"><label>Search place, road, locality, event id</label><input id="search" placeholder="Example: Thargomindah, Bulloo, 812363"></div><label class="check"><input type="checkbox" id="showPlaces" checked> Show assessed places</label><label class="check"><input type="checkbox" id="showClosures" checked> Show current closure geometries</label><label class="check"><input type="checkbox" id="showRoads" checked> Show Queensland main road network</label><label class="check"><input type="checkbox" id="clipQld" checked> Filter out non-Queensland closure geometries</label><label class="check"><input type="checkbox" id="hideNonBlocking"> Hide non-blocking closure geometries</label></section>
-    <section class="section"><h2>Legend</h2><div class="legend-row"><span class="dot" style="background:#b00020"></span> Isolated by full closures</div><div class="legend-row"><span class="dot" style="background:#6d28d9"></span> Graph / hub QA</div><div class="legend-row"><span class="dot" style="background:#008f83"></span> Not isolated</div><div class="legend-row"><span class="line" style="border-color:#b00020"></span> Full road closure / impassable</div><div class="legend-row"><span class="line" style="border-color:#b36b00"></span> Conditional or restricted access</div><div class="legend-row"><span class="line" style="border-color:#334155"></span> Other current event</div><div class="legend-row"><span class="line" style="border-color:#9b1c31"></span> QLD motorway / highway</div><div class="legend-row"><span class="line" style="border-color:#e07000"></span> QLD secondary / connector roads</div></section>
+    <section class="section"><h2>Legend</h2><div class="legend-row"><span class="dot" style="background:#b00020"></span> Isolated by full closures</div><div class="legend-row"><span class="dot" style="background:#6d28d9"></span> Graph / hub QA</div><div class="legend-row"><span class="dot" style="background:#008f83"></span> Not isolated</div><div class="legend-row"><span class="line" style="border-color:#ffffff;background:#ffffff;box-shadow:inset 0 0 0 3px #ff2d6f"></span> Full road closure / impassable</div><div class="legend-row"><span class="line" style="border-color:#ffffff;background:#ffffff;box-shadow:inset 0 0 0 3px #06b6d4"></span> Conditional or restricted closure</div><div class="legend-row"><span class="line" style="border-color:#ffffff;background:#ffffff;box-shadow:inset 0 0 0 3px #64748b"></span> Other current event</div><div class="legend-row"><span class="line" style="border-color:#9b1c31"></span> QLD motorway / highway overlay</div><div class="legend-row"><span class="line" style="border-color:#e07000"></span> QLD secondary / connector overlay</div></section>
     <section class="section"><div class="table-head"><h2 style="margin:0">Isolation table</h2><a class="csv" href="out_isolation_current/isolated_places_qld.csv">CSV</a></div><div class="table-wrap"><table><thead><tr><th>Place</th><th>Status</th><th>Snap</th></tr></thead><tbody id="tbody"><tr><td colspan="3">Loading…</td></tr></tbody></table></div></section>
   </aside>
   <main><div id="map"></div><div id="error" class="errorbox hidden"></div><div class="statusbar" id="status">Loading map…</div></main>
@@ -46,6 +47,7 @@
 <script>
 (function(){
   const DATA_DIR='out_isolation_current/';
+  const QLD_ROADS_EXPORT='https://spatial-gis.information.qld.gov.au/arcgis/rest/services/Transportation/RoadsAndTracks/MapServer/export';
   const QLD_BOUNDS=L.latLngBounds([[-29.6,137.4],[-9.0,154.1]]);
   const canvas=L.canvas({padding:0.5});
   const map=L.map('map',{center:[-22.5,145.5],zoom:5,doubleClickZoom:true,preferCanvas:true,renderer:canvas,zoomControl:true});
@@ -56,18 +58,29 @@
     'Esri imagery':L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',{attribution:'Tiles &copy; Esri',maxZoom:19,keepBuffer:4})
   };
   basemaps['OpenStreetMap'].addTo(map);
-  // Basemap selector only. Roads are queried as solid vector lines; no tile/dynamic road overlay is used, so the basemap cannot be broken by the road overlay.
+  // Basemap selector only. Queensland roads are drawn as a rendered MapServer export image overlay, while closures and places remain interactive Leaflet vectors above it.
   L.control.layers(basemaps,null,{collapsed:true,position:'topright'}).addTo(map);
   map.fitBounds(QLD_BOUNDS,{padding:[20,20]});
   setTimeout(()=>map.invalidateSize(true),150);
   setTimeout(()=>map.invalidateSize(true),700);
   window.addEventListener('resize',()=>setTimeout(()=>map.invalidateSize(true),80));
 
-  const roadNetworkGroup=L.geoJSON(null,{renderer:canvas,style:roadStyle,onEachFeature:onRoad}).addTo(map);
-  const closureGroup=L.geoJSON(null,{renderer:canvas,style:closureStyle,onEachFeature:onClosure}).addTo(map);
-  const placeGroup=L.geoJSON(null,{pointToLayer:placePoint,onEachFeature:onPlace}).addTo(map);
+  map.createPane('roadOverlayPane');
+  map.getPane('roadOverlayPane').style.zIndex=320;
+  map.getPane('roadOverlayPane').style.pointerEvents='none';
+  map.createPane('closureCasePane');
+  map.getPane('closureCasePane').style.zIndex=410;
+  map.createPane('closurePane');
+  map.getPane('closurePane').style.zIndex=420;
+  map.createPane('placePane');
+  map.getPane('placePane').style.zIndex=430;
+
+  let roadOverlay=null;
+  const closureCaseGroup=L.geoJSON(null,{pane:'closureCasePane',renderer:canvas,style:closureCaseStyle,pointToLayer:closureCasePoint}).addTo(map);
+  const closureGroup=L.geoJSON(null,{pane:'closurePane',renderer:canvas,style:closureStyle,pointToLayer:closurePoint,onEachFeature:onClosure}).addTo(map);
+  const placeGroup=L.geoJSON(null,{pane:'placePane',pointToLayer:placePoint,onEachFeature:onPlace}).addTo(map);
   const isolatedGroup=L.featureGroup().addTo(map);
-  const refs={placeLayers:new Map(),allPlaces:[],allClosures:[],summary:null,roadsShown:0,roadsLoading:false,roadsError:'',lastRoadKey:''};
+  const refs={placeLayers:new Map(),allPlaces:[],allClosures:[],summary:null,roadsShown:0,roadsLoading:false,roadsError:'',roadsLabel:'',lastRoadKey:''};
   // Rough Queensland land/state envelope used only to suppress non-QLD closure/event geometries from mixed or border feeds.
   // It is intentionally permissive around the border so genuine QLD border-road events still show.
   const QLD_FILTER_POLY=[
@@ -86,66 +99,88 @@
   function eachCoord(geom,cb){if(!geom||!geom.coordinates)return; const walk=c=>{if(!Array.isArray(c))return; if(typeof c[0]==='number'&&typeof c[1]==='number'){cb(c[0],c[1]);}else c.forEach(walk);}; walk(geom.coordinates);}
   function featureTouchesQld(f){let hit=false; eachCoord(f.geometry,(lon,lat)=>{if(!hit && pointInPoly(lon,lat,QLD_FILTER_POLY)) hit=true;}); return hit;}
   function isQldClosureFeature(f){const p=f.properties||{}; const j=String(val(p,'jurisdiction','state')).toLowerCase(); if(j && j!=='qld' && j!=='queensland') return false; return featureTouchesQld(f);}
-  function closureStyle(f){const cls=closureClass(f.properties||{}); const c=cls==='impassable'?'#b00020':cls==='restricted'?'#b36b00':'#334155'; return {color:c,weight:cls==='impassable'?4:3,opacity:.88,fillColor:c,fillOpacity:.15};}
-  function roadClass(p){return val(p,'symbol_class','SYMBOL_CLASS','road_class','class','TYPE','type') || '';}
-  function roadStyle(f){
-    const p=f.properties||{}; const cls=String(roadClass(p)).toLowerCase();
-    if(cls.includes('motorway')) return {color:'#b00020',weight:4.4,opacity:.9,lineCap:'round',lineJoin:'round'};
-    if(cls.includes('highway')) return {color:'#9b1c31',weight:3.8,opacity:.88,lineCap:'round',lineJoin:'round'};
-    if(cls.includes('secondary')) return {color:'#d97706',weight:2.8,opacity:.82,lineCap:'round',lineJoin:'round'};
-    if(cls.includes('connector')) return {color:'#f59e0b',weight:2.2,opacity:.78,lineCap:'round',lineJoin:'round'};
-    return {color:'#475569',weight:1.6,opacity:.65,lineCap:'round',lineJoin:'round'};
+  function closureWeightByClass(cls){return cls==='impassable'?5:cls==='restricted'?4:3;}
+  function closureColorByClass(cls){return cls==='impassable'?'#ff2d6f':cls==='restricted'?'#06b6d4':'#64748b';}
+  function closureStyle(f){
+    const cls=closureClass(f.properties||{}); const c=closureColorByClass(cls); const w=closureWeightByClass(cls);
+    return {pane:'closurePane',color:c,weight:w,opacity:.98,fillColor:c,fillOpacity:.18,lineCap:'round',lineJoin:'round'};
   }
-  function onRoad(f,l){const p=f.properties||{}; const name=val(p,'road_name','name','ROAD_NAME','Name','rtn','road_id')||'Queensland road'; const cls=roadClass(p)||'main road'; l.bindPopup(`<div class="popup-title">${esc(name)}</div><div class="popup-meta"><b>Class:</b> ${esc(cls)}<br><b>Layer:</b> Queensland Roads and Tracks</div>`);}
-  function roadExtentKey(){const b=map.getBounds(); const z=map.getZoom(); return [z, b.getWest().toFixed(2), b.getSouth().toFixed(2), b.getEast().toFixed(2), b.getNorth().toFixed(2)].join('|');}
-  function splitBounds(b, nx, ny){
-    const out=[]; const w=b.getWest(), e=b.getEast(), s=b.getSouth(), n=b.getNorth();
-    for(let ix=0; ix<nx; ix++) for(let iy=0; iy<ny; iy++){
-      out.push({west:w+(e-w)*ix/nx, east:w+(e-w)*(ix+1)/nx, south:s+(n-s)*iy/ny, north:s+(n-s)*(iy+1)/ny});
-    }
-    return out;
+  function closureCaseStyle(f){
+    const cls=closureClass(f.properties||{}); const w=closureWeightByClass(cls);
+    return {pane:'closureCasePane',color:'#ffffff',weight:w+4,opacity:.96,fillOpacity:0,lineCap:'round',lineJoin:'round'};
   }
-  async function queryRoadEnvelope(ext){
-    const geom={xmin:ext.west,ymin:ext.south,xmax:ext.east,ymax:ext.north,spatialReference:{wkid:4326}};
+  function closureCasePoint(f,latlng){
+    const cls=closureClass(f.properties||{}); const w=closureWeightByClass(cls);
+    return L.circleMarker(latlng,{pane:'closureCasePane',renderer:canvas,radius:w+4,color:'#ffffff',weight:2,fillColor:'#ffffff',fillOpacity:.95});
+  }
+  function closurePoint(f,latlng){
+    const cls=closureClass(f.properties||{}); const c=closureColorByClass(cls); const w=closureWeightByClass(cls);
+    return L.circleMarker(latlng,{pane:'closurePane',renderer:canvas,radius:w+1,color:'#111827',weight:1,fillColor:c,fillOpacity:.96});
+  }
+  function roadWhereByZoom(z){
+    if(z <= 6) return "class IN ('Motorway','Highway')";
+    if(z <= 8) return "class IN ('Motorway','Highway','Secondary')";
+    return "class IN ('Motorway','Highway','Secondary','Connector')";
+  }
+  function roadLabelByZoom(z){
+    if(z <= 6) return 'motorway + highway';
+    if(z <= 8) return 'motorway + highway + secondary';
+    return 'motorway + highway + secondary + connector';
+  }
+  function roadExtentKey(){
+    const b=map.getBounds(); const z=map.getZoom(); const s=map.getSize();
+    return [z,Math.round(s.x/100),Math.round(s.y/100),b.getWest().toFixed(2), b.getSouth().toFixed(2), b.getEast().toFixed(2), b.getNorth().toFixed(2)].join('|');
+  }
+  function roadExportUrl(){
+    const b=map.getBounds();
+    const s=map.getSize();
+    const z=map.getZoom();
+
+    // IMPORTANT:
+    // Leaflet/OpenStreetMap is Web Mercator. The RoadsAndTracks export image must be
+    // requested in the same projection, otherwise the rendered road image is stretched
+    // from geographic coordinates and appears slightly offset from the basemap.
+    const sw = L.CRS.EPSG3857.project(b.getSouthWest());
+    const ne = L.CRS.EPSG3857.project(b.getNorthEast());
+
     const params=new URLSearchParams({
-      f:'geojson',
-      where:"symbol_class IN ('Motorway','Highway','Secondary','Connector')",
-      outFields:'objectid,road_name,name,ROAD_NAME,Name,symbol_class',
-      returnGeometry:'true',outSR:'4326',inSR:'4326',geometryType:'esriGeometryEnvelope',spatialRel:'esriSpatialRelIntersects',resultRecordCount:'2000',geometry:JSON.stringify(geom)
+      f:'image',
+      bbox:[sw.x, sw.y, ne.x, ne.y].join(','),
+      bboxSR:'102100',
+      imageSR:'102100',
+      size:[Math.max(256,Math.round(s.x)),Math.max(256,Math.round(s.y))].join(','),
+      dpi:'96',
+      format:'png32',
+      transparent:'true',
+      layers:'show:10',
+      layerDefs:`10:${roadWhereByZoom(z)}`
     });
-    const url='https://spatial-gis.information.qld.gov.au/arcgis/rest/services/Transportation/RoadsAndTracks/MapServer/10/query?'+params.toString();
-    const res=await fetch(url,{cache:'force-cache'});
-    if(!res.ok) throw new Error('Road network service returned '+res.status);
-    return await res.json();
+    return `${QLD_ROADS_EXPORT}?${params.toString()}`;
   }
   async function loadRoadNetwork(force=false){
-    if(!$('showRoads').checked){roadNetworkGroup.clearLayers(); refs.roadsShown=0; refs.roadsError=''; updateStatus(); return;}
+    if(!$('showRoads').checked){
+      if(roadOverlay){map.removeLayer(roadOverlay); roadOverlay=null;}
+      refs.roadsShown=0; refs.roadsError=''; refs.roadsLabel=''; updateStatus(); return;
+    }
     const key=roadExtentKey();
-    if(!force && key===refs.lastRoadKey && roadNetworkGroup.getLayers().length) return;
-    refs.lastRoadKey=key; refs.roadsLoading=true; refs.roadsError=''; updateStatus();
-    const b=map.getBounds(); const z=map.getZoom();
-    const parts = z <= 6 ? splitBounds(b,4,4) : z <= 8 ? splitBounds(b,3,3) : [ {west:b.getWest(),south:b.getSouth(),east:b.getEast(),north:b.getNorth()} ];
+    if(!force && key===refs.lastRoadKey && roadOverlay) return;
+    refs.lastRoadKey=key; refs.roadsLoading=true; refs.roadsError=''; refs.roadsLabel=roadLabelByZoom(map.getZoom()); updateStatus();
     try{
-      const results=await Promise.all(parts.map(queryRoadEnvelope));
-      const seen=new Set(); const features=[]; let limited=false;
-      for(const data of results){
-        if(data.exceededTransferLimit) limited=true;
-        for(const f of (data.features||[])){
-          const p=f.properties||{}; const id=val(p,'objectid','OBJECTID','fid','FID') || JSON.stringify(f.geometry).slice(0,80);
-          if(seen.has(id)) continue; seen.add(id); features.push(f);
-        }
-      }
-      roadNetworkGroup.clearLayers();
-      roadNetworkGroup.addData({type:'FeatureCollection',features});
-      refs.roadsShown=features.length;
-      refs.roadsError=limited?'Road network service cap reached in part of the view; zoom in for full detail.':'';
+      const overlay=L.imageOverlay(roadExportUrl(), map.getBounds(), {pane:'roadOverlayPane',opacity:0.86,interactive:false,crossOrigin:true});
+      overlay.once('load',()=>{
+        if(roadOverlay && roadOverlay!==overlay){map.removeLayer(roadOverlay);}
+        roadOverlay=overlay;
+        refs.roadsShown=1; refs.roadsLoading=false; refs.roadsError=''; updateStatus();
+      });
+      overlay.once('error',()=>{if(map.hasLayer(overlay)) map.removeLayer(overlay); refs.roadsLoading=false; refs.roadsError='QLD RoadsAndTracks map overlay failed.'; updateStatus();});
+      overlay.addTo(map);
     }catch(err){
-      console.warn('Road network load failed',err);
-      refs.roadsError='Road network service failed to load.';
-    }finally{refs.roadsLoading=false; updateStatus();}
+      console.warn('Road overlay load failed',err);
+      refs.roadsLoading=false; refs.roadsError='QLD RoadsAndTracks map overlay failed.'; updateStatus();
+    }
   }
   function pointColor(cat){if(isIso(cat))return '#b00020'; if(isQa(cat))return '#6d28d9'; return '#008f83'}
-  function placePoint(f,latlng){const p=f.properties||{},cat=val(p,'isolation_category'); if(isIso(cat)){return L.marker(latlng,{icon:L.divIcon({className:'pulse-icon',html:'',iconSize:[24,24],iconAnchor:[12,12]}),zIndexOffset:1000});} return L.circleMarker(latlng,{renderer:canvas,radius:isQa(cat)?7:4,color:'#fff',weight:1,fillColor:pointColor(cat),fillOpacity:.9});}
+  function placePoint(f,latlng){const p=f.properties||{},cat=val(p,'isolation_category'); if(isIso(cat)){return L.marker(latlng,{pane:'placePane',icon:L.divIcon({className:'pulse-icon',html:'',iconSize:[24,24],iconAnchor:[12,12]}),zIndexOffset:1000});} return L.circleMarker(latlng,{pane:'placePane',renderer:canvas,radius:isQa(cat)?7:4,color:'#fff',weight:1,fillColor:pointColor(cat),fillOpacity:.9});}
   function onPlace(f,l){const p=f.properties||{}; refs.placeLayers.set(String(val(p,'place_id','name')),l); if(isIso(val(p,'isolation_category'))) isolatedGroup.addLayer(l); l.bindTooltip(esc(val(p,'name')), {className:'place-label',direction:'top',offset:[0,-8],opacity:.95}); l.bindPopup(placePopup(p));}
   function onClosure(f,l){const p=f.properties||{}; l.bindPopup(closurePopup(p));}
   function placePopup(p){let nearby=[];try{nearby=JSON.parse(val(p,'nearby_blocking_closures_json')||'[]')}catch{}; return `<div class="popup-title">${esc(val(p,'name'))}</div><div class="popup-meta"><b>Status:</b> ${esc(val(p,'isolation_category'))}<br><b>Confidence:</b> ${esc(val(p,'isolation_confidence'))}<br><b>Snap:</b> ${esc(val(p,'snap_distance_m'))} m<br><b>Reason:</b> ${esc(val(p,'isolation_reason'))}${nearby.length?'<hr><b>Nearby blocking closures</b><br>'+nearby.slice(0,5).map(c=>`${esc(c.source_event_id||'')} — ${esc(c.road_name||c.description||'closure')}`).join('<br>'):''}</div>`;}
@@ -155,8 +190,8 @@
   function updateSummary(){const s=refs.summary||{}, counts=s.counts||{}; const cats=counts.place_categories||{}; $('countIso').textContent=cats.isolated_full_closures||0; $('countQa').textContent=cats.unknown_preexisting_disconnected||cats.unknown_place_not_snapped||0; $('countOk').textContent=cats.not_isolated||0; $('countClosures').textContent=counts.closures_normalised??refs.allClosures.length; $('lastRun').textContent=niceDate(s.created_at||s.closure_source?.fetched_at); $('subtitle').textContent='Outputs loaded from /out_isolation_current/ · '+niceDate(s.created_at||s.closure_source?.fetched_at);}
   function placeMatches(p){const cat=val(p,'isolation_category'); const sf=$('statusFilter').value; if(sf==='isolated'&&!isIso(cat))return false; if(sf==='qa'&&!isQa(cat))return false; if(sf==='not_isolated'&&cat!=='not_isolated')return false; const q=$('search').value.trim().toLowerCase(); if(q){const hay=[val(p,'name'),val(p,'lga'),val(p,'state'),val(p,'place_id'),val(p,'isolation_reason'),val(p,'nearby_blocking_closures_json')].join(' ').toLowerCase(); if(!hay.includes(q))return false;} return true;}
   function closureMatches(f){const p=f.properties||{}; if($('clipQld').checked && !isQldClosureFeature(f)) return false; const cf=$('closureFilter').value, cls=closureClass(p); if(cf==='impassable'&&cls!=='impassable')return false; if(cf==='restricted'&&cls!=='restricted')return false; if($('hideNonBlocking').checked && cls==='other')return false; const q=$('search').value.trim().toLowerCase(); if(q){const hay=[val(p,'source_event_id','event_id'),val(p,'description','title'),val(p,'road_name'),val(p,'locality'),val(p,'raw_advice','restrictions_text')].join(' ').toLowerCase(); if(!hay.includes(q))return false;} return true;}
-  function updateStatus(){const closureShown=refs.allClosures.filter(closureMatches); const excluded=$('clipQld').checked?refs.allClosures.length-refs.allClosures.filter(isQldClosureFeature).length:0; const roads=$('showRoads').checked?(refs.roadsLoading?' · loading main road network':` · ${refs.roadsShown} main road segments shown`):''; const err=refs.roadsError?` · ${esc(refs.roadsError)}`:''; $('status').innerHTML=`<b>${refs.allPlaces.filter(f=>isIso(val(f.properties,'isolation_category'))).length}</b> isolated place · ${refs.allPlaces.filter(f=>placeMatches(f.properties||{})).length} places shown · ${closureShown.length} closure geometries shown${roads}${excluded?` · ${excluded} non-QLD geometries filtered`:''}${err}`;}
-  function render(){placeGroup.clearLayers(); closureGroup.clearLayers(); isolatedGroup.clearLayers(); refs.placeLayers.clear(); const closureShown=refs.allClosures.filter(closureMatches); if($('showClosures').checked) closureGroup.addData({type:'FeatureCollection',features:closureShown}); if($('showPlaces').checked) placeGroup.addData({type:'FeatureCollection',features:refs.allPlaces.filter(f=>placeMatches(f.properties||{}))}); if(!$('showRoads').checked) roadNetworkGroup.clearLayers(); else loadRoadNetwork(); renderTable(); updateStatus();}
+  function updateStatus(){const closureShown=refs.allClosures.filter(closureMatches); const excluded=$('clipQld').checked?refs.allClosures.length-refs.allClosures.filter(isQldClosureFeature).length:0; const roads=$('showRoads').checked?(refs.roadsLoading?' · loading QLD road overlay':(refs.roadsLabel?` · road overlay: ${refs.roadsLabel}`:' · road overlay on')):''; const err=refs.roadsError?` · ${esc(refs.roadsError)}`:''; $('status').innerHTML=`<b>${refs.allPlaces.filter(f=>isIso(val(f.properties,'isolation_category'))).length}</b> isolated place · ${refs.allPlaces.filter(f=>placeMatches(f.properties||{})).length} places shown · ${closureShown.length} closure geometries shown${roads}${excluded?` · ${excluded} non-QLD geometries filtered`:''}${err}`;}
+  function render(){placeGroup.clearLayers(); closureCaseGroup.clearLayers(); closureGroup.clearLayers(); isolatedGroup.clearLayers(); refs.placeLayers.clear(); const closureShown=refs.allClosures.filter(closureMatches); if($('showClosures').checked){ const fc={type:'FeatureCollection',features:closureShown}; closureCaseGroup.addData(fc); closureGroup.addData(fc);} if($('showPlaces').checked) placeGroup.addData({type:'FeatureCollection',features:refs.allPlaces.filter(f=>placeMatches(f.properties||{}))}); if(!$('showRoads').checked){ if(roadOverlay){map.removeLayer(roadOverlay); roadOverlay=null;} } else loadRoadNetwork(); if(closureCaseGroup.bringToFront) closureCaseGroup.bringToFront(); if(closureGroup.bringToFront) closureGroup.bringToFront(); if(placeGroup.bringToFront) placeGroup.bringToFront(); renderTable(); updateStatus();}
   function badge(cat){if(isIso(cat))return '<span class="badge iso">ISOLATED</span>'; if(isQa(cat))return '<span class="badge qa">QA</span>'; return '<span class="badge ok">OK</span>';}
   function renderTable(){const rows=refs.allPlaces.map(f=>f.properties||{}).filter(placeMatches).sort((a,b)=>{const ra=isIso(val(a,'isolation_category'))?0:isQa(val(a,'isolation_category'))?1:2; const rb=isIso(val(b,'isolation_category'))?0:isQa(val(b,'isolation_category'))?1:2; return ra-rb||String(val(a,'name')).localeCompare(String(val(b,'name')));}); $('tbody').innerHTML=rows.map(p=>`<tr data-key="${esc(String(val(p,'place_id','name')))}"><td><div class="place">${esc(val(p,'name'))}</div><div class="small">${esc(val(p,'state','lga'))}</div></td><td>${badge(val(p,'isolation_category'))}<div class="small">${esc(val(p,'isolation_confidence'))}</div></td><td>${esc(val(p,'snap_distance_m'))} m</td></tr>`).join('')||'<tr><td colspan="3">No matching places.</td></tr>'; document.querySelectorAll('#tbody tr[data-key]').forEach(tr=>tr.onclick=()=>{const l=refs.placeLayers.get(tr.dataset.key); if(l){map.setView(l.getLatLng?l.getLatLng():l.getBounds().getCenter(),12); l.openPopup();}});}
   async function load(){try{$('error').classList.add('hidden'); $('status').textContent='Loading data…'; const [summary,closures,places]=await Promise.all([fetchJson(DATA_DIR+'qld_isolation_summary.json'),fetchJson(DATA_DIR+'closures_qld_current.geojson'),fetchJson(DATA_DIR+'qld_place_isolation_current.geojson')]); refs.summary=summary; refs.allClosures=closures.features||[]; refs.allPlaces=places.features||[]; updateSummary(); render(); setTimeout(()=>map.invalidateSize(true),50); fitIsolatedOrQld();}catch(err){console.error(err); const msg=location.protocol==='file:'?'Data load failed because this page is open as file://. Use GitHub Pages or run `py -m http.server 8000` from the repo folder.':'Data load failed: '+err.message; $('error').textContent=msg; $('error').classList.remove('hidden'); $('status').textContent='Data load failed'; }}
