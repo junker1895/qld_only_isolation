@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Queensland road-closure isolation analyser (v6 flood-advice classifier hardening).
+"""Queensland road-closure isolation analyser (v7 manual graph connectors).
 
 Purpose
 -------
@@ -39,13 +39,13 @@ Expected inputs
 
 Typical run
 -----------
-    python qld_isolation_proper_v6.py \
+    python qld_isolation_proper_v7.py \
       --graph network_cache/qld_drive.graphml \
       --places places.csv \
       --out-dir out_isolation
 
 Use existing closure file instead of fetching live:
-    python qld_isolation_proper_v6.py \
+    python qld_isolation_proper_v7.py \
       --graph network_cache/qld_drive.graphml \
       --places places.csv \
       --closures-geojson out/closures_qld_current.geojson \
@@ -1084,6 +1084,86 @@ def load_graph(path: Path) -> nx.Graph:
     return G
 
 
+
+def apply_manual_connectors(G: nx.Graph, path: Path) -> int:
+    """Add small audited connector edges for known graph topology defects.
+
+    This is intended for short, explicit graph repairs such as a snapped road
+    component being separated from the main component by a tiny topology gap.
+    It does not change closure classification; it only repairs base graph
+    connectivity before reachability is calculated.
+    """
+    if not path or str(path).strip() == "":
+        return 0
+    if not path.exists():
+        print(f"[MANUAL] connector file not found, skipping: {path}")
+        return 0
+
+    added = 0
+    with path.open(encoding="utf-8-sig", newline="") as handle:
+        reader = csv.DictReader(handle)
+        for idx, row in enumerate(reader, start=1):
+            u = clean_str(row.get("from_node") or row.get("u"))
+            v = clean_str(row.get("to_node") or row.get("v"))
+            if not u or not v:
+                print(f"[MANUAL] row {idx}: missing from_node/to_node, skipped")
+                continue
+            if u not in G:
+                print(f"[MANUAL] row {idx}: from_node not in graph: {u}")
+                continue
+            if v not in G:
+                print(f"[MANUAL] row {idx}: to_node not in graph: {v}")
+                continue
+
+            try:
+                from_lon = float(row.get("from_lon") or G.nodes[u].get("x"))
+                from_lat = float(row.get("from_lat") or G.nodes[u].get("y"))
+                to_lon = float(row.get("to_lon") or G.nodes[v].get("x"))
+                to_lat = float(row.get("to_lat") or G.nodes[v].get("y"))
+            except Exception:
+                print(f"[MANUAL] row {idx}: could not determine connector coordinates, skipped")
+                continue
+
+            try:
+                length_m = float(row.get("length_m") or haversine_m(from_lat, from_lon, to_lat, to_lon))
+            except Exception:
+                length_m = haversine_m(from_lat, from_lon, to_lat, to_lon)
+
+            reason = clean_str(row.get("reason")) or "manual graph topology repair"
+            name = clean_str(row.get("name")) or "manual_graph_connector"
+            geometry_wkt = LineString([(from_lon, from_lat), (to_lon, to_lat)]).wkt
+
+            attrs = {
+                "geometry": geometry_wkt,
+                "length": float(length_m),
+                "name": name,
+                "highway": "manual_connector",
+                "manual_connector": "true",
+                "manual_reason": reason,
+                "manual_source": clean_str(row.get("source")) or "manual_graph_connectors.csv",
+            }
+
+            if G.is_multigraph():
+                key_fwd = clean_str(row.get("key_fwd")) or f"manual_connector_{idx}_fwd"
+                G.add_edge(u, v, key=key_fwd, **attrs)
+                added += 1
+                if G.is_directed():
+                    key_rev = clean_str(row.get("key_rev")) or f"manual_connector_{idx}_rev"
+                    G.add_edge(v, u, key=key_rev, **attrs)
+                    added += 1
+            else:
+                G.add_edge(u, v, **attrs)
+                added += 1
+                if G.is_directed():
+                    G.add_edge(v, u, **attrs)
+                    added += 1
+
+            print(f"[MANUAL] added connector {u} <-> {v} length={length_m:.1f}m reason={reason}")
+
+    print(f"[MANUAL] connectors added as graph edges: {added}")
+    return added
+
+
 def node_lonlat(G: nx.Graph, node: Any) -> Optional[Tuple[float, float]]:
     data = G.nodes[node]
     try:
@@ -1776,6 +1856,8 @@ def run_analysis(args: argparse.Namespace) -> Dict[str, Any]:
 
     # Load graph and indexes.
     G = load_graph(Path(args.graph))
+    if getattr(args, "manual_connectors", ""):
+        apply_manual_connectors(G, Path(args.manual_connectors))
     node_index = build_node_index(G)
     edge_index = build_edge_index(G)
 
@@ -1927,6 +2009,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--polygon-buffer-m", type=float, default=25.0, help="Additional buffer around polygon closures/impact areas.")
     parser.add_argument("--max-closure-snap-m", type=float, default=300.0, help="Maximum distance allowed when snapping a closure to the road graph.")
     parser.add_argument("--max-place-snap-m", type=float, default=5000.0, help="Maximum distance allowed when snapping places/hubs to the road graph.")
+    parser.add_argument("--manual-connectors", default="", help="Optional CSV of audited manual graph connector edges to apply before analysis.")
     return parser
 
 

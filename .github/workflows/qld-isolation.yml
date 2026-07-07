@@ -53,6 +53,7 @@ jobs:
           python qld_isolation_proper_v6.py \
             --graph graph/qld_drive.graphml \
             --places places.csv \
+            --manual-connectors manual_graph_connectors.csv \
             --out-dir out_isolation_current
 
       - name: Show isolation summary

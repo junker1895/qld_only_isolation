@@ -1,0 +1,2 @@
+from_node,to_node,from_lat,from_lon,to_lat,to_lon,length_m,name,reason,source
+320459,320441,-11.1037405,142.2845412,-11.1036904,142.2840715,52.6,Jardine River Ferry graph connector,Connects north and south road components at the Jardine River Ferry crossing; graph omitted ferry/crossing edge,manual QA from diagnose_bamaga_gap.py
