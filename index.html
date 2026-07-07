@@ -4,1074 +4,398 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Queensland Road Isolation Dashboard</title>
-  <meta name="description" content="Visual dashboard for Queensland road closures and place isolation outputs." />
-  <link rel="preconnect" href="https://unpkg.com" />
-  <link rel="preconnect" href="https://tile.openstreetmap.org" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIINfQqO/Q7EJLAUrbwSQlZ6bnY/Jw2bHRs=" crossorigin="" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" />
   <style>
+    /* Critical Leaflet positioning rules are repeated here so the map still lays out correctly if the CDN CSS is slow/blocked. */
+    .leaflet-container { overflow: hidden; position: relative; outline: 0; font-family: inherit; background: #dbe5ee; }
+    .leaflet-pane, .leaflet-tile, .leaflet-marker-icon, .leaflet-marker-shadow, .leaflet-tile-container, .leaflet-pane > svg, .leaflet-pane > canvas, .leaflet-zoom-box, .leaflet-image-layer, .leaflet-layer { position: absolute; left: 0; top: 0; }
+    .leaflet-map-pane, .leaflet-tile-pane, .leaflet-overlay-pane, .leaflet-shadow-pane, .leaflet-marker-pane, .leaflet-tooltip-pane, .leaflet-popup-pane { position: absolute; left: 0; top: 0; }
+    .leaflet-tile { width: 256px; height: 256px; user-select: none; -webkit-user-drag: none; border: 0; }
+    .leaflet-control { position: relative; z-index: 800; pointer-events: auto; }
+    .leaflet-top, .leaflet-bottom { position: absolute; z-index: 1000; pointer-events: none; }
+    .leaflet-top { top: 0; } .leaflet-right { right: 0; } .leaflet-bottom { bottom: 0; } .leaflet-left { left: 0; }
+
     :root {
-      --bg: #f6f7f9;
-      --panel: #ffffff;
-      --panel-2: #f8f9fb;
-      --text: #15171a;
-      --muted: #68707d;
-      --line: #d9dde5;
-      --line-strong: #b9c0cb;
-      --red: #b00020;
-      --red-2: #e21d38;
-      --amber: #b7791f;
-      --green: #0f766e;
-      --blue: #2563eb;
+      --qld-red: #b00020;
+      --qld-red-2: #d3122f;
+      --amber: #b06b00;
       --purple: #6d28d9;
-      --shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
-      --radius: 0px;
-      --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
-      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --teal: #008c8c;
+      --green: #0f766e;
+      --ink: #1f2937;
+      --muted: #6b7280;
+      --border: #d8dee8;
+      --panel: #ffffff;
+      --panel-2: #f8fafc;
+      --map-bg: #e8eef5;
+      --ocean: #d7e7f0;
+      --land: #f7f5ed;
+      --shadow: 0 2px 12px rgba(15, 23, 42, .10);
+      --side-w: 360px;
     }
-
-    [data-theme="dark"] {
-      --bg: #0f1115;
-      --panel: #171a20;
-      --panel-2: #12151b;
-      --text: #eef1f5;
-      --muted: #a2a9b5;
-      --line: #2b3039;
-      --line-strong: #3c4350;
-      --red: #ff4d5d;
-      --red-2: #ff6573;
-      --amber: #f2b84b;
-      --green: #3dd1bf;
-      --blue: #7aa7ff;
-      --purple: #b08cff;
-      --shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+    body.dark {
+      --ink: #e5e7eb;
+      --muted: #9ca3af;
+      --border: #374151;
+      --panel: #111827;
+      --panel-2: #0b1220;
+      --map-bg: #111827;
+      --ocean: #0c1f2e;
+      --land: #1f2937;
+      --shadow: 0 2px 16px rgba(0,0,0,.35);
     }
-
-    * { box-sizing: border-box; }
-    html, body { height: 100%; margin: 0; }
-    body {
-      font-family: var(--sans);
-      color: var(--text);
-      background: var(--bg);
-      overflow: hidden;
-    }
-
-    .app {
-      display: grid;
-      grid-template-columns: 430px minmax(0, 1fr);
-      grid-template-rows: 76px minmax(0, 1fr);
-      height: 100vh;
-      min-height: 640px;
-    }
-
-    header {
-      grid-column: 1 / -1;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      padding: 14px 18px;
-      background: var(--panel);
-      border-bottom: 1px solid var(--line);
-      box-shadow: var(--shadow);
-      z-index: 50;
-    }
-
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      min-width: 0;
-    }
-
-    .brand-mark {
-      width: 40px;
-      height: 40px;
-      display: grid;
-      place-items: center;
-      background: var(--red);
-      color: white;
-      font-weight: 900;
-      font-size: 20px;
-      letter-spacing: -0.05em;
-      border: 1px solid var(--red);
-    }
-
-    h1 {
-      margin: 0;
-      font-size: 18px;
-      line-height: 1.15;
-      letter-spacing: -0.02em;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .subtitle {
-      color: var(--muted);
-      font-size: 12px;
-      margin-top: 3px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .header-actions {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-    }
-
-    button, .select, input[type="search"] {
-      font: inherit;
-      color: var(--text);
-      background: var(--panel);
-      border: 1px solid var(--line-strong);
-      border-radius: var(--radius);
-      min-height: 36px;
-    }
-
-    button {
-      cursor: pointer;
-      padding: 0 12px;
-      font-weight: 700;
-    }
-
-    button:hover { border-color: var(--red); }
-    button.primary { background: var(--red); color: white; border-color: var(--red); }
-    button.primary:hover { background: var(--red-2); }
-    button:disabled { cursor: not-allowed; opacity: 0.55; }
-
-    .sidebar {
-      grid-row: 2;
-      background: var(--panel);
-      border-right: 1px solid var(--line);
-      overflow: auto;
-      z-index: 20;
-    }
-
-    .map-wrap {
-      grid-row: 2;
-      min-width: 0;
-      position: relative;
-      background: #dfe6ee;
-    }
-
-    #map { width: 100%; height: 100%; }
-
-    .panel-section {
-      border-bottom: 1px solid var(--line);
-      padding: 16px;
-    }
-
-    .panel-title {
-      margin: 0 0 10px 0;
-      font-size: 13px;
-      font-weight: 900;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      color: var(--muted);
-    }
-
-    .cards {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-
-    .card {
-      border: 1px solid var(--line);
-      background: var(--panel-2);
-      padding: 12px;
-      min-height: 76px;
-    }
-
-    .card.wide { grid-column: 1 / -1; }
-    .metric { font-size: 28px; font-weight: 900; letter-spacing: -0.04em; line-height: 1; }
-    .metric.small { font-size: 20px; }
-    .metric-label { color: var(--muted); font-size: 12px; margin-top: 8px; }
-    .metric.red { color: var(--red); }
-    .metric.amber { color: var(--amber); }
-    .metric.green { color: var(--green); }
-
-    .filters {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-
-    .filters .full { grid-column: 1 / -1; }
-    select.select, input[type="search"] { width: 100%; padding: 0 10px; }
-
-    .check-row {
-      display: grid;
-      grid-template-columns: 18px 1fr;
-      gap: 8px;
-      align-items: start;
-      font-size: 13px;
-      color: var(--text);
-      margin-top: 9px;
-    }
-
-    .check-row input { margin: 2px 0 0 0; }
-
-    .legend-grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 8px;
-      font-size: 13px;
-    }
-
-    .legend-item { display: flex; align-items: center; gap: 8px; color: var(--text); }
-    .swatch { width: 18px; height: 4px; background: var(--line-strong); border-radius: 999px; }
-    .dot { width: 12px; height: 12px; border-radius: 999px; background: var(--line-strong); border: 2px solid white; box-shadow: 0 0 0 1px rgba(0,0,0,.3); }
-    .swatch.red, .dot.red { background: var(--red); }
-    .swatch.amber, .dot.amber { background: var(--amber); }
-    .dot.green { background: var(--green); }
-    .dot.purple { background: var(--purple); }
-    .dot.blue { background: var(--blue); }
-
-    .table-tools {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-
-    .table-tools input { flex: 1; }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
-    }
-
-    th, td {
-      padding: 9px 8px;
-      text-align: left;
-      vertical-align: top;
-      border-bottom: 1px solid var(--line);
-    }
-
-    th {
-      position: sticky;
-      top: 0;
-      background: var(--panel);
-      z-index: 1;
-      font-size: 11px;
-      text-transform: uppercase;
-      color: var(--muted);
-      letter-spacing: 0.04em;
-    }
-
-    tr.clickable { cursor: pointer; }
-    tr.clickable:hover { background: color-mix(in srgb, var(--red) 7%, transparent); }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 3px 7px;
-      border: 1px solid var(--line-strong);
-      font-size: 11px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      white-space: nowrap;
-    }
-
-    .badge.red { color: var(--red); border-color: color-mix(in srgb, var(--red) 55%, var(--line)); background: color-mix(in srgb, var(--red) 9%, transparent); }
-    .badge.amber { color: var(--amber); border-color: color-mix(in srgb, var(--amber) 60%, var(--line)); background: color-mix(in srgb, var(--amber) 9%, transparent); }
-    .badge.green { color: var(--green); border-color: color-mix(in srgb, var(--green) 60%, var(--line)); background: color-mix(in srgb, var(--green) 9%, transparent); }
-    .badge.purple { color: var(--purple); border-color: color-mix(in srgb, var(--purple) 60%, var(--line)); background: color-mix(in srgb, var(--purple) 9%, transparent); }
-
-    .map-status {
-      position: absolute;
-      left: 16px;
-      bottom: 18px;
-      z-index: 500;
-      max-width: min(680px, calc(100% - 32px));
-      background: var(--panel);
-      color: var(--text);
-      border: 1px solid var(--line-strong);
-      box-shadow: var(--shadow);
-      padding: 10px 12px;
-      font-size: 12px;
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    .map-status strong { color: var(--red); }
-
-    .loading {
-      position: absolute;
-      inset: 0;
-      z-index: 900;
-      display: grid;
-      place-items: center;
-      background: color-mix(in srgb, var(--bg) 75%, transparent);
-      backdrop-filter: blur(4px);
-    }
-
-    .loading-box {
-      background: var(--panel);
-      border: 1px solid var(--line-strong);
-      box-shadow: var(--shadow);
-      padding: 20px;
-      width: min(460px, 90vw);
-    }
-
-    .loading-title { font-weight: 900; font-size: 16px; margin-bottom: 8px; }
-    .loading-text { color: var(--muted); font-size: 13px; line-height: 1.5; }
-    .progress {
-      margin-top: 14px;
-      height: 8px;
-      border: 1px solid var(--line-strong);
-      background: var(--panel-2);
-      overflow: hidden;
-    }
-    .progress > span { display: block; height: 100%; width: 15%; background: var(--red); animation: pulsebar 1.25s linear infinite; }
-    @keyframes pulsebar { 0% { transform: translateX(-100%); } 100% { transform: translateX(700%); } }
-
-    .popup-title { font-weight: 900; font-size: 14px; margin-bottom: 5px; }
-    .popup-meta { font-size: 12px; color: #4b5563; margin: 4px 0; }
-    .popup-link { color: #b00020; font-weight: 800; text-decoration: none; }
-    .popup-link:hover { text-decoration: underline; }
-
-    .leaflet-container { font-family: var(--sans); background: #dde6ef; }
-    .leaflet-control-layers, .leaflet-control-zoom a { border-radius: 0 !important; }
-    .leaflet-tile { filter: none; }
-    .tile-warning {
-      position: absolute;
-      right: 16px;
-      bottom: 18px;
-      z-index: 510;
-      background: var(--panel);
-      border: 1px solid var(--line-strong);
-      box-shadow: var(--shadow);
-      padding: 8px 10px;
-      font-size: 12px;
-      color: var(--muted);
-      max-width: 340px;
-    }
-
-    .iso-marker {
-      width: 20px;
-      height: 20px;
-      border-radius: 999px;
-      background: var(--red);
-      border: 3px solid white;
-      box-shadow: 0 0 0 2px rgba(176,0,32,.8), 0 0 18px rgba(176,0,32,.55);
-    }
-    .iso-marker::after {
-      content: "";
-      position: absolute;
-      inset: -8px;
-      border-radius: 999px;
-      border: 2px solid rgba(176,0,32,.45);
-      animation: pulse 1.5s ease-out infinite;
-    }
-    @keyframes pulse { 0% { transform: scale(.55); opacity: .95; } 100% { transform: scale(1.35); opacity: 0; } }
-
-    .unknown-marker {
-      width: 16px;
-      height: 16px;
-      border-radius: 999px;
-      background: var(--purple);
-      border: 3px solid white;
-      box-shadow: 0 0 0 1px rgba(0,0,0,.45);
-    }
-    .ok-marker {
-      width: 10px;
-      height: 10px;
-      border-radius: 999px;
-      background: var(--green);
-      border: 2px solid white;
-      box-shadow: 0 0 0 1px rgba(0,0,0,.25);
-      opacity: .75;
-    }
-
-    .error-box {
-      color: var(--text);
-      background: color-mix(in srgb, var(--red) 10%, var(--panel));
-      border: 1px solid var(--red);
-      padding: 12px;
-      margin-top: 12px;
-      font-size: 13px;
-      line-height: 1.45;
-    }
-
-    .muted { color: var(--muted); }
-    .mono { font-family: var(--mono); }
-    .hide { display: none !important; }
-
-    @media (max-width: 1050px) {
-      body { overflow: auto; }
-      .app {
-        grid-template-columns: 1fr;
-        grid-template-rows: auto 58vh auto;
-        height: auto;
-        min-height: 100vh;
-      }
-      header { position: sticky; top: 0; }
-      .map-wrap { grid-row: 2; min-height: 420px; }
-      .sidebar { grid-row: 3; border-right: none; border-top: 1px solid var(--line); }
-    }
-
-    @media (max-width: 620px) {
-      header { align-items: flex-start; }
-      .brand-mark { display: none; }
-      .header-actions { width: 100%; }
-      .app { grid-template-rows: auto 55vh auto; }
-      .cards { grid-template-columns: 1fr; }
-      .filters { grid-template-columns: 1fr; }
+    html, body { height: 100%; margin: 0; color: var(--ink); font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; background: var(--panel-2); }
+    .app { display: grid; grid-template-columns: var(--side-w) 1fr; grid-template-rows: 56px 1fr; height: 100vh; overflow: hidden; }
+    .topbar { grid-column: 1 / 3; display:flex; align-items:center; justify-content:space-between; gap:12px; padding: 0 16px; background: var(--panel); border-bottom:1px solid var(--border); box-shadow: var(--shadow); z-index: 10; }
+    .brand { display:flex; align-items:center; gap:10px; min-width:0; }
+    .logo { width:30px; height:30px; display:grid; place-items:center; background:var(--qld-red); color:#fff; font-weight:900; }
+    .brand h1 { margin:0; font-size:16px; line-height:1.1; }
+    .brand .sub { color:var(--muted); font-size:12px; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .top-actions { display:flex; align-items:center; gap:8px; }
+    button, select, input { font: inherit; }
+    .btn { border:1px solid var(--border); background:var(--panel); color:var(--ink); font-weight:700; padding:8px 10px; cursor:pointer; }
+    .btn:hover { border-color:#94a3b8; }
+    .btn.primary { background:var(--qld-red); color:#fff; border-color:var(--qld-red); }
+    .btn.small { padding:6px 8px; font-size:12px; }
+    .sidebar { overflow:auto; background: var(--panel); border-right:1px solid var(--border); z-index: 3; }
+    .section { padding: 14px; border-bottom:1px solid var(--border); }
+    .section h2 { margin:0 0 10px; font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:#64748b; }
+    body.dark .section h2 { color:#a5b4fc; }
+    .cards { display:grid; grid-template-columns: 1fr 1fr; gap:8px; }
+    .card { background:var(--panel-2); border:1px solid var(--border); padding:12px; min-height:48px; }
+    .metric { font-size:24px; line-height:1; font-weight:900; color:var(--ink); }
+    .metric.red { color:var(--qld-red); }
+    .metric.amber { color:var(--amber); }
+    .metric.teal { color:var(--teal); }
+    .label { margin-top:6px; color:var(--muted); font-size:12px; }
+    .form-row { display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:8px; }
+    label { display:block; font-size:11px; color:var(--muted); margin-bottom:4px; }
+    select, input[type="search"] { width:100%; box-sizing:border-box; border:1px solid var(--border); background:var(--panel); color:var(--ink); padding:8px; }
+    .checks { display:grid; gap:6px; margin-top:8px; }
+    .checks label { display:flex; align-items:center; gap:7px; color:var(--ink); font-size:12px; }
+    .legend { display:grid; gap:7px; font-size:12px; }
+    .legend-row { display:flex; align-items:center; gap:8px; }
+    .dot { width:10px; height:10px; border-radius:999px; border:2px solid #fff; box-shadow:0 0 0 1px rgba(0,0,0,.2); }
+    .line { width:22px; height:0; border-top:4px solid; }
+    .table-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+    table { width:100%; border-collapse: collapse; font-size:12px; }
+    th, td { text-align:left; padding:8px 6px; border-bottom:1px solid var(--border); vertical-align:top; }
+    th { color:#64748b; font-size:11px; text-transform:uppercase; letter-spacing:.05em; background:var(--panel-2); position: sticky; top: 0; z-index: 1; }
+    .table-wrap { max-height: 360px; overflow:auto; border:1px solid var(--border); }
+    .place-name { font-weight:800; }
+    .small-muted { color:var(--muted); font-size:11px; }
+    .badge { display:inline-flex; align-items:center; padding:3px 6px; border:1px solid; font-size:10px; font-weight:900; text-transform:uppercase; }
+    .badge.iso { color:var(--qld-red); border-color:var(--qld-red); background:rgba(176,0,32,.08); }
+    .badge.qa { color:var(--purple); border-color:var(--purple); background:rgba(109,40,217,.10); }
+    .badge.ok { color:var(--teal); border-color:var(--teal); background:rgba(0,140,140,.10); }
+    .map-wrap { position:relative; min-width:0; min-height:0; background:var(--map-bg); }
+    #map { height: 100%; width: 100%; background: var(--map-bg); }
+    .statusbar { position:absolute; left:14px; bottom:14px; z-index:700; background:rgba(255,255,255,.94); color:#111827; border:1px solid var(--border); box-shadow: var(--shadow); padding:8px 10px; font-size:12px; }
+    body.dark .statusbar { background:rgba(17,24,39,.94); color:#e5e7eb; }
+    .notice { position:absolute; right:14px; bottom:14px; z-index:700; max-width:380px; background:rgba(255,255,255,.95); color:#111827; border:1px solid var(--border); box-shadow: var(--shadow); padding:10px; font-size:12px; display:none; }
+    body.dark .notice { background:rgba(17,24,39,.95); color:#e5e7eb; }
+    .notice.show { display:block; }
+    .popup h3 { margin:0 0 6px; font-size:14px; }
+    .popup dl { margin:0; display:grid; grid-template-columns:auto 1fr; gap:3px 8px; font-size:12px; }
+    .popup dt { color:#64748b; font-weight:800; }
+    .popup dd { margin:0; }
+    .pulse-marker { width: 16px; height: 16px; border-radius: 50%; background: var(--qld-red); border: 3px solid #fff; box-shadow: 0 0 0 2px rgba(176,0,32,.6); position: relative; }
+    .pulse-marker::after { content:""; position:absolute; left:50%; top:50%; width:16px; height:16px; margin-left:-8px; margin-top:-8px; border-radius:50%; border:2px solid var(--qld-red); animation:pulse 1.6s infinite; }
+    @keyframes pulse { 0% { transform:scale(1); opacity:.75; } 100% { transform:scale(2.8); opacity:0; } }
+    .qa-marker { width: 14px; height: 14px; border-radius: 50%; background: var(--purple); border: 3px solid #fff; box-shadow: 0 0 0 2px rgba(109,40,217,.45); }
+    .ok-marker { width: 8px; height: 8px; border-radius: 50%; background: var(--teal); border: 2px solid #fff; box-shadow: 0 0 0 1px rgba(0,0,0,.2); opacity:.85; }
+    .leaflet-tooltip.place-label { background:rgba(255,255,255,.95); border:1px solid var(--border); color:#111827; font-weight:800; }
+    .vector-base-label { color:#475569; font-weight:800; font-size:12px; text-shadow: 0 1px 0 #fff; }
+    body.dark .vector-base-label { color:#cbd5e1; text-shadow:none; }
+    @media (max-width: 900px) {
+      .app { grid-template-columns: 1fr; grid-template-rows: 56px 42vh 1fr; }
+      .topbar { grid-column:1; }
+      .map-wrap { grid-row:2; }
+      .sidebar { grid-row:3; border-right:0; border-top:1px solid var(--border); }
+      .top-actions { gap:4px; }
+      .btn { padding:7px 8px; }
     }
   </style>
 </head>
 <body>
-  <div class="app" data-theme="light" id="appRoot">
-    <header>
+  <div class="app">
+    <header class="topbar">
       <div class="brand">
-        <div class="brand-mark">Q</div>
+        <div class="logo">Q</div>
         <div>
           <h1>Queensland Road Isolation Dashboard</h1>
-          <div class="subtitle" id="subtitle">Loading current closure and isolation outputs…</div>
+          <div class="sub" id="subtitle">Loading current outputs…</div>
         </div>
       </div>
-      <div class="header-actions">
-        <button id="fitIsolatedBtn" class="primary" type="button">Fit isolated</button>
-        <button id="fitQldBtn" type="button">Fit QLD</button>
-        <button id="reloadBtn" type="button">Reload data</button>
-        <button id="themeBtn" type="button">Dark mode</button>
+      <div class="top-actions">
+        <button class="btn primary" id="fitIsolated">Fit isolated</button>
+        <button class="btn" id="fitQld">Fit QLD</button>
+        <button class="btn" id="toggleBasemap">Basemap off</button>
+        <button class="btn" id="reloadData">Reload data</button>
+        <button class="btn" id="darkMode">Dark mode</button>
       </div>
     </header>
 
     <aside class="sidebar">
-      <section class="panel-section">
-        <h2 class="panel-title">Current summary</h2>
+      <section class="section">
+        <h2>Current summary</h2>
         <div class="cards">
-          <div class="card">
-            <div class="metric red" id="metricIsolated">—</div>
-            <div class="metric-label">Isolated by full closures</div>
-          </div>
-          <div class="card">
-            <div class="metric amber" id="metricUnknown">—</div>
-            <div class="metric-label">Graph / hub QA</div>
-          </div>
-          <div class="card">
-            <div class="metric green" id="metricNotIso">—</div>
-            <div class="metric-label">Not isolated</div>
-          </div>
-          <div class="card">
-            <div class="metric small" id="metricClosures">—</div>
-            <div class="metric-label">Current closures loaded</div>
-          </div>
-          <div class="card wide">
-            <div class="metric-label">Last model run</div>
-            <div class="metric small" id="metricRunTime">—</div>
-          </div>
+          <div class="card"><div class="metric red" id="metricIso">–</div><div class="label">Isolated by full closures</div></div>
+          <div class="card"><div class="metric amber" id="metricQA">–</div><div class="label">Graph / hub QA</div></div>
+          <div class="card"><div class="metric teal" id="metricOK">–</div><div class="label">Not isolated</div></div>
+          <div class="card"><div class="metric" id="metricClosures">–</div><div class="label">Current closures loaded</div></div>
+        </div>
+        <div class="card" style="margin-top:10px"><div class="label">Last model run</div><div class="metric" style="font-size:18px" id="metricRun">–</div></div>
+      </section>
+      <section class="section">
+        <h2>Filters</h2>
+        <div class="form-row">
+          <div><label>Place status</label><select id="statusFilter"><option value="all">All places</option><option value="isolated">Isolated only</option><option value="qa">Graph / hub QA</option><option value="not_isolated">Not isolated</option></select></div>
+          <div><label>Closure type</label><select id="closureFilter"><option value="all">All closures</option><option value="impassable">Full closures only</option><option value="conditional">Conditional / restricted</option></select></div>
+        </div>
+        <label>Search place, road, locality, event id</label>
+        <input type="search" id="searchBox" placeholder="Example: Thargomindah, Bulloo, 812363" />
+        <div class="checks">
+          <label><input type="checkbox" id="showPlaces" checked /> Show assessed places</label>
+          <label><input type="checkbox" id="showClosures" checked /> Show current closure geometries</label>
+          <label><input type="checkbox" id="hideNonBlocking" /> Hide non-blocking closure geometries</label>
         </div>
       </section>
-
-      <section class="panel-section">
-        <h2 class="panel-title">Filters</h2>
-        <div class="filters">
-          <label>
-            <span class="muted" style="font-size:12px;">Place status</span>
-            <select class="select" id="placeFilter">
-              <option value="all">All places</option>
-              <option value="isolated">Isolated only</option>
-              <option value="not_isolated">Not isolated</option>
-              <option value="unknown">Graph / hub QA</option>
-            </select>
-          </label>
-          <label>
-            <span class="muted" style="font-size:12px;">Closure type</span>
-            <select class="select" id="closureFilter">
-              <option value="all">All closures</option>
-              <option value="impassable">Full closures only</option>
-              <option value="conditional">Conditional / restricted only</option>
-              <option value="matched">Matched blocking only</option>
-            </select>
-          </label>
-          <label class="full">
-            <span class="muted" style="font-size:12px;">Search place, road, locality, event id</span>
-            <input id="globalSearch" type="search" placeholder="Example: Thargomindah, Bulloo, 812363" />
-          </label>
-        </div>
-        <label class="check-row"><input type="checkbox" id="showAllPlaces" checked /> Show assessed places</label>
-        <label class="check-row"><input type="checkbox" id="showClosures" checked /> Show current closure geometries</label>
-        <label class="check-row"><input type="checkbox" id="showOnlyBlocking" /> Hide non-blocking closure geometries</label>
-      </section>
-
-      <section class="panel-section">
-        <h2 class="panel-title">Legend</h2>
-        <div class="legend-grid">
-          <div class="legend-item"><span class="dot red"></span> Isolated by full closures</div>
-          <div class="legend-item"><span class="dot purple"></span> Graph / hub QA</div>
-          <div class="legend-item"><span class="dot green"></span> Not isolated</div>
-          <div class="legend-item"><span class="swatch red"></span> Full road closure / impassable</div>
-          <div class="legend-item"><span class="swatch amber"></span> Conditional or restricted access</div>
+      <section class="section">
+        <h2>Legend</h2>
+        <div class="legend">
+          <div class="legend-row"><span class="dot" style="background:var(--qld-red)"></span> Isolated by full closures</div>
+          <div class="legend-row"><span class="dot" style="background:var(--purple)"></span> Graph / hub QA</div>
+          <div class="legend-row"><span class="dot" style="background:var(--teal)"></span> Not isolated</div>
+          <div class="legend-row"><span class="line" style="border-color:var(--qld-red)"></span> Full road closure / impassable</div>
+          <div class="legend-row"><span class="line" style="border-color:var(--amber)"></span> Conditional or restricted access</div>
+          <div class="legend-row"><span class="line" style="border-color:#64748b"></span> Other current event</div>
         </div>
       </section>
-
-      <section class="panel-section">
-        <div class="table-tools">
-          <h2 class="panel-title" style="margin:0; flex:1;">Isolation table</h2>
-          <button id="downloadCsvBtn" type="button">CSV</button>
-        </div>
-        <div style="overflow:auto; max-height: 48vh; border:1px solid var(--line);">
-          <table>
-            <thead>
-              <tr><th>Place</th><th>Status</th><th>Snap</th></tr>
-            </thead>
-            <tbody id="placeTableBody">
-              <tr><td colspan="3" class="muted">Loading…</td></tr>
-            </tbody>
-          </table>
-        </div>
+      <section class="section">
+        <div class="table-head"><h2 style="margin:0">Isolation table</h2><button class="btn small" id="downloadCsv">CSV</button></div>
+        <div class="table-wrap"><table><thead><tr><th>Place</th><th>Status</th><th>Snap</th></tr></thead><tbody id="placeRows"></tbody></table></div>
       </section>
     </aside>
 
     <main class="map-wrap">
       <div id="map"></div>
-      <div class="map-status" id="mapStatus">
-        <span><strong>Loading</strong> data from <span class="mono">out_isolation_current</span></span>
-      </div>
-      <div class="tile-warning hide" id="tileWarning">Some base-map tiles failed to load. Switching base maps or reloading usually fixes this.</div>
-      <div class="loading" id="loadingOverlay">
-        <div class="loading-box">
-          <div class="loading-title">Loading Queensland isolation outputs</div>
-          <div class="loading-text" id="loadingText">Fetching GeoJSON and summary files…</div>
-          <div class="progress"><span></span></div>
-          <div id="loadError" class="error-box hide"></div>
-        </div>
-      </div>
+      <div class="statusbar" id="statusbar">Loading…</div>
+      <div class="notice" id="notice"></div>
     </main>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
-    "use strict";
-
-    const DATA_BASE = "./out_isolation_current/";
-    const FILES = {
-      summary: DATA_BASE + "qld_isolation_summary.json",
-      placesGeojson: DATA_BASE + "qld_place_isolation_current.geojson",
-      isolatedGeojson: DATA_BASE + "isolated_places_qld.geojson",
-      closuresGeojson: DATA_BASE + "closures_qld_current.geojson",
-      isolatedCsv: DATA_BASE + "isolated_places_qld.csv"
+    const PATHS = {
+      summary: 'out_isolation_current/qld_isolation_summary.json',
+      closures: 'out_isolation_current/closures_qld_current.geojson',
+      places: 'out_isolation_current/qld_place_isolation_current.geojson',
+      isolatedCsv: 'out_isolation_current/isolated_places_qld.csv'
     };
-
-    const qldBounds = L.latLngBounds(L.latLng(-29.5, 137.5), L.latLng(-9.0, 154.0));
-
-    const state = {
-      summary: null,
-      places: [],
-      isolated: [],
-      closures: [],
-      selectedFeature: null,
-      layers: {
-        places: L.layerGroup(),
-        closures: L.layerGroup(),
-        isolated: L.layerGroup()
-      },
-      markersByPlaceKey: new Map(),
-      closureLayers: []
-    };
-
+    const QLD_BOUNDS = [[-29.6, 137.3], [-9.0, 154.2]];
     const $ = (id) => document.getElementById(id);
+    const state = { summary:null, closures:null, places:null, basemap:null, basemapOn:false, closureLayer:null, placeLayer:null, vectorBase:null, allPlaceRows:[], filteredPlaceRows:[] };
 
-    const map = L.map("map", {
-      zoomControl: true,
-      preferCanvas: true,
-      minZoom: 4,
-      maxZoom: 18,
-      worldCopyJump: true
-    });
-
-    // Use a subdomain-based basemap by default. It is less prone to the patchy/missing
-    // tile behaviour seen with the single-host OpenStreetMap tile endpoint on GitHub Pages.
-    const cartoLight = L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
-      subdomains: "abcd",
-      maxZoom: 20,
-      detectRetina: true,
-      crossOrigin: true,
-      attribution: "&copy; OpenStreetMap contributors &copy; CARTO"
-    });
-
-    const esriTopo = L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}", {
-      maxZoom: 18,
-      crossOrigin: true,
-      attribution: "Tiles &copy; Esri &mdash; Source: Esri, Garmin, FAO, NOAA, USGS, OpenStreetMap contributors"
-    });
-
-    const osmStandard = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 19,
-      crossOrigin: true,
-      attribution: "&copy; OpenStreetMap contributors"
-    });
-
-    let tileErrorCount = 0;
-    function noteTileError() {
-      tileErrorCount += 1;
-      if (tileErrorCount >= 3) $("tileWarning").classList.remove("hide");
+    function fmtDate(v) {
+      if (!v) return '–';
+      const d = new Date(v);
+      if (isNaN(d)) return String(v);
+      return d.toLocaleString('en-AU', { dateStyle:'medium', timeStyle:'short' });
     }
-    [cartoLight, esriTopo, osmStandard].forEach(layer => layer.on("tileerror", noteTileError));
+    function esc(v) { return String(v ?? '').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+    function props(f) { return f?.properties || {}; }
+    function catOf(p) { return String(p.isolation_category || '').toLowerCase(); }
+    function isIsoCat(c) { return c.includes('isolated_full_closures') || c.includes('isolated_with_restrictions'); }
+    function isQaCat(c) { return c.startsWith('unknown'); }
+    function isImpassable(p) { return p.category_norm === 'road_closed' && p.passability_norm === 'impassable'; }
+    function isConditional(p) { return p.passability_norm === 'passable_with_conditions' || p.category_norm === 'restricted' || p.category_norm === 'open_with_caution'; }
+    function featureText(f) { return JSON.stringify(f?.properties || {}).toLowerCase(); }
 
-    cartoLight.addTo(map);
-    map.fitBounds(qldBounds, { padding: [18, 18] });
-    setTimeout(() => map.invalidateSize(true), 50);
-    setTimeout(() => map.invalidateSize(true), 500);
+    const map = L.map('map', { preferCanvas:true, zoomControl:false, attributionControl:true, worldCopyJump:false, minZoom:4, maxZoom:13 });
+    L.control.zoom({ position:'topright' }).addTo(map);
+    map.fitBounds(QLD_BOUNDS, { padding:[20,20] });
 
-    state.layers.closures.addTo(map);
-    state.layers.places.addTo(map);
-    state.layers.isolated.addTo(map);
-
-    L.control.layers(
-      {
-        "CARTO light": cartoLight,
-        "Esri topographic": esriTopo,
-        "OpenStreetMap": osmStandard
-      },
-      {
-        "Current closures": state.layers.closures,
-        "Assessed places": state.layers.places,
-        "Isolated places": state.layers.isolated
-      },
-      { collapsed: false, position: "topright" }
-    ).addTo(map);
-
-    map.on("baselayerchange", () => {
-      tileErrorCount = 0;
-      $("tileWarning").classList.add("hide");
-      setTimeout(() => map.invalidateSize(true), 100);
-    });
-    window.addEventListener("resize", () => setTimeout(() => map.invalidateSize(true), 100));
-
-    function cacheBust(url) {
-      return url + (url.includes("?") ? "&" : "?") + "v=" + Date.now();
-    }
-
-    async function fetchJson(url) {
-      const res = await fetch(cacheBust(url), { cache: "no-store" });
-      if (!res.ok) throw new Error(`${res.status} ${res.statusText}: ${url}`);
-      return await res.json();
-    }
-
-    function safeText(value, fallback = "") {
-      if (value === null || value === undefined) return fallback;
-      return String(value);
-    }
-
-    function numberish(value, fallback = 0) {
-      const n = Number(value);
-      return Number.isFinite(n) ? n : fallback;
-    }
-
-    function lower(value) { return safeText(value).toLowerCase(); }
-
-    function formatDate(value) {
-      if (!value) return "—";
-      const d = new Date(value);
-      if (Number.isNaN(d.getTime())) return value;
-      return d.toLocaleString("en-AU", { dateStyle: "medium", timeStyle: "short" });
-    }
-
-    function escapeHtml(value) {
-      return safeText(value).replace(/[&<>'"]/g, ch => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;","\"":"&quot;"}[ch]));
-    }
-
-    function getFeatureProps(feature) { return feature && feature.properties ? feature.properties : {}; }
-
-    function getFeatureLatLng(feature) {
-      if (!feature || !feature.geometry) return null;
-      const g = feature.geometry;
-      if (g.type === "Point" && Array.isArray(g.coordinates)) return [g.coordinates[1], g.coordinates[0]];
-      if (g.type === "MultiPoint" && g.coordinates && g.coordinates[0]) return [g.coordinates[0][1], g.coordinates[0][0]];
-      return null;
-    }
-
-    function placeCategory(props) {
-      const cat = safeText(props.isolation_category || props.status || "");
-      if (cat === "isolated_full_closures" || cat === "isolated_with_restrictions") return "isolated";
-      if (cat.startsWith("unknown")) return "unknown";
-      if (cat === "not_isolated") return "not_isolated";
-      return "unknown";
-    }
-
-    function placeColor(category) {
-      if (category === "isolated") return "red";
-      if (category === "unknown") return "purple";
-      return "green";
-    }
-
-    function closureCategory(props) {
-      const pass = lower(props.passability_norm);
-      const cat = lower(props.category_norm);
-      const impact = lower(props.raw_impact_subtype || props.impact_subtype);
-      if (pass === "impassable" || cat === "road_closed" || impact.includes("road closed")) return "impassable";
-      if (pass.includes("condition") || cat === "restricted" || cat === "open_with_caution") return "conditional";
-      return "other";
-    }
-
-    function closureColor(props) {
-      const c = closureCategory(props);
-      if (c === "impassable") return getComputedStyle(document.documentElement).getPropertyValue("--red").trim() || "#b00020";
-      if (c === "conditional") return getComputedStyle(document.documentElement).getPropertyValue("--amber").trim() || "#b7791f";
-      return "#607080";
-    }
-
-    function isBlockingClosure(props) {
-      const pass = lower(props.passability_norm);
-      const cat = lower(props.category_norm);
-      return pass === "impassable" || pass === "passable_with_conditions" || cat === "restricted" || cat === "road_closed";
-    }
-
-    function geometryDisplayName(feature) {
-      const props = getFeatureProps(feature);
-      return props.description || props.title || props.road_name || props.locality || props.source_event_id || props.event_id || "Closure";
-    }
-
-    function popupForPlace(feature) {
-      const p = getFeatureProps(feature);
-      const cat = placeCategory(p);
-      const badge = cat === "isolated" ? "Isolated" : cat === "unknown" ? "Graph / hub QA" : "Not isolated";
-      const nearby = parseNearby(p.nearby_blocking_closures_json);
-      const nearbyHtml = nearby.length ? `
-        <div style="margin-top:8px;"><strong>Nearby blocking closures</strong></div>
-        ${nearby.slice(0, 5).map(c => `
-          <div class="popup-meta">
-            ${escapeHtml(c.source_event_id || "")}: ${escapeHtml(c.description || c.road_name || "Closure")}
-            ${c.url ? `<br><a class="popup-link" target="_blank" rel="noopener" href="${escapeHtml(c.url)}">Open QLD Traffic event</a>` : ""}
-          </div>`).join("")}
-      ` : "";
-
-      return `
-        <div class="popup-title">${escapeHtml(p.name || "Place")}</div>
-        <div class="popup-meta"><strong>Status:</strong> ${escapeHtml(badge)}</div>
-        <div class="popup-meta"><strong>Confidence:</strong> ${escapeHtml(p.isolation_confidence || "—")}</div>
-        <div class="popup-meta"><strong>Reason:</strong> ${escapeHtml(p.isolation_reason || "—")}</div>
-        <div class="popup-meta"><strong>Snap distance:</strong> ${escapeHtml(p.snap_distance_m || "—")} m</div>
-        ${nearbyHtml}
-      `;
-    }
-
-    function popupForClosure(feature) {
-      const p = getFeatureProps(feature);
-      const eventId = p.source_event_id || p.event_id || p.id || "";
-      const url = p.url || (eventId ? `https://api.qldtraffic.qld.gov.au/v2/events/${eventId}` : "");
-      return `
-        <div class="popup-title">${escapeHtml(p.road_name || p.description || p.title || "Road closure")}</div>
-        <div class="popup-meta"><strong>Event:</strong> ${escapeHtml(eventId || "—")}</div>
-        <div class="popup-meta"><strong>Status:</strong> ${escapeHtml(p.category_norm || "—")} / ${escapeHtml(p.passability_norm || "—")}</div>
-        <div class="popup-meta"><strong>Description:</strong> ${escapeHtml(p.description || p.title || "—")}</div>
-        <div class="popup-meta"><strong>Locality:</strong> ${escapeHtml(p.locality || "—")}</div>
-        <div class="popup-meta"><strong>Advice:</strong> ${escapeHtml(p.raw_advice || p.restrictions_text || "—")}</div>
-        ${url ? `<a class="popup-link" target="_blank" rel="noopener" href="${escapeHtml(url)}">Open QLD Traffic event</a>` : ""}
-      `;
-    }
-
-    function parseNearby(value) {
-      if (!value) return [];
-      if (Array.isArray(value)) return value;
-      try { return JSON.parse(value); } catch { return []; }
-    }
-
-    function markerIconForPlace(category) {
-      if (category === "isolated") return L.divIcon({ className: "", html: "<div class='iso-marker'></div>", iconSize: [26, 26], iconAnchor: [13, 13] });
-      if (category === "unknown") return L.divIcon({ className: "", html: "<div class='unknown-marker'></div>", iconSize: [20, 20], iconAnchor: [10, 10] });
-      return L.divIcon({ className: "", html: "<div class='ok-marker'></div>", iconSize: [14, 14], iconAnchor: [7, 7] });
-    }
-
-    function setLoading(message, error) {
-      $("loadingText").textContent = message;
-      if (error) {
-        $("loadError").classList.remove("hide");
-        $("loadError").innerHTML = escapeHtml(error).replace(/\n/g, "<br>");
-      } else {
-        $("loadError").classList.add("hide");
-        $("loadError").innerHTML = "";
+    // Default is a local/vector base only. This avoids patchy third-party tile loading.
+    function buildVectorBase() {
+      const g = L.layerGroup();
+      L.rectangle(QLD_BOUNDS, { color:'#94a3b8', weight:1.5, fill:true, fillColor:getComputedStyle(document.documentElement).getPropertyValue('--land').trim() || '#f7f5ed', fillOpacity:.55, interactive:false }).addTo(g);
+      // Graticule lines for geographic orientation.
+      for (let lat=-28; lat<=-10; lat+=2) {
+        L.polyline([[lat,137.5],[lat,154]], { color:'#cbd5e1', weight:1, opacity:.55, interactive:false }).addTo(g);
+        L.marker([lat,137.65], { interactive:false, icon:L.divIcon({ className:'vector-base-label', html:`${Math.abs(lat)}°S`, iconSize:[42,14] }) }).addTo(g);
       }
+      for (let lon=138; lon<=154; lon+=2) {
+        L.polyline([[-29.5,lon],[-9,lon]], { color:'#cbd5e1', weight:1, opacity:.55, interactive:false }).addTo(g);
+        L.marker([-29.25,lon], { interactive:false, icon:L.divIcon({ className:'vector-base-label', html:`${lon}°E`, iconSize:[42,14] }) }).addTo(g);
+      }
+      const labels = [
+        ['Queensland', -21.5, 145.0], ['Gulf of Carpentaria', -14.0, 140.2], ['Coral Sea', -17.0, 151.7], ['Brisbane', -27.47, 153.02], ['Cairns', -16.92, 145.77], ['Townsville', -19.26, 146.82], ['Mt Isa', -20.73, 139.49]
+      ];
+      labels.forEach(([t,lat,lon]) => L.marker([lat,lon], { interactive:false, icon:L.divIcon({ className:'vector-base-label', html:esc(t), iconSize:[110,16] }) }).addTo(g));
+      return g;
     }
+    state.vectorBase = buildVectorBase().addTo(map);
 
-    function hideLoading() { $("loadingOverlay").classList.add("hide"); setTimeout(() => map.invalidateSize(true), 75); }
-    function showLoading() { $("loadingOverlay").classList.remove("hide"); }
+    const tileLayers = {
+      carto: L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { maxZoom:19, crossOrigin:true, attribution:'&copy; OpenStreetMap &copy; CARTO' }),
+      esri: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', { maxZoom:19, crossOrigin:true, attribution:'Tiles &copy; Esri' }),
+      osm: L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom:19, crossOrigin:true, attribution:'&copy; OpenStreetMap contributors' })
+    };
+    L.control.layers({ 'Vector base (offline-style)': state.vectorBase, 'CARTO light tiles': tileLayers.carto, 'Esri topographic tiles': tileLayers.esri, 'OpenStreetMap tiles': tileLayers.osm }, {}, { collapsed:true, position:'topright' }).addTo(map);
+    Object.values(tileLayers).forEach(layer => layer.on('tileerror', () => showNotice('Some third-party basemap tiles failed to load. The dashboard uses the vector base by default so closure/place data remains visible.')));
 
-    async function loadData() {
-      showLoading();
-      setLoading("Fetching summary, place isolation and closure GeoJSON…");
+    function showNotice(msg) { const n=$('notice'); n.textContent=msg; n.classList.add('show'); setTimeout(()=>n.classList.remove('show'), 7000); }
+
+    function closureStyle(f) {
+      const p = props(f);
+      if (isImpassable(p)) return { color:'#b00020', weight:4, opacity:.9, fillColor:'#b00020', fillOpacity:.28, radius:7 };
+      if (isConditional(p)) return { color:'#b06b00', weight:3, opacity:.85, fillColor:'#b06b00', fillOpacity:.22, radius:6 };
+      return { color:'#64748b', weight:2, opacity:.45, fillColor:'#64748b', fillOpacity:.15, radius:5 };
+    }
+    function closurePopup(f) {
+      const p = props(f);
+      const id = p.source_event_id || p.id || p.event_id || '';
+      const url = p.url ? `<a href="${esc(p.url)}" target="_blank" rel="noopener">Open QLD Traffic event</a>` : '';
+      return `<div class="popup"><h3>${esc(p.road_name || p.description || p.title || 'Closure event')}</h3><dl>
+        <dt>Event</dt><dd>${esc(id)}</dd>
+        <dt>Status</dt><dd>${esc(p.status_norm || '')}</dd>
+        <dt>Class</dt><dd>${esc(p.category_norm || '')} / ${esc(p.passability_norm || '')}</dd>
+        <dt>Reason</dt><dd>${esc(p.reason_norm || '')}</dd>
+        <dt>Locality</dt><dd>${esc(p.locality || '')}</dd>
+        <dt>Advice</dt><dd>${esc(p.restrictions_text || p.raw_advice || '')}</dd>
+        <dt>Details</dt><dd>${esc(p.description || '')}</dd>
+        <dt>Link</dt><dd>${url}</dd>
+      </dl></div>`;
+    }
+    function placeIcon(cat) {
+      if (isIsoCat(cat)) return L.divIcon({ className:'', html:'<div class="pulse-marker"></div>', iconSize:[22,22], iconAnchor:[11,11] });
+      if (isQaCat(cat)) return L.divIcon({ className:'', html:'<div class="qa-marker"></div>', iconSize:[20,20], iconAnchor:[10,10] });
+      return L.divIcon({ className:'', html:'<div class="ok-marker"></div>', iconSize:[12,12], iconAnchor:[6,6] });
+    }
+    function placePopup(f) {
+      const p = props(f); const cat = catOf(p);
+      let nearby = '';
       try {
-        const [summary, placesGeojson, closuresGeojson, isolatedGeojson] = await Promise.all([
-          fetchJson(FILES.summary),
-          fetchJson(FILES.placesGeojson),
-          fetchJson(FILES.closuresGeojson),
-          fetchJson(FILES.isolatedGeojson).catch(() => ({ type: "FeatureCollection", features: [] }))
-        ]);
-
-        state.summary = summary;
-        state.places = Array.isArray(placesGeojson.features) ? placesGeojson.features : [];
-        state.closures = Array.isArray(closuresGeojson.features) ? closuresGeojson.features : [];
-        state.isolated = Array.isArray(isolatedGeojson.features) ? isolatedGeojson.features : state.places.filter(f => placeCategory(getFeatureProps(f)) === "isolated");
-
-        renderAll();
-        hideLoading();
-      } catch (err) {
-        console.error(err);
-        setLoading(
-          "Unable to load dashboard data.",
-          `Could not fetch output files from ${DATA_BASE}.\n\nIf you are opening this HTML locally, run a local web server instead:\n\npy -m http.server 8000\n\nThen open http://localhost:8000/\n\nError: ${err.message}`
-        );
-      }
+        const arr = JSON.parse(p.nearby_blocking_closures_json || '[]');
+        if (arr.length) nearby = '<dt>Nearby closures</dt><dd>' + arr.slice(0,5).map(x => `${esc(x.source_event_id || '')} — ${esc(x.road_name || x.description || '')}`).join('<br>') + '</dd>';
+      } catch(e) {}
+      return `<div class="popup"><h3>${esc(p.name || 'Place')}</h3><dl>
+        <dt>Status</dt><dd>${esc(p.isolation_category || '')}</dd>
+        <dt>Confidence</dt><dd>${esc(p.isolation_confidence || '')}</dd>
+        <dt>Snap</dt><dd>${esc(p.snap_distance_m || '')} m</dd>
+        <dt>Reason</dt><dd>${esc(p.isolation_reason || '')}</dd>
+        ${nearby}
+      </dl></div>`;
     }
 
-    function renderAll() {
-      renderMetrics();
-      renderClosures();
-      renderPlaces();
-      renderTable();
-      updateStatus();
-    }
+    function buildLayers() {
+      if (state.closureLayer) state.closureLayer.remove();
+      if (state.placeLayer) state.placeLayer.remove();
+      const q = $('searchBox').value.trim().toLowerCase();
+      const closureMode = $('closureFilter').value;
+      const statusMode = $('statusFilter').value;
+      const hideNonBlocking = $('hideNonBlocking').checked;
 
-    function renderMetrics() {
-      const counts = state.summary?.counts || {};
-      const cats = counts.place_categories || {};
-      $("metricIsolated").textContent = cats.isolated_full_closures ?? countPlaces("isolated");
-      $("metricUnknown").textContent = cats.unknown_preexisting_disconnected ?? countPlaces("unknown");
-      $("metricNotIso").textContent = cats.not_isolated ?? countPlaces("not_isolated");
-      $("metricClosures").textContent = counts.closures_active ?? state.closures.length;
-      $("metricRunTime").textContent = formatDate(state.summary?.created_at || state.summary?.closure_source?.fetched_at);
-      $("subtitle").textContent = `Outputs loaded from ${DATA_BASE} • ${formatDate(state.summary?.created_at || state.summary?.closure_source?.fetched_at)}`;
-    }
-
-    function countPlaces(cat) {
-      return state.places.filter(f => placeCategory(getFeatureProps(f)) === cat).length;
-    }
-
-    function getFilters() {
-      return {
-        place: $("placeFilter").value,
-        closure: $("closureFilter").value,
-        search: lower($("globalSearch").value).trim(),
-        showAllPlaces: $("showAllPlaces").checked,
-        showClosures: $("showClosures").checked,
-        showOnlyBlocking: $("showOnlyBlocking").checked
-      };
-    }
-
-    function featureMatchesSearch(feature, search) {
-      if (!search) return true;
-      const p = getFeatureProps(feature);
-      const haystack = [
-        p.name, p.place_id, p.place_type, p.lga, p.state,
-        p.isolation_category, p.isolation_reason,
-        p.source_event_id, p.event_id, p.description, p.title,
-        p.road_name, p.locality, p.raw_advice, p.raw_event_type,
-        p.raw_event_subtype, p.raw_impact_type, p.raw_impact_subtype, p.url
-      ].map(safeText).join(" ").toLowerCase();
-      return haystack.includes(search);
-    }
-
-    function placePassesFilter(feature, filters) {
-      const p = getFeatureProps(feature);
-      const cat = placeCategory(p);
-      if (filters.place === "isolated" && cat !== "isolated") return false;
-      if (filters.place === "not_isolated" && cat !== "not_isolated") return false;
-      if (filters.place === "unknown" && cat !== "unknown") return false;
-      return featureMatchesSearch(feature, filters.search);
-    }
-
-    function closurePassesFilter(feature, filters) {
-      const p = getFeatureProps(feature);
-      const cat = closureCategory(p);
-      if (filters.closure === "impassable" && cat !== "impassable") return false;
-      if (filters.closure === "conditional" && cat !== "conditional") return false;
-      if (filters.closure === "matched") {
-        // closures_qld_current.geojson does not always include match status, so treat blocking closure classes as matched-enough for display.
-        if (!isBlockingClosure(p)) return false;
-      }
-      if (filters.showOnlyBlocking && !isBlockingClosure(p)) return false;
-      return featureMatchesSearch(feature, filters.search);
-    }
-
-    function renderPlaces() {
-      const filters = getFilters();
-      state.layers.places.clearLayers();
-      state.layers.isolated.clearLayers();
-      state.markersByPlaceKey.clear();
-
-      if (!filters.showAllPlaces) return;
-
-      const sorted = [...state.places].sort((a, b) => {
-        const order = { isolated: 0, unknown: 1, not_isolated: 2 };
-        return (order[placeCategory(getFeatureProps(a))] ?? 9) - (order[placeCategory(getFeatureProps(b))] ?? 9)
-          || safeText(getFeatureProps(a).name).localeCompare(safeText(getFeatureProps(b).name));
-      });
-
-      for (const feature of sorted) {
-        if (!placePassesFilter(feature, filters)) continue;
-        const ll = getFeatureLatLng(feature);
-        if (!ll) continue;
-        const p = getFeatureProps(feature);
-        const cat = placeCategory(p);
-        const marker = L.marker(ll, { icon: markerIconForPlace(cat), keyboard: true, title: p.name || "Place" }).bindPopup(popupForPlace(feature), { maxWidth: 420 });
-        marker.on("click", () => highlightTableRow(placeKey(feature)));
-        state.markersByPlaceKey.set(placeKey(feature), marker);
-        if (cat === "isolated") state.layers.isolated.addLayer(marker);
-        else state.layers.places.addLayer(marker);
-      }
-    }
-
-    function renderClosures() {
-      const filters = getFilters();
-      state.layers.closures.clearLayers();
-      state.closureLayers = [];
-      if (!filters.showClosures) return;
-
-      for (const feature of state.closures) {
-        if (!closurePassesFilter(feature, filters)) continue;
-        const props = getFeatureProps(feature);
-        const color = closureColor(props);
-        const geoLayer = L.geoJSON(feature, {
-          style: () => ({
-            color,
-            weight: closureCategory(props) === "impassable" ? 4 : 3,
-            opacity: closureCategory(props) === "impassable" ? 0.9 : 0.75,
-            dashArray: closureCategory(props) === "conditional" ? "6 5" : undefined
-          }),
-          pointToLayer: (feat, latlng) => L.circleMarker(latlng, {
-            radius: closureCategory(props) === "impassable" ? 6 : 5,
-            color: "#ffffff",
-            weight: 1.5,
-            fillColor: color,
-            fillOpacity: 0.95
-          }),
-          onEachFeature: (feat, layer) => {
-            layer.bindPopup(popupForClosure(feat), { maxWidth: 420 });
-          }
+      if ($('showClosures').checked && state.closures) {
+        const feats = state.closures.features.filter(f => {
+          const p = props(f);
+          if (q && !featureText(f).includes(q)) return false;
+          if (hideNonBlocking && !(isImpassable(p) || isConditional(p))) return false;
+          if (closureMode === 'impassable') return isImpassable(p);
+          if (closureMode === 'conditional') return isConditional(p);
+          return true;
         });
-        geoLayer.addTo(state.layers.closures);
-        state.closureLayers.push(geoLayer);
+        state.closureLayer = L.geoJSON({ type:'FeatureCollection', features:feats }, { style:closureStyle, pointToLayer:(f,latlng)=>L.circleMarker(latlng, closureStyle(f)), onEachFeature:(f,l)=>l.bindPopup(closurePopup(f)) }).addTo(map);
       }
+      state.filteredPlaceRows = [];
+      if ($('showPlaces').checked && state.places) {
+        const feats = state.places.features.filter(f => {
+          const p = props(f); const cat = catOf(p);
+          const statusOK = statusMode === 'all' || (statusMode === 'isolated' && isIsoCat(cat)) || (statusMode === 'qa' && isQaCat(cat)) || (statusMode === 'not_isolated' && cat === 'not_isolated');
+          if (!statusOK) return false;
+          if (q && !featureText(f).includes(q)) return false;
+          return true;
+        });
+        state.filteredPlaceRows = feats.map(f => props(f)).sort(placeSort);
+        state.placeLayer = L.geoJSON({ type:'FeatureCollection', features:feats }, { pointToLayer:(f,latlng)=>L.marker(latlng, { icon:placeIcon(catOf(props(f))) }), onEachFeature:(f,l)=>{ const p=props(f); l.bindPopup(placePopup(f)); if (isIsoCat(catOf(p)) || isQaCat(catOf(p))) l.bindTooltip(p.name || '', { permanent:false, className:'place-label' }); } }).addTo(map);
+      }
+      renderTable();
+      const closureCount = state.closureLayer?.getLayers().length || 0;
+      $('statusbar').textContent = `${state.filteredPlaceRows.filter(p=>isIsoCat(catOf(p))).length} isolated place  ·  ${state.filteredPlaceRows.length} places shown  ·  ${closureCount} closure geometries shown  ·  Run: ${fmtDate(state.summary?.created_at || state.summary?.closure_source?.fetched_at)}`;
     }
-
-    function placeKey(feature) {
-      const p = getFeatureProps(feature);
-      return safeText(p.place_id || `${p.name}|${p.lat}|${p.lon}`);
+    function placeSort(a,b) {
+      const rank = p => isIsoCat(catOf(p)) ? 0 : isQaCat(catOf(p)) ? 1 : 2;
+      return rank(a)-rank(b) || String(a.name||'').localeCompare(String(b.name||''));
     }
-
-    function categoryBadgeHtml(feature) {
-      const p = getFeatureProps(feature);
-      const cat = placeCategory(p);
-      if (cat === "isolated") return `<span class="badge red">Isolated</span>`;
-      if (cat === "unknown") return `<span class="badge purple">QA</span>`;
-      return `<span class="badge green">OK</span>`;
-    }
-
     function renderTable() {
-      const filters = getFilters();
-      const body = $("placeTableBody");
-      const rows = state.places
-        .filter(f => placePassesFilter(f, filters))
-        .sort((a, b) => {
-          const order = { isolated: 0, unknown: 1, not_isolated: 2 };
-          return (order[placeCategory(getFeatureProps(a))] ?? 9) - (order[placeCategory(getFeatureProps(b))] ?? 9)
-            || safeText(getFeatureProps(a).name).localeCompare(safeText(getFeatureProps(b).name));
-        });
+      const tbody = $('placeRows');
+      tbody.innerHTML = state.filteredPlaceRows.map(p => {
+        const cat = catOf(p); const badge = isIsoCat(cat) ? 'iso' : isQaCat(cat) ? 'qa' : 'ok';
+        const label = isIsoCat(cat) ? 'isolated' : isQaCat(cat) ? 'QA' : 'OK';
+        return `<tr data-name="${esc(p.name||'')}"><td><div class="place-name">${esc(p.name||'')}</div><div class="small-muted">${esc(p.state||'QLD')} ${p.lga ? ' · '+esc(p.lga) : ''}</div></td><td><span class="badge ${badge}">${label}</span><div class="small-muted">${esc(p.isolation_confidence||'')}</div></td><td>${esc(p.snap_distance_m||'')} m</td></tr>`;
+      }).join('');
+      [...tbody.querySelectorAll('tr')].forEach((tr,i)=> tr.addEventListener('click', () => zoomToPlaceName(tr.dataset.name)));
+    }
+    function zoomToPlaceName(name) {
+      if (!state.places) return;
+      const f = state.places.features.find(x => props(x).name === name);
+      if (!f) return;
+      const coords = f.geometry?.coordinates;
+      if (coords) map.setView([coords[1], coords[0]], 10);
+    }
+    function updateSummary() {
+      const c = state.summary?.counts || {};
+      $('metricIso').textContent = c.place_categories?.isolated_full_closures ?? countPlaces(p => isIsoCat(catOf(p)));
+      $('metricQA').textContent = c.place_categories?.unknown_preexisting_disconnected ?? countPlaces(p => isQaCat(catOf(p)));
+      $('metricOK').textContent = c.place_categories?.not_isolated ?? countPlaces(p => catOf(p)==='not_isolated');
+      $('metricClosures').textContent = c.closures_normalised ?? state.closures?.features?.length ?? '–';
+      $('metricRun').textContent = fmtDate(state.summary?.created_at || state.summary?.closure_source?.fetched_at);
+      $('subtitle').textContent = `Outputs loaded from ./out_isolation_current/ · ${fmtDate(state.summary?.created_at || state.summary?.closure_source?.fetched_at)}`;
+    }
+    function countPlaces(fn) { return (state.places?.features || []).map(props).filter(fn).length; }
 
-      if (!rows.length) {
-        body.innerHTML = `<tr><td colspan="3" class="muted">No places match the current filters.</td></tr>`;
-        return;
+    async function loadJson(path) { const r = await fetch(path, { cache:'no-store' }); if (!r.ok) throw new Error(`${path}: ${r.status}`); return r.json(); }
+    async function loadAll() {
+      $('statusbar').textContent = 'Loading output files…';
+      try {
+        const [summary, closures, places] = await Promise.all([loadJson(PATHS.summary), loadJson(PATHS.closures), loadJson(PATHS.places)]);
+        state.summary = summary; state.closures = closures; state.places = places;
+        updateSummary(); buildLayers();
+        setTimeout(()=> map.invalidateSize(true), 100);
+        fitIsolated();
+      } catch (e) {
+        console.error(e); $('statusbar').textContent = 'Data load failed'; showNotice(`Data load failed: ${e.message}. Confirm GitHub Pages has out_isolation_current files.`);
       }
-
-      body.innerHTML = rows.map(f => {
-        const p = getFeatureProps(f);
-        return `<tr class="clickable" data-place-key="${escapeHtml(placeKey(f))}">
-          <td><strong>${escapeHtml(p.name || "Unnamed")}</strong><br><span class="muted">${escapeHtml(p.lga || p.state || "")}</span></td>
-          <td>${categoryBadgeHtml(f)}<br><span class="muted">${escapeHtml(p.isolation_confidence || "")}</span></td>
-          <td><span class="mono">${escapeHtml(p.snap_distance_m || "—")}</span> m</td>
-        </tr>`;
-      }).join("");
-
-      body.querySelectorAll("tr[data-place-key]").forEach(row => {
-        row.addEventListener("click", () => {
-          const key = row.getAttribute("data-place-key");
-          const marker = state.markersByPlaceKey.get(key);
-          if (marker) {
-            map.setView(marker.getLatLng(), Math.max(map.getZoom(), 10), { animate: true });
-            marker.openPopup();
-          }
-        });
-      });
     }
-
-    function highlightTableRow(key) {
-      document.querySelectorAll("tr[data-place-key]").forEach(row => {
-        row.style.outline = row.getAttribute("data-place-key") === key ? "2px solid var(--red)" : "";
-      });
-    }
-
-    function updateStatus() {
-      const filters = getFilters();
-      const placeCount = state.places.filter(f => placePassesFilter(f, filters)).length;
-      const closureCount = state.closures.filter(f => closurePassesFilter(f, filters)).length;
-      const isoCount = state.places.filter(f => placeCategory(getFeatureProps(f)) === "isolated").length;
-      $("mapStatus").innerHTML = `
-        <span><strong>${isoCount}</strong> isolated place${isoCount === 1 ? "" : "s"}</span>
-        <span>${placeCount} places shown</span>
-        <span>${closureCount} closure geometries shown</span>
-        <span>Run: ${escapeHtml(formatDate(state.summary?.created_at || state.summary?.closure_source?.fetched_at))}</span>
-      `;
-    }
-
+    function fitQld() { map.fitBounds(QLD_BOUNDS, { padding:[20,20] }); setTimeout(()=>map.invalidateSize(true), 50); }
     function fitIsolated() {
-      const bounds = [];
-      state.places.forEach(f => {
-        if (placeCategory(getFeatureProps(f)) === "isolated") {
-          const ll = getFeatureLatLng(f);
-          if (ll) bounds.push(ll);
-        }
-      });
-      if (bounds.length) map.fitBounds(L.latLngBounds(bounds), { padding: [80, 80], maxZoom: 11 });
-      else map.fitBounds(qldBounds, { padding: [18, 18] });
+      const isoFeats = (state.places?.features || []).filter(f => isIsoCat(catOf(props(f))) || isQaCat(catOf(props(f))));
+      if (isoFeats.length) {
+        const layer = L.geoJSON({ type:'FeatureCollection', features: isoFeats });
+        map.fitBounds(layer.getBounds(), { padding:[80,80], maxZoom:9 });
+      } else fitQld();
     }
-
-    function downloadCsv() {
-      window.open(FILES.isolatedCsv, "_blank", "noopener");
+    function toggleBasemap() {
+      if (state.basemapOn) { Object.values(tileLayers).forEach(l => map.removeLayer(l)); state.basemapOn=false; $('toggleBasemap').textContent='Basemap off'; showNotice('Third-party basemap disabled. Vector base remains visible.'); return; }
+      tileLayers.esri.addTo(map); state.basemapOn=true; $('toggleBasemap').textContent='Basemap on'; setTimeout(()=>map.invalidateSize(true), 50);
     }
-
-    function rerenderFromFilters() {
-      renderClosures();
-      renderPlaces();
-      renderTable();
-      updateStatus();
+    function downloadVisibleCsv() {
+      const fields = ['place_id','name','state','lga','lat','lon','isolation_category','isolation_confidence','isolation_reason','snap_distance_m'];
+      const rows = [fields.join(',')].concat(state.filteredPlaceRows.map(p => fields.map(f => '"'+String(p[f] ?? '').replace(/"/g,'""')+'"').join(',')));
+      const blob = new Blob([rows.join('\n')], { type:'text/csv' });
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'qld_isolation_visible_places.csv'; a.click(); URL.revokeObjectURL(a.href);
     }
-
-    function setupEvents() {
-      ["placeFilter", "closureFilter", "globalSearch", "showAllPlaces", "showClosures", "showOnlyBlocking"].forEach(id => {
-        $(id).addEventListener("input", rerenderFromFilters);
-        $(id).addEventListener("change", rerenderFromFilters);
-      });
-      $("fitIsolatedBtn").addEventListener("click", fitIsolated);
-      $("fitQldBtn").addEventListener("click", () => map.fitBounds(qldBounds, { padding: [18, 18] }));
-      $("reloadBtn").addEventListener("click", () => { tileErrorCount = 0; $("tileWarning").classList.add("hide"); loadData(); });
-      $("downloadCsvBtn").addEventListener("click", downloadCsv);
-      $("themeBtn").addEventListener("click", () => {
-        const root = $("appRoot");
-        const current = root.getAttribute("data-theme") || "light";
-        const next = current === "light" ? "dark" : "light";
-        root.setAttribute("data-theme", next);
-        $("themeBtn").textContent = next === "dark" ? "Light mode" : "Dark mode";
-        // Redraw closures so colour variables are recalculated.
-        setTimeout(renderClosures, 0);
-      });
-    }
-
-    setupEvents();
-    loadData();
+    ['statusFilter','closureFilter','searchBox','showPlaces','showClosures','hideNonBlocking'].forEach(id => $(id).addEventListener('input', buildLayers));
+    $('fitQld').addEventListener('click', fitQld);
+    $('fitIsolated').addEventListener('click', fitIsolated);
+    $('reloadData').addEventListener('click', loadAll);
+    $('toggleBasemap').addEventListener('click', toggleBasemap);
+    $('downloadCsv').addEventListener('click', downloadVisibleCsv);
+    $('darkMode').addEventListener('click', () => { document.body.classList.toggle('dark'); setTimeout(()=>map.invalidateSize(true), 50); });
+    window.addEventListener('resize', () => map.invalidateSize(true));
+    loadAll();
   </script>
 </body>
 </html>
