@@ -3,7 +3,7 @@ place_id,name,place_type,state,lga,lat,lon,is_hub,nearest_node,snap_distance_m,h
 58,Amamoor,,QLD,,-26.3453044,152.6746864,False,1987737,21.1,True,True,True,not_isolated,high,Place still has hub access under both closure scenarios.,[]
 60,Amby,,QLD,,-26.5490156,148.1875799,False,981410,29.0,True,True,True,not_isolated,high,Place still has hub access under both closure scenarios.,[]
 148,Ballandean,,Qld,,-28.7988456,151.84266,False,2325004,67.3,True,True,True,not_isolated,high,Place still has hub access under both closure scenarios.,[]
-162,Bamaga,,QLD,,-10.8884267,142.3920741,False,321263,68.6,False,False,False,unknown_preexisting_disconnected,unknown,Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.,[]
+162,Bamaga,,QLD,,-10.8884267,142.3920741,False,321263,68.6,True,True,True,not_isolated,high,Place still has hub access under both closure scenarios.,[]
 232,Beerwah,,QLD,,-26.8580257,152.9569066,False,2098887,30.4,True,True,True,not_isolated,high,Place still has hub access under both closure scenarios.,[]
 243,Bell,,QLD,,-26.92752,151.4494868,False,1714155,272.6,True,True,True,not_isolated,high,Place still has hub access under both closure scenarios.,[]
 303,Biggenden,,QLD,,-25.5105,152.0458009,False,591393,45.0,True,True,True,not_isolated,high,Place still has hub access under both closure scenarios.,[]

@@ -127,12 +127,12 @@
         "is_hub": false,
         "nearest_node": "321263",
         "snap_distance_m": 68.6,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
+        "hub_access_before": true,
+        "hub_access_impassable_only": true,
+        "hub_access_all_blocking": true,
+        "isolation_category": "not_isolated",
+        "isolation_confidence": "high",
+        "isolation_reason": "Place still has hub access under both closure scenarios.",
         "nearby_blocking_closures_json": "[]"
       }
     },
