@@ -1788,33 +1788,6 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          153.4442639,
-          -27.3996441
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_66",
-        "name": "Amity",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Redland City",
-        "is_hub": false,
-        "nearest_node": "3529197",
-        "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
           147.8271076,
           -23.5476569
         ]
@@ -2139,60 +2112,6 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          141.2530337,
-          -11.1512683
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_5677",
-        "name": "Arafura Sea",
-        "place_type": "locality_representative_point",
-        "state": "QLD",
-        "lga": "Cook Shire",
-        "is_hub": false,
-        "nearest_node": "",
-        "snap_distance_m": 99319.5,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_place_not_snapped",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not be snapped to the road graph within the configured distance.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          141.4471862,
-          -10.469032
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_5675",
-        "name": "Arafura Sea",
-        "place_type": "locality_representative_point",
-        "state": "QLD",
-        "lga": "Torres Shire",
-        "is_hub": false,
-        "nearest_node": "",
-        "snap_distance_m": 82983.5,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_place_not_snapped",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not be snapped to the road graph within the configured distance.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
           152.662203,
           -26.1569442
         ]
@@ -2374,33 +2293,6 @@
         "isolation_category": "not_isolated",
         "isolation_confidence": "high",
         "isolation_reason": "Place still has hub access under both closure scenarios.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          146.8620041,
-          -19.1481358
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_91",
-        "name": "Arcadia",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Townsville City",
-        "is_hub": false,
-        "nearest_node": "1443154",
-        "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
         "nearby_blocking_closures_json": "[]"
       }
     },
@@ -3346,33 +3238,6 @@
         "isolation_category": "not_isolated",
         "isolation_confidence": "high",
         "isolation_reason": "Place still has hub access under both closure scenarios.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          142.1676832,
-          -10.1510802
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_5570",
-        "name": "Badu Island",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Torres Strait Island Regional",
-        "is_hub": false,
-        "nearest_node": "324145",
-        "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
         "nearby_blocking_closures_json": "[]"
       }
     },
@@ -8592,33 +8457,6 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          142.2126139,
-          -9.232281
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_5572",
-        "name": "Boigu Island",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Torres Strait Island Regional",
-        "is_hub": false,
-        "nearest_node": "324520",
-        "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
           153.1299148,
           -26.7389686
         ]
@@ -9699,33 +9537,6 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          139.8636197,
-          -16.6614496
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_5744",
-        "name": "Bountiful Islands",
-        "place_type": "locality_representative_point",
-        "state": "QLD",
-        "lga": "Mornington Shire",
-        "is_hub": false,
-        "nearest_node": "",
-        "snap_distance_m": 28052.4,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_place_not_snapped",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not be snapped to the road graph within the configured distance.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
           148.1324768,
           -20.116376
         ]
@@ -9819,33 +9630,6 @@
         "lga": "Scenic Rim Regional",
         "is_hub": false,
         "nearest_node": "3690504",
-        "snap_distance_m": 0.0,
-        "hub_access_before": true,
-        "hub_access_impassable_only": true,
-        "hub_access_all_blocking": true,
-        "isolation_category": "not_isolated",
-        "isolation_confidence": "high",
-        "isolation_reason": "Place still has hub access under both closure scenarios.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          151.3337435,
-          -23.9275314
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_363",
-        "name": "Boyne Island",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Gladstone Regional",
-        "is_hub": false,
-        "nearest_node": "824589",
         "snap_distance_m": 0.0,
         "hub_access_before": true,
         "hub_access_impassable_only": true,
@@ -10414,33 +10198,6 @@
         "is_hub": false,
         "nearest_node": "3664248",
         "snap_distance_m": 0.0,
-        "hub_access_before": true,
-        "hub_access_impassable_only": true,
-        "hub_access_all_blocking": true,
-        "isolation_category": "not_isolated",
-        "isolation_confidence": "high",
-        "isolation_reason": "Place still has hub access under both closure scenarios.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          153.1238564,
-          -26.8777708
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_4001",
-        "name": "Bribie Island North",
-        "place_type": "locality_representative_point",
-        "state": "QLD",
-        "lga": "Sunshine Coast Regional",
-        "is_hub": false,
-        "nearest_node": "3277112",
-        "snap_distance_m": 2620.7,
         "hub_access_before": true,
         "hub_access_impassable_only": true,
         "hub_access_all_blocking": true,
@@ -11805,33 +11562,6 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          153.368657,
-          -27.078743
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_433",
-        "name": "Bulwer",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Brisbane City",
-        "is_hub": false,
-        "nearest_node": "3524484",
-        "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
           152.6836786,
           -28.0616657
         ]
@@ -12796,33 +12526,6 @@
         "isolation_category": "not_isolated",
         "isolation_confidence": "high",
         "isolation_reason": "Place still has hub access under both closure scenarios.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          142.8205061,
-          -10.1461172
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_5758",
-        "name": "Burrar Islet",
-        "place_type": "locality_representative_point",
-        "state": "QLD",
-        "lga": "Torres Strait Island Regional",
-        "is_hub": false,
-        "nearest_node": "",
-        "snap_distance_m": 6600.7,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_place_not_snapped",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not be snapped to the road graph within the configured distance.",
         "nearby_blocking_closures_json": "[]"
       }
     },
@@ -18690,33 +18393,6 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          153.3300792,
-          -27.5695008
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_5683",
-        "name": "Coochiemudlo Island",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Redland City",
-        "is_hub": false,
-        "nearest_node": "3135458",
-        "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
           152.67103,
           -28.1159747
         ]
@@ -19959,357 +19635,6 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          152.4654834,
-          -24.8152012
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_4047",
-        "name": "Coral Sea",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Bundaberg Regional",
-        "is_hub": false,
-        "nearest_node": "1543782",
-        "snap_distance_m": 0.0,
-        "hub_access_before": true,
-        "hub_access_impassable_only": true,
-        "hub_access_all_blocking": true,
-        "isolation_category": "not_isolated",
-        "isolation_confidence": "high",
-        "isolation_reason": "Place still has hub access under both closure scenarios.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          148.6728363,
-          -19.5525769
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_4040",
-        "name": "Coral Sea",
-        "place_type": "locality_representative_point",
-        "state": "QLD",
-        "lga": "Burdekin Shire",
-        "is_hub": false,
-        "nearest_node": "",
-        "snap_distance_m": 63824.8,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_place_not_snapped",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not be snapped to the road graph within the configured distance.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          146.1811796,
-          -17.0508111
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_4034",
-        "name": "Coral Sea",
-        "place_type": "locality_representative_point",
-        "state": "QLD",
-        "lga": "Cairns Regional",
-        "is_hub": false,
-        "nearest_node": "",
-        "snap_distance_m": 30739.8,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_place_not_snapped",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not be snapped to the road graph within the configured distance.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          146.5332188,
-          -17.99159
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_4037",
-        "name": "Coral Sea",
-        "place_type": "locality_representative_point",
-        "state": "QLD",
-        "lga": "Cassowary Coast Regional",
-        "is_hub": false,
-        "nearest_node": "",
-        "snap_distance_m": 43536.8,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_place_not_snapped",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not be snapped to the road graph within the configured distance.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          143.6793479,
-          -12.1864243
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_4032",
-        "name": "Coral Sea",
-        "place_type": "locality_representative_point",
-        "state": "QLD",
-        "lga": "Cook Shire",
-        "is_hub": false,
-        "nearest_node": "",
-        "snap_distance_m": 55226.7,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_place_not_snapped",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not be snapped to the road graph within the configured distance.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          145.7131162,
-          -16.3047387
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_5777",
-        "name": "Coral Sea",
-        "place_type": "locality_representative_point",
-        "state": "QLD",
-        "lga": "Douglas Shire",
-        "is_hub": false,
-        "nearest_node": "",
-        "snap_distance_m": 26782.8,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_place_not_snapped",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not be snapped to the road graph within the configured distance.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          152.2316806,
-          -23.8419346
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_4036",
-        "name": "Coral Sea",
-        "place_type": "locality_representative_point",
-        "state": "QLD",
-        "lga": "Gladstone Regional",
-        "is_hub": false,
-        "nearest_node": "",
-        "snap_distance_m": 53963.8,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_place_not_snapped",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not be snapped to the road graph within the configured distance.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          147.3364954,
-          -18.7486439
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_4038",
-        "name": "Coral Sea",
-        "place_type": "locality_representative_point",
-        "state": "QLD",
-        "lga": "Hinchinbrook Shire",
-        "is_hub": false,
-        "nearest_node": "",
-        "snap_distance_m": 66999.2,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_place_not_snapped",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not be snapped to the road graph within the configured distance.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          151.8534462,
-          -22.7312211
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_4045",
-        "name": "Coral Sea",
-        "place_type": "locality_representative_point",
-        "state": "QLD",
-        "lga": "Livingstone Shire",
-        "is_hub": false,
-        "nearest_node": "",
-        "snap_distance_m": 114671.9,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_place_not_snapped",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not be snapped to the road graph within the configured distance.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          149.3019459,
-          -21.2916637
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_4043",
-        "name": "Coral Sea",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Mackay Regional",
-        "is_hub": false,
-        "nearest_node": "1012229",
-        "snap_distance_m": 0.0,
-        "hub_access_before": true,
-        "hub_access_impassable_only": true,
-        "hub_access_all_blocking": true,
-        "isolation_category": "not_isolated",
-        "isolation_confidence": "high",
-        "isolation_reason": "Place still has hub access under both closure scenarios.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          144.0406435,
-          -9.9141969
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_4031",
-        "name": "Coral Sea",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Torres Shire",
-        "is_hub": false,
-        "nearest_node": "324772",
-        "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          146.8374448,
-          -19.2414765
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_4039",
-        "name": "Coral Sea",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Townsville City",
-        "is_hub": false,
-        "nearest_node": "1479942",
-        "snap_distance_m": 0.0,
-        "hub_access_before": true,
-        "hub_access_impassable_only": true,
-        "hub_access_all_blocking": true,
-        "isolation_category": "not_isolated",
-        "isolation_confidence": "high",
-        "isolation_reason": "Place still has hub access under both closure scenarios.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          148.2255284,
-          -19.967227
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_4041",
-        "name": "Coral Sea",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Whitsunday Regional",
-        "is_hub": false,
-        "nearest_node": "1346360",
-        "snap_distance_m": 0.0,
-        "hub_access_before": true,
-        "hub_access_impassable_only": true,
-        "hub_access_all_blocking": true,
-        "isolation_category": "not_isolated",
-        "isolation_confidence": "high",
-        "isolation_reason": "Place still has hub access under both closure scenarios.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
           141.7426466,
           -18.2827312
         ]
@@ -20816,33 +20141,6 @@
         "isolation_confidence": "medium",
         "isolation_reason": "Place can still reach a hub with only impassable closures blocked, but not when restricted/conditional-access closures are also blocked.",
         "nearby_blocking_closures_json": "[{\"closure_id\": \"qld.qldtraffic.cde36f8cc37344b8392e\", \"source_event_id\": \"790215\", \"distance_m\": 17481.7, \"category_norm\": \"restricted\", \"passability_norm\": \"passable_with_conditions\", \"status_norm\": \"active\", \"reason_norm\": \"unknown\", \"title\": \"\", \"description\": \"Cape Tribulation, Bloomfield Road from Cape Tribulation through to Wujal Wujal is OPEN to traffic 4WD advised and drive to weather conditions. | Restricted to four wheel drive vehicles only\", \"road_name\": \"Rykers Road\", \"locality\": \"Cape Tribulation\", \"restrictions_text\": \"Motorists are urged to show patience\", \"raw_advice\": \"Motorists are urged to show patience\", \"raw_event_type\": \"Hazard\", \"raw_event_subtype\": \"Adverse driving conditions\", \"raw_impact_type\": \"Road restricted\", \"raw_impact_subtype\": \"Restricted to four wheel drive vehicles only\", \"url\": \"https://api.qldtraffic.qld.gov.au/v2/events/790215\"}, {\"closure_id\": \"qld.qldtraffic.ab683581a9ff9bd26d15\", \"source_event_id\": \"539691\", \"distance_m\": 149198.3, \"category_norm\": \"road_closed\", \"passability_norm\": \"impassable\", \"status_norm\": \"active\", \"reason_norm\": \"unknown\", \"title\": \"\", \"description\": \"Coolabbi Creek Bridge on Gotak Road, Evelyn is temporarily closed. Motorists are encouraged to observe signage and seek alternate route. | Road closed to all traffic\", \"road_name\": \"Go Tack Road\", \"locality\": \"Evelyn\", \"restrictions_text\": \"Seek alternative transport method\", \"raw_advice\": \"Seek alternative transport method\", \"raw_event_type\": \"Hazard\", \"raw_event_subtype\": \"Bridge or culvert damaged\", \"raw_impact_type\": \"Closures\", \"raw_impact_subtype\": \"Road closed to all traffic\", \"url\": \"https://api.qldtraffic.qld.gov.au/v2/events/539691\"}, {\"closure_id\": \"qld.qldtraffic.92e816fe3b6cf5bd28bc\", \"source_event_id\": \"770764\", \"distance_m\": 334431.3, \"category_norm\": \"road_closed\", \"passability_norm\": \"impassable\", \"status_norm\": \"active\", \"reason_norm\": \"flood\", \"title\": \"\", \"description\": \"Dunbar to Koolatah | Road closed to all traffic\", \"road_name\": \"Dunbar Koolatah Road / Dunbar Kowanyama Road / Koolatah Access\", \"locality\": \"Maramie / Yagoonya\", \"restrictions_text\": \"Do not drive in flood waters\", \"raw_advice\": \"Do not drive in flood waters\", \"raw_event_type\": \"Flooding\", \"raw_event_subtype\": \"Long-term flooding\", \"raw_impact_type\": \"Closures\", \"raw_impact_subtype\": \"Road closed to all traffic\", \"url\": \"https://api.qldtraffic.qld.gov.au/v2/events/770764\"}, {\"closure_id\": \"qld.qldtraffic.6bcd799d9df156d433b5\", \"source_event_id\": \"813628\", \"distance_m\": 387227.1, \"category_norm\": \"road_closed\", \"passability_norm\": \"impassable\", \"status_norm\": \"active\", \"reason_norm\": \"unknown\", \"title\": \"\", \"description\": \"Between Sturt Street and Railway Avenue | Road closed to all traffic\", \"road_name\": \"Boundary Street\", \"locality\": \"Hyde Park / Railway Estate\", \"restrictions_text\": \"Diversions are in place\", \"raw_advice\": \"Diversions are in place\", \"raw_event_type\": \"Special event\", \"raw_event_subtype\": \"N/A\", \"raw_impact_type\": \"Closures\", \"raw_impact_subtype\": \"Road closed to all traffic\", \"url\": \"https://api.qldtraffic.qld.gov.au/v2/events/813628\"}, {\"closure_id\": \"qld.qldtraffic.3742f7852ae65ed47c75\", \"source_event_id\": \"777052\", \"distance_m\": 395517.8, \"category_norm\": \"road_closed\", \"passability_norm\": \"impassable\", \"status_norm\": \"active\", \"reason_norm\": \"flood\", \"title\": \"\", \"description\": \"Do not drive in flood waters | Road closed to all traffic\", \"road_name\": \"Dunbar Kowanyama Road\", \"locality\": \"Yagoonya\", \"restrictions_text\": \"Do not drive in flood waters\", \"raw_advice\": \"Do not drive in flood waters\", \"raw_event_type\": \"Flooding\", \"raw_event_subtype\": \"Long-term flooding\", \"raw_impact_type\": \"Closures\", \"raw_impact_subtype\": \"Road closed to all traffic\", \"url\": \"https://api.qldtraffic.qld.gov.au/v2/events/777052\"}]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          153.3662062,
-          -27.1255295
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_724",
-        "name": "Cowan Cowan",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Brisbane City",
-        "is_hub": false,
-        "nearest_node": "3524413",
-        "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
-        "nearby_blocking_closures_json": "[]"
       }
     },
     {
@@ -21957,33 +21255,6 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          151.1997577,
-          -23.7364869
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_772",
-        "name": "Curtis Island",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Gladstone Regional",
-        "is_hub": false,
-        "nearest_node": "1402018",
-        "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
           151.7444494,
           -26.3459325
         ]
@@ -22948,33 +22219,6 @@
         "isolation_category": "not_isolated",
         "isolation_confidence": "high",
         "isolation_reason": "Place still has hub access under both closure scenarios.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          142.5418702,
-          -9.4195822
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_5579",
-        "name": "Dauan Island",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Torres Strait Island Regional",
-        "is_hub": false,
-        "nearest_node": "325761",
-        "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
         "nearby_blocking_closures_json": "[]"
       }
     },
@@ -24549,33 +23793,6 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          144.026484,
-          -9.9437801
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_5764",
-        "name": "Dowar Islet",
-        "place_type": "locality_representative_point",
-        "state": "QLD",
-        "lga": "Torres Strait Island Regional",
-        "is_hub": false,
-        "nearest_node": "324721",
-        "snap_distance_m": 3182.6,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
           152.7235896,
           -26.0513981
         ]
@@ -25305,33 +24522,6 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          146.1442869,
-          -17.9428013
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_4861",
-        "name": "Dunk",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Cassowary Coast Regional",
-        "is_hub": false,
-        "nearest_node": "254822",
-        "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
           148.0798365,
           -27.1671307
         ]
@@ -25432,33 +24622,6 @@
         "isolation_category": "not_isolated",
         "isolation_confidence": "high",
         "isolation_reason": "Place still has hub access under both closure scenarios.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          153.4043544,
-          -27.4982067
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_875",
-        "name": "Dunwich",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Redland City",
-        "is_hub": false,
-        "nearest_node": "3479790",
-        "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
         "nearby_blocking_closures_json": "[]"
       }
     },
@@ -27627,33 +26790,6 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          143.7726648,
-          -9.5954791
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_5762",
-        "name": "Erub Island",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Torres Strait Island Regional",
-        "is_hub": false,
-        "nearest_node": "325585",
-        "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
           152.4169468,
           -27.2528298
         ]
@@ -28267,33 +27403,6 @@
         "isolation_category": "not_isolated",
         "isolation_confidence": "high",
         "isolation_reason": "Place still has hub access under both closure scenarios.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          153.1242618,
-          -25.5133263
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_971",
-        "name": "Eurong",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Fraser Coast Regional",
-        "is_hub": false,
-        "nearest_node": "3292669",
-        "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
         "nearby_blocking_closures_json": "[]"
       }
     },
@@ -29382,33 +28491,6 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          145.9945627,
-          -16.9312866
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_1011",
-        "name": "Fitzroy Island",
-        "place_type": "locality_representative_point",
-        "state": "QLD",
-        "lga": "Cairns Regional",
-        "is_hub": false,
-        "nearest_node": "",
-        "snap_distance_m": 8138.8,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_place_not_snapped",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not be snapped to the road graph within the configured distance.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
           152.9483258,
           -27.8114214
         ]
@@ -29671,33 +28753,6 @@
         "isolation_category": "not_isolated",
         "isolation_confidence": "high",
         "isolation_reason": "Place still has hub access under both closure scenarios.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          146.8750804,
-          -19.1141803
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_5628",
-        "name": "Florence Bay",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Townsville City",
-        "is_hub": false,
-        "nearest_node": "1442454",
-        "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
         "nearby_blocking_closures_json": "[]"
       }
     },
@@ -31750,33 +30805,6 @@
         "isolation_category": "not_isolated",
         "isolation_confidence": "high",
         "isolation_reason": "Place still has hub access under both closure scenarios.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          151.2862806,
-          -23.8115742
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_5723",
-        "name": "Gladstone Harbour",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Gladstone Regional",
-        "is_hub": false,
-        "nearest_node": "912093",
-        "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
         "nearby_blocking_closures_json": "[]"
       }
     },
@@ -34539,33 +33567,6 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          152.8756148,
-          -25.6127239
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_4189",
-        "name": "Great Sandy Strait",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Fraser Coast Regional",
-        "is_hub": false,
-        "nearest_node": "2015211",
-        "snap_distance_m": 0.0,
-        "hub_access_before": true,
-        "hub_access_impassable_only": true,
-        "hub_access_all_blocking": true,
-        "isolation_category": "not_isolated",
-        "isolation_confidence": "high",
-        "isolation_reason": "Place still has hub access under both closure scenarios.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
           145.8299614,
           -17.03377
         ]
@@ -34585,33 +33586,6 @@
         "isolation_category": "not_isolated",
         "isolation_confidence": "high",
         "isolation_reason": "Place still has hub access under both closure scenarios.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          145.9740375,
-          -16.7602403
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_1168",
-        "name": "Green Island",
-        "place_type": "locality_representative_point",
-        "state": "QLD",
-        "lga": "Cairns Regional",
-        "is_hub": false,
-        "nearest_node": "",
-        "snap_distance_m": 20136.2,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_place_not_snapped",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not be snapped to the road graph within the configured distance.",
         "nearby_blocking_closures_json": "[]"
       }
     },
@@ -35314,87 +34288,6 @@
         "isolation_category": "not_isolated",
         "isolation_confidence": "high",
         "isolation_reason": "Place still has hub access under both closure scenarios.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          142.8305392,
-          -10.2545802
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_5759",
-        "name": "Guijar Islet",
-        "place_type": "locality_representative_point",
-        "state": "QLD",
-        "lga": "Torres Strait Island Regional",
-        "is_hub": false,
-        "nearest_node": "",
-        "snap_distance_m": 5037.2,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_place_not_snapped",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not be snapped to the road graph within the configured distance.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          141.9077011,
-          -11.9578176
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_5240",
-        "name": "Gulf Of Carpentaria",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Cook Shire",
-        "is_hub": false,
-        "nearest_node": "319595",
-        "snap_distance_m": 0.0,
-        "hub_access_before": true,
-        "hub_access_impassable_only": true,
-        "hub_access_all_blocking": true,
-        "isolation_category": "not_isolated",
-        "isolation_confidence": "high",
-        "isolation_reason": "Place still has hub access under both closure scenarios.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          142.0622931,
-          -10.9886805
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_4290",
-        "name": "Gulf Of Carpentaria",
-        "place_type": "locality_representative_point",
-        "state": "QLD",
-        "lga": "Torres Shire",
-        "is_hub": false,
-        "nearest_node": "",
-        "snap_distance_m": 22385.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_place_not_snapped",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not be snapped to the road graph within the configured distance.",
         "nearby_blocking_closures_json": "[]"
       }
     },
@@ -37563,33 +36456,6 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          146.2435206,
-          -18.3089221
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_1268",
-        "name": "Hinchinbrook",
-        "place_type": "locality_representative_point",
-        "state": "QLD",
-        "lga": "Cassowary Coast Regional",
-        "is_hub": false,
-        "nearest_node": "",
-        "snap_distance_m": 17377.6,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_place_not_snapped",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not be snapped to the road graph within the configured distance.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
           152.0912205,
           -27.8301676
         ]
@@ -38103,33 +36969,6 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          142.3151909,
-          -10.6135004
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_4880",
-        "name": "Horn",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Torres Shire",
-        "is_hub": false,
-        "nearest_node": "320001",
-        "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
           151.8889569,
           -25.0713119
         ]
@@ -38176,33 +37015,6 @@
         "isolation_category": "not_isolated",
         "isolation_confidence": "high",
         "isolation_reason": "Place still has hub access under both closure scenarios.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          146.8523894,
-          -19.1231569
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_1293",
-        "name": "Horseshoe Bay",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Townsville City",
-        "is_hub": false,
-        "nearest_node": "1441257",
-        "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
         "nearby_blocking_closures_json": "[]"
       }
     },
@@ -38662,33 +37474,6 @@
         "isolation_category": "not_isolated",
         "isolation_confidence": "high",
         "isolation_reason": "Place still has hub access under both closure scenarios.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          142.7777944,
-          -9.8990782
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_5756",
-        "name": "Iama Island",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Torres Strait Island Regional",
-        "is_hub": false,
-        "nearest_node": "323605",
-        "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
         "nearby_blocking_closures_json": "[]"
       }
     },
@@ -41073,33 +39858,6 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          153.229133,
-          -25.2235045
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_5812",
-        "name": "K'gari",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Fraser Coast Regional",
-        "is_hub": false,
-        "nearest_node": "3292755",
-        "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
           145.3833461,
           -17.5043217
         ]
@@ -41856,33 +40614,6 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          153.3742689,
-          -27.6385668
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_1396",
-        "name": "Karragarra Island",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Redland City",
-        "is_hub": false,
-        "nearest_node": "3098589",
-        "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
           141.8961436,
           -17.3322852
         ]
@@ -42531,33 +41262,6 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          142.2027075,
-          -10.5530226
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_5755",
-        "name": "Keriri Island",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Torres Strait Island Regional",
-        "is_hub": false,
-        "nearest_node": "322054",
-        "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
           153.0296968,
           -28.1073378
         ]
@@ -42577,33 +41281,6 @@
         "isolation_category": "not_isolated",
         "isolation_confidence": "high",
         "isolation_reason": "Place still has hub access under both closure scenarios.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          149.4139552,
-          -20.9140391
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_5813",
-        "name": "Keswick Island",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Mackay Regional",
-        "is_hub": false,
-        "nearest_node": "1341470",
-        "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
         "nearby_blocking_closures_json": "[]"
       }
     },
@@ -44062,33 +42739,6 @@
         "isolation_category": "not_isolated",
         "isolation_confidence": "high",
         "isolation_reason": "Place still has hub access under both closure scenarios.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          153.4204651,
-          -27.3499383
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_1475",
-        "name": "Kooringal",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Brisbane City",
-        "is_hub": false,
-        "nearest_node": "3530541",
-        "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
         "nearby_blocking_closures_json": "[]"
       }
     },
@@ -45636,33 +44286,6 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          153.3829816,
-          -27.6229722
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_1530",
-        "name": "Lamb Island",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Redland City",
-        "is_hub": false,
-        "nearest_node": "3098753",
-        "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
           145.677512,
           -16.9818665
         ]
@@ -46905,33 +45528,6 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          145.4477196,
-          -14.6784578
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_4923",
-        "name": "Lizard",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Cook Shire",
-        "is_hub": false,
-        "nearest_node": "194776",
-        "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
           146.4252448,
           -21.2641506
         ]
@@ -47437,33 +46033,6 @@
         "isolation_category": "not_isolated",
         "isolation_confidence": "high",
         "isolation_reason": "Place still has hub access under both closure scenarios.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          145.5653879,
-          -16.3861833
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_5024",
-        "name": "Low Isles",
-        "place_type": "locality_representative_point",
-        "state": "QLD",
-        "lga": "Douglas Shire",
-        "is_hub": false,
-        "nearest_node": "",
-        "snap_distance_m": 15598.2,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_place_not_snapped",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not be snapped to the road graph within the configured distance.",
         "nearby_blocking_closures_json": "[]"
       }
     },
@@ -48282,33 +46851,6 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          142.1864819,
-          -9.9571854
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_5588",
-        "name": "Mabuiag Island",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Torres Strait Island Regional",
-        "is_hub": false,
-        "nearest_node": "324392",
-        "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
           151.0718874,
           -27.0385457
         ]
@@ -48652,33 +47194,6 @@
         "isolation_category": "not_isolated",
         "isolation_confidence": "high",
         "isolation_reason": "Place still has hub access under both closure scenarios.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          153.3587045,
-          -27.6052275
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_1610",
-        "name": "Macleay Island",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Redland City",
-        "is_hub": false,
-        "nearest_node": "3097366",
-        "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
         "nearby_blocking_closures_json": "[]"
       }
     },
@@ -50199,33 +48714,6 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          143.4056623,
-          -9.751652
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_5596",
-        "name": "Masig Island",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Torres Strait Island Regional",
-        "is_hub": false,
-        "nearest_node": "324666",
-        "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
           151.941396,
           -28.118454
         ]
@@ -50812,33 +49300,6 @@
         "isolation_category": "not_isolated",
         "isolation_confidence": "high",
         "isolation_reason": "Place still has hub access under both closure scenarios.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          144.0511192,
-          -9.9187027
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_5763",
-        "name": "Mer Island",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Torres Strait Island Regional",
-        "is_hub": false,
-        "nearest_node": "324860",
-        "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
         "nearby_blocking_closures_json": "[]"
       }
     },
@@ -52548,33 +51009,6 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          142.2346856,
-          -10.218519
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_5585",
-        "name": "Moa Island",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Torres Strait Island Regional",
-        "is_hub": false,
-        "nearest_node": "322478",
-        "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
           153.1355637,
           -26.79345
         ]
@@ -53863,87 +52297,6 @@
         "isolation_category": "not_isolated",
         "isolation_confidence": "high",
         "isolation_reason": "Place still has hub access under both closure scenarios.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          153.1905496,
-          -27.4518738
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_5788",
-        "name": "Moreton Bay",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Brisbane City",
-        "is_hub": false,
-        "nearest_node": "3486437",
-        "snap_distance_m": 0.0,
-        "hub_access_before": true,
-        "hub_access_impassable_only": true,
-        "hub_access_all_blocking": true,
-        "isolation_category": "not_isolated",
-        "isolation_confidence": "high",
-        "isolation_reason": "Place still has hub access under both closure scenarios.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          153.3471846,
-          -27.5431715
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_1795",
-        "name": "Moreton Bay",
-        "place_type": "locality_representative_point",
-        "state": "QLD",
-        "lga": "Redland City",
-        "is_hub": false,
-        "nearest_node": "3132973",
-        "snap_distance_m": 3052.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          153.3752668,
-          -27.1821288
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_1796",
-        "name": "Moreton Island",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Brisbane City",
-        "is_hub": false,
-        "nearest_node": "3524565",
-        "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
         "nearby_blocking_closures_json": "[]"
       }
     },
@@ -59433,33 +57786,6 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          146.8481682,
-          -19.1568194
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_2086",
-        "name": "Nelly Bay",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Townsville City",
-        "is_hub": false,
-        "nearest_node": "1441944",
-        "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
           145.875923,
           -17.5494189
         ]
@@ -61315,33 +59641,6 @@
         "isolation_category": "not_isolated",
         "isolation_confidence": "high",
         "isolation_reason": "Place still has hub access under both closure scenarios.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          153.4403048,
-          -27.572128
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_5682",
-        "name": "North Stradbroke Island",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Redland City",
-        "is_hub": false,
-        "nearest_node": "3133194",
-        "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
         "nearby_blocking_closures_json": "[]"
       }
     },
@@ -63375,60 +61674,6 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          146.5767275,
-          -18.7356506
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_3589",
-        "name": "Palm Island",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Hinchinbrook Shire",
-        "is_hub": false,
-        "nearest_node": "1440341",
-        "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          146.5983872,
-          -18.721562
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_5584",
-        "name": "Palm Island",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Palm Island Aboriginal Shire",
-        "is_hub": false,
-        "nearest_node": "1440640",
-        "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
           143.0321359,
           -16.1030102
         ]
@@ -64347,33 +62592,6 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          153.355874,
-          -27.5007104
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_2238",
-        "name": "Peel Island",
-        "place_type": "locality_representative_point",
-        "state": "QLD",
-        "lga": "Redland City",
-        "is_hub": false,
-        "nearest_node": "3484504",
-        "snap_distance_m": 4879.5,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
           145.6009698,
           -17.3171356
         ]
@@ -64879,33 +63097,6 @@
         "isolation_category": "not_isolated",
         "isolation_confidence": "high",
         "isolation_reason": "Place still has hub access under both closure scenarios.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          146.8299427,
-          -19.1709955
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_2257",
-        "name": "Picnic Bay",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Townsville City",
-        "is_hub": false,
-        "nearest_node": "1441582",
-        "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
         "nearby_blocking_closures_json": "[]"
       }
     },
@@ -65805,33 +63996,6 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          153.5276594,
-          -27.4311651
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_2285",
-        "name": "Point Lookout",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Redland City",
-        "is_hub": false,
-        "nearest_node": "3529356",
-        "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
           152.8128464,
           -25.2566719
         ]
@@ -66129,33 +64293,6 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          143.0697829,
-          -10.0504718
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_5760",
-        "name": "Poruma Island",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Torres Strait Island Regional",
-        "is_hub": false,
-        "nearest_node": "323532",
-        "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
           152.065201,
           -27.5300415
         ]
@@ -66445,33 +64582,6 @@
         "isolation_category": "not_isolated",
         "isolation_confidence": "high",
         "isolation_reason": "Place still has hub access under both closure scenarios.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          142.2093758,
-          -10.614555
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_4881",
-        "name": "Prince Of Wales",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Torres Shire",
-        "is_hub": false,
-        "nearest_node": "319943",
-        "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
         "nearby_blocking_closures_json": "[]"
       }
     },
@@ -68370,33 +66480,6 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          147.5313409,
-          -19.6314747
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_2369",
-        "name": "Rita Island",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Burdekin Shire",
-        "is_hub": false,
-        "nearest_node": "752939",
-        "snap_distance_m": 0.0,
-        "hub_access_before": true,
-        "hub_access_impassable_only": true,
-        "hub_access_all_blocking": true,
-        "isolation_category": "not_isolated",
-        "isolation_confidence": "high",
-        "isolation_reason": "Place still has hub access under both closure scenarios.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
           152.9125784,
           -25.4089102
         ]
@@ -70125,33 +68208,6 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          153.3805586,
-          -27.6733067
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_2432",
-        "name": "Russell Island",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Redland City",
-        "is_hub": false,
-        "nearest_node": "3079512",
-        "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
           139.5009829,
           -20.7009628
         ]
@@ -70279,33 +68335,6 @@
         "isolation_category": "not_isolated",
         "isolation_confidence": "high",
         "isolation_reason": "Place still has hub access under both closure scenarios.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          142.6332477,
-          -9.3907577
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_5581",
-        "name": "Saibai Island",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Torres Strait Island Regional",
-        "is_hub": false,
-        "nearest_node": "326065",
-        "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
         "nearby_blocking_closures_json": "[]"
       }
     },
@@ -72933,33 +70962,6 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          153.4207309,
-          -27.8288351
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_5663",
-        "name": "South Stradbroke",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Gold Coast City",
-        "is_hub": false,
-        "nearest_node": "2703910",
-        "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
           151.9525173,
           -27.5762334
         ]
@@ -73033,33 +71035,6 @@
         "isolation_category": "not_isolated",
         "isolation_confidence": "high",
         "isolation_reason": "Place still has hub access under both closure scenarios.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          139.5023864,
-          -17.0529648
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_5361",
-        "name": "South Wellesley Islands",
-        "place_type": "locality_representative_point",
-        "state": "QLD",
-        "lga": "Mornington Shire",
-        "is_hub": false,
-        "nearest_node": "",
-        "snap_distance_m": 12596.9,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_place_not_snapped",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not be snapped to the road graph within the configured distance.",
         "nearby_blocking_closures_json": "[]"
       }
     },
@@ -73195,33 +71170,6 @@
         "isolation_category": "unknown_preexisting_disconnected",
         "isolation_confidence": "unknown",
         "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          153.4034627,
-          -27.7829015
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_5664",
-        "name": "Southern Moreton Bay Islands",
-        "place_type": "locality_representative_point",
-        "state": "QLD",
-        "lga": "Gold Coast City",
-        "is_hub": false,
-        "nearest_node": "3070216",
-        "snap_distance_m": 2753.5,
-        "hub_access_before": true,
-        "hub_access_impassable_only": true,
-        "hub_access_all_blocking": true,
-        "isolation_category": "not_isolated",
-        "isolation_confidence": "high",
-        "isolation_reason": "Place still has hub access under both closure scenarios.",
         "nearby_blocking_closures_json": "[]"
       }
     },
@@ -76011,33 +73959,6 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          139.5990778,
-          -17.115213
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_5745",
-        "name": "Sweers Island",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Mornington Shire",
-        "is_hub": false,
-        "nearest_node": "28272",
-        "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
           145.3312366,
           -16.4722264
         ]
@@ -78414,33 +76335,6 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          150.9444303,
-          -23.1774385
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_5070",
-        "name": "The Keppels",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Livingstone Shire",
-        "is_hub": false,
-        "nearest_node": "1449886",
-        "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
           149.0101644,
           -21.052139
         ]
@@ -78522,33 +76416,6 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          151.0678912,
-          -23.6388049
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_2684",
-        "name": "The Narrows",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Gladstone Regional",
-        "is_hub": false,
-        "nearest_node": "1403240",
-        "snap_distance_m": 0.0,
-        "hub_access_before": true,
-        "hub_access_impassable_only": true,
-        "hub_access_all_blocking": true,
-        "isolation_category": "not_isolated",
-        "isolation_confidence": "high",
-        "isolation_reason": "Place still has hub access under both closure scenarios.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
           152.5830497,
           -26.1846185
         ]
@@ -78568,33 +76435,6 @@
         "isolation_category": "not_isolated",
         "isolation_confidence": "high",
         "isolation_reason": "Place still has hub access under both closure scenarios.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          151.0630842,
-          -21.8666281
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_4683",
-        "name": "The Percy Group",
-        "place_type": "locality_representative_point",
-        "state": "QLD",
-        "lga": "Isaac Regional",
-        "is_hub": false,
-        "nearest_node": "",
-        "snap_distance_m": 99111.6,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_place_not_snapped",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not be snapped to the road graph within the configured distance.",
         "nearby_blocking_closures_json": "[]"
       }
     },
@@ -79162,33 +77002,6 @@
         "isolation_category": "not_isolated",
         "isolation_confidence": "high",
         "isolation_reason": "Place still has hub access under both closure scenarios.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          142.2299863,
-          -10.5715005
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_2712",
-        "name": "Thursday Island",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Torres Shire",
-        "is_hub": false,
-        "nearest_node": "330003",
-        "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
         "nearby_blocking_closures_json": "[]"
       }
     },
@@ -80250,33 +78063,6 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          142.2147513,
-          -10.2359884
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_2753",
-        "name": "Torres Strait",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Torres Shire",
-        "is_hub": false,
-        "nearest_node": "322303",
-        "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
           151.8900056,
           -27.5424721
         ]
@@ -81160,33 +78946,6 @@
         "isolation_category": "unknown_place_not_snapped",
         "isolation_confidence": "unknown",
         "isolation_reason": "Place could not be snapped to the road graph within the configured distance.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          143.5450083,
-          -9.5079011
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_5761",
-        "name": "Ugar Island",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Torres Strait Island Regional",
-        "is_hub": false,
-        "nearest_node": "325501",
-        "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
         "nearby_blocking_closures_json": "[]"
       }
     },
@@ -84219,33 +81978,6 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          142.8237627,
-          -10.2062467
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_5757",
-        "name": "Warraber Islet",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Torres Strait Island Regional",
-        "is_hub": false,
-        "nearest_node": "323369",
-        "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
           145.8230205,
           -18.059914
         ]
@@ -84705,33 +82437,6 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          144.0363098,
-          -9.9486978
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_5765",
-        "name": "Waua Islet",
-        "place_type": "locality_representative_point",
-        "state": "QLD",
-        "lga": "Torres Strait Island Regional",
-        "is_hub": false,
-        "nearest_node": "324721",
-        "snap_distance_m": 3394.4,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
           145.9441437,
           -17.4529049
         ]
@@ -85048,33 +82753,6 @@
         "isolation_category": "not_isolated",
         "isolation_confidence": "high",
         "isolation_reason": "Place still has hub access under both closure scenarios.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          139.3559316,
-          -16.5722232
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_5363",
-        "name": "Wellesley Islands",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Mornington Shire",
-        "is_hub": false,
-        "nearest_node": "30083",
-        "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
         "nearby_blocking_closures_json": "[]"
       }
     },
@@ -85434,33 +83112,6 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          146.8066261,
-          -19.1422491
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_5696",
-        "name": "West Point",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Townsville City",
-        "is_hub": false,
-        "nearest_node": "1441346",
-        "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
           151.4021567,
           -27.4412922
         ]
@@ -85534,33 +83185,6 @@
         "isolation_category": "not_isolated",
         "isolation_confidence": "high",
         "isolation_reason": "Place still has hub access under both closure scenarios.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          139.1623002,
-          -16.7135139
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_5362",
-        "name": "West Wellesley Islands",
-        "place_type": "locality_representative_point",
-        "state": "QLD",
-        "lga": "Mornington Shire",
-        "is_hub": false,
-        "nearest_node": "",
-        "snap_distance_m": 5436.2,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_place_not_snapped",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not be snapped to the road graph within the configured distance.",
         "nearby_blocking_closures_json": "[]"
       }
     },
@@ -86182,33 +83806,6 @@
         "isolation_category": "not_isolated",
         "isolation_confidence": "high",
         "isolation_reason": "Place still has hub access under both closure scenarios.",
-        "nearby_blocking_closures_json": "[]"
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          148.9623653,
-          -20.3480137
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_4717",
-        "name": "Whitsundays",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Whitsunday Regional",
-        "is_hub": false,
-        "nearest_node": "1455442",
-        "snap_distance_m": 0.0,
-        "hub_access_before": false,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "isolation_category": "unknown_preexisting_disconnected",
-        "isolation_confidence": "unknown",
-        "isolation_reason": "Place could not reach a hub even before current closures were applied; this is likely a graph/data issue or a genuinely disconnected place.",
         "nearby_blocking_closures_json": "[]"
       }
     },
