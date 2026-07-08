@@ -1447,6 +1447,207 @@ def closure_match_base_row(scenario: str, c: Closure) -> Dict[str, Any]:
     }
 
 
+def _iter_line_parts_only(geom: Any) -> Iterable[Any]:
+    """Yield line components from an arbitrary shapely geometry."""
+    if geom is None or geom.is_empty:
+        return
+    if isinstance(geom, LineString):
+        yield geom
+    elif isinstance(geom, MultiLineString):
+        for g in geom.geoms:
+            if g is not None and not g.is_empty:
+                yield g
+    elif isinstance(geom, GeometryCollection):
+        for g in geom.geoms:
+            yield from _iter_line_parts_only(g)
+
+
+def _angle_degrees_between_points(a: Any, b: Any) -> Optional[float]:
+    try:
+        dx = float(b.x) - float(a.x)
+        dy = float(b.y) - float(a.y)
+    except Exception:
+        return None
+    if abs(dx) < 1e-9 and abs(dy) < 1e-9:
+        return None
+    return math.degrees(math.atan2(dy, dx))
+
+
+def _line_angle_degrees(line: Any) -> Optional[float]:
+    if line is None or line.is_empty or getattr(line, "length", 0.0) <= 0:
+        return None
+    try:
+        a = line.interpolate(0.0)
+        b = line.interpolate(float(line.length))
+        return _angle_degrees_between_points(a, b)
+    except Exception:
+        return None
+
+
+def _line_angle_at_projection(line: Any, projection_m: float, window_m: float) -> Optional[float]:
+    if line is None or line.is_empty or getattr(line, "length", 0.0) <= 0:
+        return None
+    length = float(line.length)
+    window = max(1.0, min(float(window_m), max(1.0, length / 2.0)))
+    a_m = max(0.0, projection_m - window)
+    b_m = min(length, projection_m + window)
+    if b_m - a_m < 1.0:
+        a_m = max(0.0, projection_m - 1.0)
+        b_m = min(length, projection_m + 1.0)
+    if b_m <= a_m:
+        return None
+    try:
+        a = line.interpolate(a_m)
+        b = line.interpolate(b_m)
+        return _angle_degrees_between_points(a, b)
+    except Exception:
+        return None
+
+
+def _angle_difference_180(a: Optional[float], b: Optional[float]) -> Optional[float]:
+    if a is None or b is None:
+        return None
+    diff = abs((a - b) % 180.0)
+    return min(diff, 180.0 - diff)
+
+
+def _flat_buffer(geom: Any, distance_m: float) -> Any:
+    """Buffer linework without round end caps so endpoint spill is not enlarged."""
+    if distance_m <= 0:
+        return geom
+    try:
+        return geom.buffer(distance_m, cap_style=2)
+    except TypeError:
+        # Very old Shapely fallback. This may use round caps, but the projection
+        # span checks below still reject endpoint-only/cross-road matches.
+        return geom.buffer(distance_m)
+
+
+def _line_overlap_metrics(
+    edge_geom_m: Any,
+    closure_line_m: Any,
+    line_buffer_m: float,
+) -> Tuple[float, Optional[float], Optional[float]]:
+    """Return projected overlap span, centre projection, and angle difference.
+
+    This is deliberately projection-based rather than distance-only. A side road
+    that only touches/crosses a closure line usually has almost no projected span
+    along the closure line, even though its distance to the line is 0 m.
+    """
+    if edge_geom_m is None or edge_geom_m.is_empty or closure_line_m is None or closure_line_m.is_empty:
+        return 0.0, None, None
+    if getattr(closure_line_m, "length", 0.0) <= 0:
+        return 0.0, None, None
+
+    tolerance = max(0.0, float(line_buffer_m))
+    try:
+        near_area = _flat_buffer(closure_line_m, tolerance)
+        near_geom = edge_geom_m.intersection(near_area)
+    except Exception:
+        return 0.0, None, None
+
+    best_span = 0.0
+    best_center: Optional[float] = None
+    best_angle_diff: Optional[float] = None
+    closure_len = float(closure_line_m.length)
+
+    for line_part in _iter_line_parts_only(near_geom):
+        try:
+            part_len = float(line_part.length)
+        except Exception:
+            continue
+        if part_len <= 0.05:
+            continue
+
+        # Sample along the candidate's actual portion that lies near the closure.
+        # The projected span along the closure line distinguishes a genuine
+        # along-road overlap from a crossing/junction touch.
+        samples = []
+        sample_count = 7
+        for i in range(sample_count):
+            frac = i / (sample_count - 1)
+            try:
+                samples.append(line_part.interpolate(part_len * frac))
+            except Exception:
+                pass
+        if not samples:
+            continue
+
+        try:
+            projections = [float(closure_line_m.project(pt)) for pt in samples]
+        except Exception:
+            continue
+        min_proj = max(0.0, min(projections))
+        max_proj = min(closure_len, max(projections))
+        span = max(0.0, max_proj - min_proj)
+        center = (min_proj + max_proj) / 2.0
+
+        edge_angle = _line_angle_degrees(line_part)
+        closure_angle = _line_angle_at_projection(closure_line_m, center, max(5.0, min(30.0, max(span / 2.0, 5.0))))
+        angle_diff = _angle_difference_180(edge_angle, closure_angle)
+
+        if span > best_span:
+            best_span = span
+            best_center = center
+            best_angle_diff = angle_diff
+
+    return best_span, best_center, best_angle_diff
+
+
+def _allow_named_line_candidate(
+    edge_geom_m: Any,
+    closure_line_m: Any,
+    line_buffer_m: float,
+) -> bool:
+    """Named road matches can be accepted near endpoints, but not by a point touch.
+
+    A continuing open road with the same name beyond the end of the closure line
+    will normally project to a zero-length touch at the endpoint, so it is not
+    blocked. The closed road segment itself still has positive projected overlap.
+    """
+    span, _, _ = _line_overlap_metrics(edge_geom_m, closure_line_m, line_buffer_m)
+    return span >= 1.0
+
+
+def _allow_distance_only_line_candidate(
+    edge_geom_m: Any,
+    closure_line_m: Any,
+    line_buffer_m: float,
+    endpoint_no_bleed_m: float,
+    min_overlap_m: float,
+    max_angle_deg: float,
+) -> Tuple[bool, str]:
+    """Strict line match for candidates without a road-name confirmation.
+
+    This prevents the closure buffer from bleeding across intersections. A
+    distance-only edge must overlap the body of the closure line for a meaningful
+    projected length and have broadly the same bearing as the closure line.
+    """
+    span, center, angle_diff = _line_overlap_metrics(edge_geom_m, closure_line_m, line_buffer_m)
+    if center is None:
+        return False, "point/crossing touch only"
+
+    closure_len = float(closure_line_m.length)
+    min_overlap = max(0.0, float(min_overlap_m))
+    if span < min_overlap:
+        return False, "projected overlap too short/cross-road"
+
+    # Exclude distance-only matches whose projected overlap is concentrated near
+    # either closure endpoint. This is the zero-bleed-at-junction rule.
+    endpoint_guard = max(0.0, float(endpoint_no_bleed_m))
+    if closure_len > min_overlap:
+        endpoint_guard = min(endpoint_guard, max(0.0, (closure_len - min_overlap) / 2.0))
+    else:
+        endpoint_guard = 0.0
+    if endpoint_guard > 0 and (center <= endpoint_guard or center >= closure_len - endpoint_guard):
+        return False, "inside endpoint no-bleed zone"
+
+    if angle_diff is not None and angle_diff > max_angle_deg:
+        return False, f"angle mismatch {angle_diff:.0f}deg"
+
+    return True, "body overlap"
+
+
 def match_one_geometry_to_edges(
     geom: Any,
     edge_index: EdgeIndex,
@@ -1456,6 +1657,9 @@ def match_one_geometry_to_edges(
     polygon_buffer_m: float,
     max_snap_distance_m: float,
     closure_road_name: str = "",
+    line_endpoint_no_bleed_m: float = 30.0,
+    line_distance_only_min_overlap_m: float = 8.0,
+    line_distance_only_max_angle_deg: float = 35.0,
 ) -> Tuple[set[Tuple[Any, Any, Any]], Optional[float], str]:
     """Return blocked edge tuples, nearest edge distance, and notes."""
     blocked: set[Tuple[Any, Any, Any]] = set()
@@ -1510,26 +1714,83 @@ def match_one_geometry_to_edges(
                 notes.append("point: no edge within max snap distance")
 
         elif isinstance(part, (LineString, MultiLineString)):
-            # For line closures, block all edges intersecting/near the line.
-            query_area = part_m.buffer(line_buffer_m)
+            # For line closures, the buffer is only a centreline-to-graph matching
+            # tolerance. It is NOT allowed to spill across an intersection. A line
+            # candidate must have positive projected overlap along the closure
+            # body; distance-only candidates also need body overlap away from the
+            # first/last endpoint and a broadly matching bearing.
+            query_area = _flat_buffer(part_m, line_buffer_m)
             candidates: List[Tuple[float, int]] = []
             seen = set()
             for idx in strtree_indices(edge_index, query_area):
                 if idx in seen:
                     continue
                 seen.add(idx)
-                d = float(edge_index.edge_geoms_m[idx].distance(part_m))
+                edge_geom = edge_index.edge_geoms_m[idx]
+                d = float(edge_geom.distance(part_m))
                 nearest_d = d if nearest_d is None else min(nearest_d, d)
                 if d <= line_buffer_m:
                     candidates.append((d, idx))
-            named_candidates = [(d, idx) for d, idx in candidates if road_names_match(edge_index.edge_names[idx], closure_road_names)]
-            selected = named_candidates or candidates
+
+            selected: List[Tuple[float, int]] = []
+            named_selected: List[Tuple[float, int]] = []
+            distance_selected: List[Tuple[float, int]] = []
+            rejected_endpoint = 0
+            rejected_cross = 0
+            rejected_angle = 0
+            rejected_other = 0
+
+            for d, idx in candidates:
+                edge_geom = edge_index.edge_geoms_m[idx]
+                name_match = road_names_match(edge_index.edge_names[idx], closure_road_names)
+                if name_match and _allow_named_line_candidate(edge_geom, part_m, line_buffer_m):
+                    selected.append((d, idx))
+                    named_selected.append((d, idx))
+                    continue
+
+                ok, reason = _allow_distance_only_line_candidate(
+                    edge_geom,
+                    part_m,
+                    line_buffer_m,
+                    line_endpoint_no_bleed_m,
+                    line_distance_only_min_overlap_m,
+                    line_distance_only_max_angle_deg,
+                )
+                if ok:
+                    selected.append((d, idx))
+                    distance_selected.append((d, idx))
+                else:
+                    if "endpoint" in reason:
+                        rejected_endpoint += 1
+                    elif "cross" in reason or "short" in reason or "touch" in reason:
+                        rejected_cross += 1
+                    elif "angle" in reason:
+                        rejected_angle += 1
+                    else:
+                        rejected_other += 1
+
             for _, idx in selected:
                 blocked.add(edge_index.edge_refs[idx].as_tuple())
-            name_note = " with matching road names" if named_candidates else ""
-            if closure_road_names and candidates and not named_candidates:
-                name_note = "; no matching road names found, used distance-only fallback"
-            notes.append(f"line: blocked {len(selected)} edge(s) within {line_buffer_m:.0f}m{name_note}")
+
+            note_bits = [
+                f"line: blocked {len(selected)} of {len(candidates)} candidate edge(s) within {line_buffer_m:.0f}m",
+                f"name-confirmed={len(named_selected)}",
+                f"distance-body={len(distance_selected)}",
+            ]
+            rejects = []
+            if rejected_endpoint:
+                rejects.append(f"endpoint-no-bleed={rejected_endpoint}")
+            if rejected_cross:
+                rejects.append(f"cross/short-touch={rejected_cross}")
+            if rejected_angle:
+                rejects.append(f"angle-mismatch={rejected_angle}")
+            if rejected_other:
+                rejects.append(f"other-rejected={rejected_other}")
+            if rejects:
+                note_bits.append("rejected " + ", ".join(rejects))
+            if closure_road_names and candidates and not named_selected:
+                note_bits.append("no graph road-name match; used strict distance-only body matching")
+            notes.append("; ".join(note_bits))
 
         elif isinstance(part, (Polygon, MultiPolygon)):
             # Polygons are uncommon but can represent an impacted area. Use the
@@ -1559,6 +1820,9 @@ def match_one_geometry_to_edges(
                 polygon_buffer_m=polygon_buffer_m,
                 max_snap_distance_m=max_snap_distance_m,
                 closure_road_name=closure_road_name,
+                line_endpoint_no_bleed_m=line_endpoint_no_bleed_m,
+                line_distance_only_min_overlap_m=line_distance_only_min_overlap_m,
+                line_distance_only_max_angle_deg=line_distance_only_max_angle_deg,
             )
             blocked.update(sub_blocked)
             if sub_dist is not None:
@@ -1578,6 +1842,9 @@ def build_blocked_edges_for_scenario(
     line_buffer_m: float,
     polygon_buffer_m: float,
     max_snap_distance_m: float,
+    line_endpoint_no_bleed_m: float,
+    line_distance_only_min_overlap_m: float,
+    line_distance_only_max_angle_deg: float,
 ) -> Tuple[set[Tuple[Any, Any, Any]], List[Dict[str, Any]], List[Dict[str, Any]], List[Closure]]:
     t0 = time.perf_counter()
     all_blocked: set[Tuple[Any, Any, Any]] = set()
@@ -1598,6 +1865,9 @@ def build_blocked_edges_for_scenario(
             polygon_buffer_m=polygon_buffer_m,
             max_snap_distance_m=max_snap_distance_m,
             closure_road_name=c.road_name,
+            line_endpoint_no_bleed_m=line_endpoint_no_bleed_m,
+            line_distance_only_min_overlap_m=line_distance_only_min_overlap_m,
+            line_distance_only_max_angle_deg=line_distance_only_max_angle_deg,
         )
         all_blocked.update(blocked)
         confidence = confidence_for_distance(nearest_d)
@@ -2027,6 +2297,9 @@ def run_analysis(args: argparse.Namespace) -> Dict[str, Any]:
         line_buffer_m=args.line_buffer_m,
         polygon_buffer_m=args.polygon_buffer_m,
         max_snap_distance_m=args.max_closure_snap_m,
+        line_endpoint_no_bleed_m=args.line_endpoint_no_bleed_m,
+        line_distance_only_min_overlap_m=args.line_distance_only_min_overlap_m,
+        line_distance_only_max_angle_deg=args.line_distance_only_max_angle_deg,
     )
     blocked_all, match_all, unmatched_all, matched_all_closures = build_blocked_edges_for_scenario(
         closures,
@@ -2037,6 +2310,9 @@ def run_analysis(args: argparse.Namespace) -> Dict[str, Any]:
         line_buffer_m=args.line_buffer_m,
         polygon_buffer_m=args.polygon_buffer_m,
         max_snap_distance_m=args.max_closure_snap_m,
+        line_endpoint_no_bleed_m=args.line_endpoint_no_bleed_m,
+        line_distance_only_min_overlap_m=args.line_distance_only_min_overlap_m,
+        line_distance_only_max_angle_deg=args.line_distance_only_max_angle_deg,
     )
 
     # Reachability before and after closures.
@@ -2163,7 +2439,10 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--http-timeout-s", type=float, default=30.0, help="HTTP timeout for live QLD Traffic fetch.")
 
     parser.add_argument("--point-block-radius-m", type=float, default=75.0, help="Block all road edges within this radius of point closures.")
-    parser.add_argument("--line-buffer-m", type=float, default=75.0, help="Block road edges within this distance of line closures.")
+    parser.add_argument("--line-buffer-m", type=float, default=10.0, help="Tolerance for matching line-closure centrelines to graph edges. The buffer is not allowed to bleed across intersections.")
+    parser.add_argument("--line-endpoint-no-bleed-m", type=float, default=30.0, help="For distance-only line matches, reject graph edges whose overlap is concentrated within this distance of a closure line endpoint.")
+    parser.add_argument("--line-distance-only-min-overlap-m", type=float, default=8.0, help="Minimum projected overlap along the closure line required before a no-road-name line candidate can be blocked.")
+    parser.add_argument("--line-distance-only-max-angle-deg", type=float, default=35.0, help="Maximum bearing difference allowed for no-road-name line candidates.")
     parser.add_argument("--polygon-buffer-m", type=float, default=25.0, help="Additional buffer around polygon closures/impact areas.")
     parser.add_argument("--max-closure-snap-m", type=float, default=300.0, help="Maximum distance allowed when snapping a closure to the road graph.")
     parser.add_argument("--max-place-snap-m", type=float, default=5000.0, help="Maximum distance allowed when snapping places/hubs to the road graph.")
