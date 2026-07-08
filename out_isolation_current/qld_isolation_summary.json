@@ -1,5 +1,5 @@
 {
-  "created_at": "2026-07-08T00:49:35.139379+00:00",
+  "created_at": "2026-07-08T03:53:39.769419+00:00",
   "script": "qld_isolation_proper_v6.py",
   "inputs": {
     "graph": "graph/qld_drive.graphml",
@@ -19,18 +19,18 @@
     "source_mode": "live_qldtraffic",
     "url": "https://data.qldtraffic.qld.gov.au/events_v2.geojson",
     "http_status": 200,
-    "fetched_at": "2026-07-08T00:46:31.213154+00:00",
-    "raw_count": 553,
-    "normalised_count": 299,
-    "skipped_planned": 254,
+    "fetched_at": "2026-07-08T03:50:35.399798+00:00",
+    "raw_count": 544,
+    "normalised_count": 296,
+    "skipped_planned": 248,
     "errors": []
   },
   "counts": {
-    "closures_normalised": 299,
-    "closures_active": 299,
+    "closures_normalised": 296,
+    "closures_active": 296,
     "closures_impassable_blocking": 59,
     "closures_all_blocking": 91,
-    "places": 3275,
+    "places": 2124,
     "hubs": 9,
     "snapped_hubs": 9,
     "graph_nodes": 524324,
@@ -41,11 +41,11 @@
     "reachable_nodes_impassable_only": 518204,
     "reachable_nodes_all_blocking": 517665,
     "place_categories": {
-      "not_isolated": 3214,
-      "unknown_place_not_snapped": 34,
-      "unknown_preexisting_disconnected": 3,
-      "isolated_full_closures": 11,
-      "isolated_with_restrictions": 13
+      "not_isolated": 2113,
+      "isolated_with_restrictions": 4,
+      "isolated_full_closures": 4,
+      "unknown_preexisting_disconnected": 2,
+      "unknown_place_not_snapped": 1
     },
     "unmatched_closure_rows": 1
   },
