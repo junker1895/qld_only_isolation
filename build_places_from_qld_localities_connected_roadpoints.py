@@ -146,6 +146,25 @@ def haversine_m(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     return 2.0 * radius * math.atan2(math.sqrt(a), math.sqrt(max(0.0, 1.0 - a)))
 
 
+def nearest_graph_node_id(G: nx.Graph, lat: float, lon: float) -> Any:
+    """Return the graph node nearest to a latitude/longitude coordinate."""
+    best_node = None
+    best_dist = float("inf")
+    for node, data in G.nodes(data=True):
+        try:
+            node_lat = float(data.get("y"))
+            node_lon = float(data.get("x"))
+        except Exception:
+            continue
+        dist = haversine_m(lat, lon, node_lat, node_lon)
+        if dist < best_dist:
+            best_dist = dist
+            best_node = node
+    if best_node is None:
+        raise ValueError("graph has no nodes with x/y coordinates")
+    return best_node
+
+
 def apply_manual_connectors_to_graph(G: nx.Graph, path: Optional[Path]) -> int:
     """Apply audited connector edges before component analysis.
 
@@ -164,14 +183,21 @@ def apply_manual_connectors_to_graph(G: nx.Graph, path: Optional[Path]) -> int:
         for idx, row in enumerate(reader, start=1):
             u = clean(row.get("from_node") or row.get("u"))
             v = clean(row.get("to_node") or row.get("v"))
-            if not u or not v or u not in G or v not in G:
+
+            from_lon = float(row.get("from_lon") or (G.nodes[u].get("x") if u in G else ""))
+            from_lat = float(row.get("from_lat") or (G.nodes[u].get("y") if u in G else ""))
+            to_lon = float(row.get("to_lon") or (G.nodes[v].get("x") if v in G else ""))
+            to_lat = float(row.get("to_lat") or (G.nodes[v].get("y") if v in G else ""))
+
+            if not u:
+                u = nearest_graph_node_id(G, from_lat, from_lon)
+                print(f"[MANUAL] row {idx}: snapped from coordinate to node {u}")
+            if not v:
+                v = nearest_graph_node_id(G, to_lat, to_lon)
+                print(f"[MANUAL] row {idx}: snapped to coordinate to node {v}")
+            if u not in G or v not in G:
                 print(f"[MANUAL] row {idx}: bad node(s), skipped: {u}, {v}")
                 continue
-
-            from_lon = float(row.get("from_lon") or G.nodes[u].get("x"))
-            from_lat = float(row.get("from_lat") or G.nodes[u].get("y"))
-            to_lon = float(row.get("to_lon") or G.nodes[v].get("x"))
-            to_lat = float(row.get("to_lat") or G.nodes[v].get("y"))
             length_m = float(row.get("length_m") or haversine_m(from_lat, from_lon, to_lat, to_lon))
             geometry_wkt = f"LINESTRING ({from_lon} {from_lat}, {to_lon} {to_lat})"
 

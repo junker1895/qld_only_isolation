@@ -1085,6 +1085,25 @@ def load_graph(path: Path) -> nx.Graph:
 
 
 
+def nearest_graph_node_id(G: nx.Graph, lat: float, lon: float) -> Any:
+    """Return the graph node nearest to a latitude/longitude coordinate."""
+    best_node = None
+    best_dist = float("inf")
+    for node, data in G.nodes(data=True):
+        try:
+            node_lat = float(data.get("y"))
+            node_lon = float(data.get("x"))
+        except Exception:
+            continue
+        dist = haversine_m(lat, lon, node_lat, node_lon)
+        if dist < best_dist:
+            best_dist = dist
+            best_node = node
+    if best_node is None:
+        raise ValueError("graph has no nodes with x/y coordinates")
+    return best_node
+
+
 def apply_manual_connectors(G: nx.Graph, path: Path) -> int:
     """Add small audited connector edges for known graph topology defects.
 
@@ -1105,23 +1124,27 @@ def apply_manual_connectors(G: nx.Graph, path: Path) -> int:
         for idx, row in enumerate(reader, start=1):
             u = clean_str(row.get("from_node") or row.get("u"))
             v = clean_str(row.get("to_node") or row.get("v"))
-            if not u or not v:
-                print(f"[MANUAL] row {idx}: missing from_node/to_node, skipped")
+
+            try:
+                from_lon = float(row.get("from_lon") or (G.nodes[u].get("x") if u in G else ""))
+                from_lat = float(row.get("from_lat") or (G.nodes[u].get("y") if u in G else ""))
+                to_lon = float(row.get("to_lon") or (G.nodes[v].get("x") if v in G else ""))
+                to_lat = float(row.get("to_lat") or (G.nodes[v].get("y") if v in G else ""))
+            except Exception:
+                print(f"[MANUAL] row {idx}: could not determine connector coordinates, skipped")
                 continue
+
+            if not u:
+                u = nearest_graph_node_id(G, from_lat, from_lon)
+                print(f"[MANUAL] row {idx}: snapped from coordinate to node {u}")
+            if not v:
+                v = nearest_graph_node_id(G, to_lat, to_lon)
+                print(f"[MANUAL] row {idx}: snapped to coordinate to node {v}")
             if u not in G:
                 print(f"[MANUAL] row {idx}: from_node not in graph: {u}")
                 continue
             if v not in G:
                 print(f"[MANUAL] row {idx}: to_node not in graph: {v}")
-                continue
-
-            try:
-                from_lon = float(row.get("from_lon") or G.nodes[u].get("x"))
-                from_lat = float(row.get("from_lat") or G.nodes[u].get("y"))
-                to_lon = float(row.get("to_lon") or G.nodes[v].get("x"))
-                to_lat = float(row.get("to_lat") or G.nodes[v].get("y"))
-            except Exception:
-                print(f"[MANUAL] row {idx}: could not determine connector coordinates, skipped")
                 continue
 
             try:
