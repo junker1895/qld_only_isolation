@@ -404,6 +404,7 @@ class EdgeRef:
 class EdgeIndex:
     edge_refs: List[EdgeRef]
     edge_geoms_m: List[Any]
+    edge_names: List[str]
     tree: STRtree
     wkb_to_indices: Dict[bytes, List[int]]
 
@@ -1199,6 +1200,43 @@ def node_lonlat(G: nx.Graph, node: Any) -> Optional[Tuple[float, float]]:
         return None
 
 
+def edge_road_name(data: Dict[str, Any]) -> str:
+    name = data.get("name") or data.get("ref") or ""
+    if isinstance(name, (list, tuple, set)):
+        return " / ".join(clean_str(v) for v in name if clean_str(v))
+    return clean_str(name)
+
+
+def normalise_road_name(value: Any) -> str:
+    text = clean_str(value).lower()
+    text = re.sub(r"\([^)]*\)", " ", text)
+    text = re.sub(r"[^a-z0-9]+", " ", text)
+    return re.sub(r"\s+", " ", text).strip()
+
+
+def road_name_variants(value: Any) -> set[str]:
+    text = clean_str(value)
+    if not text:
+        return set()
+    parts = re.split(r"\s*/\s*|\s*;\s*", text)
+    out: set[str] = set()
+    for part in parts + [text]:
+        norm = normalise_road_name(part)
+        if not norm or norm in {"unnamed road", "unknown"}:
+            continue
+        out.add(norm)
+    return out
+
+
+def road_names_match(edge_name: str, closure_names: set[str]) -> bool:
+    if not closure_names:
+        return True
+    edge_norm = normalise_road_name(edge_name)
+    if not edge_norm:
+        return False
+    return any(name == edge_norm or name in edge_norm or edge_norm in name for name in closure_names)
+
+
 def parse_edge_geometry(G: nx.Graph, u: Any, v: Any, data: Dict[str, Any]) -> Optional[Any]:
     geom_val = data.get("geometry")
     geom = None
@@ -1238,6 +1276,7 @@ def build_edge_index(G: nx.Graph) -> EdgeIndex:
     t0 = time.perf_counter()
     edge_refs: List[EdgeRef] = []
     edge_geoms_m: List[Any] = []
+    edge_names: List[str] = []
     wkb_to_indices: Dict[bytes, List[int]] = {}
 
     bad = 0
@@ -1254,6 +1293,7 @@ def build_edge_index(G: nx.Graph) -> EdgeIndex:
             idx = len(edge_refs)
             edge_refs.append(EdgeRef(u, v, k))
             edge_geoms_m.append(geom_m)
+            edge_names.append(edge_road_name(data))
             wkb_to_indices.setdefault(geom_m.wkb, []).append(idx)
         except Exception:
             bad += 1
@@ -1263,7 +1303,7 @@ def build_edge_index(G: nx.Graph) -> EdgeIndex:
 
     tree = STRtree(edge_geoms_m)
     print(f"[INDEX] edges indexed={len(edge_refs):,} skipped={bad:,} elapsed={time.perf_counter() - t0:.1f}s")
-    return EdgeIndex(edge_refs=edge_refs, edge_geoms_m=edge_geoms_m, tree=tree, wkb_to_indices=wkb_to_indices)
+    return EdgeIndex(edge_refs=edge_refs, edge_geoms_m=edge_geoms_m, edge_names=edge_names, tree=tree, wkb_to_indices=wkb_to_indices)
 
 
 def strtree_indices(edge_index: EdgeIndex, query_geom: Any) -> Iterable[int]:
@@ -1415,11 +1455,13 @@ def match_one_geometry_to_edges(
     line_buffer_m: float,
     polygon_buffer_m: float,
     max_snap_distance_m: float,
+    closure_road_name: str = "",
 ) -> Tuple[set[Tuple[Any, Any, Any]], Optional[float], str]:
     """Return blocked edge tuples, nearest edge distance, and notes."""
     blocked: set[Tuple[Any, Any, Any]] = set()
     nearest_d: Optional[float] = None
     notes: List[str] = []
+    closure_road_names = road_name_variants(closure_road_name)
 
     if geom is None or geom.is_empty:
         return blocked, None, "empty geometry"
@@ -1449,19 +1491,28 @@ def match_one_geometry_to_edges(
                 nearest_d = candidates[0][0] if nearest_d is None else min(nearest_d, candidates[0][0])
                 close = [(d, idx) for d, idx in candidates if d <= point_block_radius_m]
                 if close:
-                    for _, idx in close:
+                    named_close = [(d, idx) for d, idx in close if road_names_match(edge_index.edge_names[idx], closure_road_names)]
+                    named_candidates = [(d, idx) for d, idx in candidates if road_names_match(edge_index.edge_names[idx], closure_road_names)]
+                    selected = named_close or (named_candidates[:1] if closure_road_names and named_candidates else close)
+                    for _, idx in selected:
                         blocked.add(edge_index.edge_refs[idx].as_tuple())
-                    notes.append(f"point: blocked {len(close)} edge(s) within {point_block_radius_m:.0f}m")
+                    name_note = " with matching road names" if named_close else ""
+                    if closure_road_names and not named_close and named_candidates:
+                        name_note = " using nearest matching road name"
+                    notes.append(f"point: blocked {len(selected)} edge(s) within {point_block_radius_m:.0f}m{name_note}")
                 elif candidates[0][0] <= max_snap_distance_m:
-                    blocked.add(edge_index.edge_refs[candidates[0][1]].as_tuple())
-                    notes.append(f"point: no edge inside block radius; blocked nearest edge at {candidates[0][0]:.1f}m")
+                    named_candidates = [(d, idx) for d, idx in candidates if road_names_match(edge_index.edge_names[idx], closure_road_names)]
+                    selected = named_candidates[0] if named_candidates else candidates[0]
+                    blocked.add(edge_index.edge_refs[selected[1]].as_tuple())
+                    name_note = " with matching road name" if named_candidates else ""
+                    notes.append(f"point: no edge inside block radius; blocked nearest edge at {selected[0]:.1f}m{name_note}")
             else:
                 notes.append("point: no edge within max snap distance")
 
         elif isinstance(part, (LineString, MultiLineString)):
             # For line closures, block all edges intersecting/near the line.
             query_area = part_m.buffer(line_buffer_m)
-            count = 0
+            candidates: List[Tuple[float, int]] = []
             seen = set()
             for idx in strtree_indices(edge_index, query_area):
                 if idx in seen:
@@ -1470,9 +1521,15 @@ def match_one_geometry_to_edges(
                 d = float(edge_index.edge_geoms_m[idx].distance(part_m))
                 nearest_d = d if nearest_d is None else min(nearest_d, d)
                 if d <= line_buffer_m:
-                    blocked.add(edge_index.edge_refs[idx].as_tuple())
-                    count += 1
-            notes.append(f"line: blocked {count} edge(s) within {line_buffer_m:.0f}m")
+                    candidates.append((d, idx))
+            named_candidates = [(d, idx) for d, idx in candidates if road_names_match(edge_index.edge_names[idx], closure_road_names)]
+            selected = named_candidates or candidates
+            for _, idx in selected:
+                blocked.add(edge_index.edge_refs[idx].as_tuple())
+            name_note = " with matching road names" if named_candidates else ""
+            if closure_road_names and candidates and not named_candidates:
+                name_note = "; no matching road names found, used distance-only fallback"
+            notes.append(f"line: blocked {len(selected)} edge(s) within {line_buffer_m:.0f}m{name_note}")
 
         elif isinstance(part, (Polygon, MultiPolygon)):
             # Polygons are uncommon but can represent an impacted area. Use the
@@ -1501,6 +1558,7 @@ def match_one_geometry_to_edges(
                 line_buffer_m=line_buffer_m,
                 polygon_buffer_m=polygon_buffer_m,
                 max_snap_distance_m=max_snap_distance_m,
+                closure_road_name=closure_road_name,
             )
             blocked.update(sub_blocked)
             if sub_dist is not None:
@@ -1539,6 +1597,7 @@ def build_blocked_edges_for_scenario(
             line_buffer_m=line_buffer_m,
             polygon_buffer_m=polygon_buffer_m,
             max_snap_distance_m=max_snap_distance_m,
+            closure_road_name=c.road_name,
         )
         all_blocked.update(blocked)
         confidence = confidence_for_distance(nearest_d)
