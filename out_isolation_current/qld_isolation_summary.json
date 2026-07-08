@@ -1,5 +1,5 @@
 {
-  "created_at": "2026-07-08T03:53:39.769419+00:00",
+  "created_at": "2026-07-08T04:15:48.269461+00:00",
   "script": "qld_isolation_proper_v6.py",
   "inputs": {
     "graph": "graph/qld_drive.graphml",
@@ -19,30 +19,44 @@
     "source_mode": "live_qldtraffic",
     "url": "https://data.qldtraffic.qld.gov.au/events_v2.geojson",
     "http_status": 200,
-    "fetched_at": "2026-07-08T03:50:35.399798+00:00",
-    "raw_count": 544,
+    "fetched_at": "2026-07-08T04:12:45.448838+00:00",
+    "raw_count": 542,
     "normalised_count": 296,
-    "skipped_planned": 248,
+    "skipped_planned": 246,
     "errors": []
   },
   "counts": {
     "closures_normalised": 296,
     "closures_active": 296,
-    "closures_impassable_blocking": 59,
-    "closures_all_blocking": 91,
+    "closures_impassable_blocking": 58,
+    "closures_all_blocking": 90,
     "places": 2124,
     "hubs": 9,
     "snapped_hubs": 9,
     "graph_nodes": 524324,
-    "graph_edges": 1324732,
-    "blocked_edges_impassable_only": 992,
-    "blocked_edges_all_blocking": 1694,
+    "graph_edges": 1324734,
+    "blocked_edges_impassable_only": 990,
+    "blocked_edges_all_blocking": 1692,
     "reachable_nodes_before": 518785,
     "reachable_nodes_impassable_only": 518204,
-    "reachable_nodes_all_blocking": 517665,
+    "reachable_nodes_all_blocking": 517845,
+    "hub_components_before": {
+      "components_with_hubs": 1,
+      "largest_hub_component_size": 9,
+      "single_hub_components": 0
+    },
+    "hub_components_impassable_only": {
+      "components_with_hubs": 1,
+      "largest_hub_component_size": 9,
+      "single_hub_components": 0
+    },
+    "hub_components_all_blocking": {
+      "components_with_hubs": 1,
+      "largest_hub_component_size": 9,
+      "single_hub_components": 0
+    },
     "place_categories": {
-      "not_isolated": 2113,
-      "isolated_with_restrictions": 4,
+      "not_isolated": 2117,
       "isolated_full_closures": 4,
       "unknown_preexisting_disconnected": 2,
       "unknown_place_not_snapped": 1
@@ -63,6 +77,7 @@
   "notes": [
     "isolated_full_closures means the place had hub access before closures but not after impassable closures were blocked.",
     "isolated_with_restrictions means the place still has access under full-closure blocking, but loses access when restricted/conditional-access events are also blocked.",
+    "hub_network_warning is set when a place can reach only one modelled hub in the relevant closure scenario, meaning that hub cannot reach another modelled hub even though the place still has local hub access.",
     "unknown_preexisting_disconnected means the place could not reach a hub even before applying current closures, so it is not safe to attribute isolation to current closures.",
     "This is an automated graph estimate, not an authoritative emergency-services isolation declaration."
   ]
