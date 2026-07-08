@@ -222,6 +222,10 @@ PLACE_CSV_FIELDS = [
     "hub_access_before",
     "hub_access_impassable_only",
     "hub_access_all_blocking",
+    "reachable_hubs_before",
+    "reachable_hubs_impassable_only",
+    "reachable_hubs_all_blocking",
+    "hub_network_warning",
     "isolation_category",
     "isolation_confidence",
     "isolation_reason",
@@ -400,6 +404,7 @@ class EdgeRef:
 class EdgeIndex:
     edge_refs: List[EdgeRef]
     edge_geoms_m: List[Any]
+    edge_names: List[str]
     tree: STRtree
     wkb_to_indices: Dict[bytes, List[int]]
 
@@ -1085,6 +1090,25 @@ def load_graph(path: Path) -> nx.Graph:
 
 
 
+def nearest_graph_node_id(G: nx.Graph, lat: float, lon: float) -> Any:
+    """Return the graph node nearest to a latitude/longitude coordinate."""
+    best_node = None
+    best_dist = float("inf")
+    for node, data in G.nodes(data=True):
+        try:
+            node_lat = float(data.get("y"))
+            node_lon = float(data.get("x"))
+        except Exception:
+            continue
+        dist = haversine_m(lat, lon, node_lat, node_lon)
+        if dist < best_dist:
+            best_dist = dist
+            best_node = node
+    if best_node is None:
+        raise ValueError("graph has no nodes with x/y coordinates")
+    return best_node
+
+
 def apply_manual_connectors(G: nx.Graph, path: Path) -> int:
     """Add small audited connector edges for known graph topology defects.
 
@@ -1105,23 +1129,27 @@ def apply_manual_connectors(G: nx.Graph, path: Path) -> int:
         for idx, row in enumerate(reader, start=1):
             u = clean_str(row.get("from_node") or row.get("u"))
             v = clean_str(row.get("to_node") or row.get("v"))
-            if not u or not v:
-                print(f"[MANUAL] row {idx}: missing from_node/to_node, skipped")
+
+            try:
+                from_lon = float(row.get("from_lon") or (G.nodes[u].get("x") if u in G else ""))
+                from_lat = float(row.get("from_lat") or (G.nodes[u].get("y") if u in G else ""))
+                to_lon = float(row.get("to_lon") or (G.nodes[v].get("x") if v in G else ""))
+                to_lat = float(row.get("to_lat") or (G.nodes[v].get("y") if v in G else ""))
+            except Exception:
+                print(f"[MANUAL] row {idx}: could not determine connector coordinates, skipped")
                 continue
+
+            if not u:
+                u = nearest_graph_node_id(G, from_lat, from_lon)
+                print(f"[MANUAL] row {idx}: snapped from coordinate to node {u}")
+            if not v:
+                v = nearest_graph_node_id(G, to_lat, to_lon)
+                print(f"[MANUAL] row {idx}: snapped to coordinate to node {v}")
             if u not in G:
                 print(f"[MANUAL] row {idx}: from_node not in graph: {u}")
                 continue
             if v not in G:
                 print(f"[MANUAL] row {idx}: to_node not in graph: {v}")
-                continue
-
-            try:
-                from_lon = float(row.get("from_lon") or G.nodes[u].get("x"))
-                from_lat = float(row.get("from_lat") or G.nodes[u].get("y"))
-                to_lon = float(row.get("to_lon") or G.nodes[v].get("x"))
-                to_lat = float(row.get("to_lat") or G.nodes[v].get("y"))
-            except Exception:
-                print(f"[MANUAL] row {idx}: could not determine connector coordinates, skipped")
                 continue
 
             try:
@@ -1172,6 +1200,43 @@ def node_lonlat(G: nx.Graph, node: Any) -> Optional[Tuple[float, float]]:
         return None
 
 
+def edge_road_name(data: Dict[str, Any]) -> str:
+    name = data.get("name") or data.get("ref") or ""
+    if isinstance(name, (list, tuple, set)):
+        return " / ".join(clean_str(v) for v in name if clean_str(v))
+    return clean_str(name)
+
+
+def normalise_road_name(value: Any) -> str:
+    text = clean_str(value).lower()
+    text = re.sub(r"\([^)]*\)", " ", text)
+    text = re.sub(r"[^a-z0-9]+", " ", text)
+    return re.sub(r"\s+", " ", text).strip()
+
+
+def road_name_variants(value: Any) -> set[str]:
+    text = clean_str(value)
+    if not text:
+        return set()
+    parts = re.split(r"\s*/\s*|\s*;\s*", text)
+    out: set[str] = set()
+    for part in parts + [text]:
+        norm = normalise_road_name(part)
+        if not norm or norm in {"unnamed road", "unknown"}:
+            continue
+        out.add(norm)
+    return out
+
+
+def road_names_match(edge_name: str, closure_names: set[str]) -> bool:
+    if not closure_names:
+        return True
+    edge_norm = normalise_road_name(edge_name)
+    if not edge_norm:
+        return False
+    return any(name == edge_norm or name in edge_norm or edge_norm in name for name in closure_names)
+
+
 def parse_edge_geometry(G: nx.Graph, u: Any, v: Any, data: Dict[str, Any]) -> Optional[Any]:
     geom_val = data.get("geometry")
     geom = None
@@ -1211,6 +1276,7 @@ def build_edge_index(G: nx.Graph) -> EdgeIndex:
     t0 = time.perf_counter()
     edge_refs: List[EdgeRef] = []
     edge_geoms_m: List[Any] = []
+    edge_names: List[str] = []
     wkb_to_indices: Dict[bytes, List[int]] = {}
 
     bad = 0
@@ -1227,6 +1293,7 @@ def build_edge_index(G: nx.Graph) -> EdgeIndex:
             idx = len(edge_refs)
             edge_refs.append(EdgeRef(u, v, k))
             edge_geoms_m.append(geom_m)
+            edge_names.append(edge_road_name(data))
             wkb_to_indices.setdefault(geom_m.wkb, []).append(idx)
         except Exception:
             bad += 1
@@ -1236,7 +1303,7 @@ def build_edge_index(G: nx.Graph) -> EdgeIndex:
 
     tree = STRtree(edge_geoms_m)
     print(f"[INDEX] edges indexed={len(edge_refs):,} skipped={bad:,} elapsed={time.perf_counter() - t0:.1f}s")
-    return EdgeIndex(edge_refs=edge_refs, edge_geoms_m=edge_geoms_m, tree=tree, wkb_to_indices=wkb_to_indices)
+    return EdgeIndex(edge_refs=edge_refs, edge_geoms_m=edge_geoms_m, edge_names=edge_names, tree=tree, wkb_to_indices=wkb_to_indices)
 
 
 def strtree_indices(edge_index: EdgeIndex, query_geom: Any) -> Iterable[int]:
@@ -1388,11 +1455,13 @@ def match_one_geometry_to_edges(
     line_buffer_m: float,
     polygon_buffer_m: float,
     max_snap_distance_m: float,
+    closure_road_name: str = "",
 ) -> Tuple[set[Tuple[Any, Any, Any]], Optional[float], str]:
     """Return blocked edge tuples, nearest edge distance, and notes."""
     blocked: set[Tuple[Any, Any, Any]] = set()
     nearest_d: Optional[float] = None
     notes: List[str] = []
+    closure_road_names = road_name_variants(closure_road_name)
 
     if geom is None or geom.is_empty:
         return blocked, None, "empty geometry"
@@ -1422,19 +1491,28 @@ def match_one_geometry_to_edges(
                 nearest_d = candidates[0][0] if nearest_d is None else min(nearest_d, candidates[0][0])
                 close = [(d, idx) for d, idx in candidates if d <= point_block_radius_m]
                 if close:
-                    for _, idx in close:
+                    named_close = [(d, idx) for d, idx in close if road_names_match(edge_index.edge_names[idx], closure_road_names)]
+                    named_candidates = [(d, idx) for d, idx in candidates if road_names_match(edge_index.edge_names[idx], closure_road_names)]
+                    selected = named_close or (named_candidates[:1] if closure_road_names and named_candidates else close)
+                    for _, idx in selected:
                         blocked.add(edge_index.edge_refs[idx].as_tuple())
-                    notes.append(f"point: blocked {len(close)} edge(s) within {point_block_radius_m:.0f}m")
+                    name_note = " with matching road names" if named_close else ""
+                    if closure_road_names and not named_close and named_candidates:
+                        name_note = " using nearest matching road name"
+                    notes.append(f"point: blocked {len(selected)} edge(s) within {point_block_radius_m:.0f}m{name_note}")
                 elif candidates[0][0] <= max_snap_distance_m:
-                    blocked.add(edge_index.edge_refs[candidates[0][1]].as_tuple())
-                    notes.append(f"point: no edge inside block radius; blocked nearest edge at {candidates[0][0]:.1f}m")
+                    named_candidates = [(d, idx) for d, idx in candidates if road_names_match(edge_index.edge_names[idx], closure_road_names)]
+                    selected = named_candidates[0] if named_candidates else candidates[0]
+                    blocked.add(edge_index.edge_refs[selected[1]].as_tuple())
+                    name_note = " with matching road name" if named_candidates else ""
+                    notes.append(f"point: no edge inside block radius; blocked nearest edge at {selected[0]:.1f}m{name_note}")
             else:
                 notes.append("point: no edge within max snap distance")
 
         elif isinstance(part, (LineString, MultiLineString)):
             # For line closures, block all edges intersecting/near the line.
             query_area = part_m.buffer(line_buffer_m)
-            count = 0
+            candidates: List[Tuple[float, int]] = []
             seen = set()
             for idx in strtree_indices(edge_index, query_area):
                 if idx in seen:
@@ -1443,9 +1521,15 @@ def match_one_geometry_to_edges(
                 d = float(edge_index.edge_geoms_m[idx].distance(part_m))
                 nearest_d = d if nearest_d is None else min(nearest_d, d)
                 if d <= line_buffer_m:
-                    blocked.add(edge_index.edge_refs[idx].as_tuple())
-                    count += 1
-            notes.append(f"line: blocked {count} edge(s) within {line_buffer_m:.0f}m")
+                    candidates.append((d, idx))
+            named_candidates = [(d, idx) for d, idx in candidates if road_names_match(edge_index.edge_names[idx], closure_road_names)]
+            selected = named_candidates or candidates
+            for _, idx in selected:
+                blocked.add(edge_index.edge_refs[idx].as_tuple())
+            name_note = " with matching road names" if named_candidates else ""
+            if closure_road_names and candidates and not named_candidates:
+                name_note = "; no matching road names found, used distance-only fallback"
+            notes.append(f"line: blocked {len(selected)} edge(s) within {line_buffer_m:.0f}m{name_note}")
 
         elif isinstance(part, (Polygon, MultiPolygon)):
             # Polygons are uncommon but can represent an impacted area. Use the
@@ -1474,6 +1558,7 @@ def match_one_geometry_to_edges(
                 line_buffer_m=line_buffer_m,
                 polygon_buffer_m=polygon_buffer_m,
                 max_snap_distance_m=max_snap_distance_m,
+                closure_road_name=closure_road_name,
             )
             blocked.update(sub_blocked)
             if sub_dist is not None:
@@ -1512,6 +1597,7 @@ def build_blocked_edges_for_scenario(
             line_buffer_m=line_buffer_m,
             polygon_buffer_m=polygon_buffer_m,
             max_snap_distance_m=max_snap_distance_m,
+            closure_road_name=c.road_name,
         )
         all_blocked.update(blocked)
         confidence = confidence_for_distance(nearest_d)
@@ -1598,8 +1684,15 @@ def iter_adjacent_edges(G: nx.Graph, node: Any) -> Iterable[Tuple[Any, Tuple[Any
                 yield other, (u, v, 0)
 
 
+def is_edge_blocked(edge: Tuple[Any, Any, Any], blocked_edges: set[Tuple[Any, Any, Any]]) -> bool:
+    if edge in blocked_edges:
+        return True
+    # If graph has explicit reverse edge with a different key it should be
+    # matched separately, but this helps if an undirected graph is used.
+    return (edge[1], edge[0], edge[2]) in blocked_edges
+
+
 def reachable_from_hubs(G: nx.Graph, hub_nodes: Sequence[Any], blocked_edges: set[Tuple[Any, Any, Any]]) -> set[Any]:
-    blocked = blocked_edges
     queue = deque(n for n in hub_nodes if n is not None)
     seen: set[Any] = set()
 
@@ -1609,16 +1702,56 @@ def reachable_from_hubs(G: nx.Graph, hub_nodes: Sequence[Any], blocked_edges: se
             continue
         seen.add(node)
         for neighbour, edge in iter_adjacent_edges(G, node):
-            if edge in blocked:
-                continue
-            # If graph has explicit reverse edge with a different key it should be
-            # matched separately, but this helps if an undirected graph is used.
-            rev = (edge[1], edge[0], edge[2])
-            if rev in blocked:
+            if is_edge_blocked(edge, blocked_edges):
                 continue
             if neighbour not in seen:
                 queue.append(neighbour)
     return seen
+
+
+def hub_component_access(
+    G: nx.Graph,
+    hub_nodes: Sequence[Any],
+    blocked_edges: set[Tuple[Any, Any, Any]],
+) -> Tuple[Dict[Any, int], List[int]]:
+    """Return each node's reachable hub count and all hub-containing component sizes."""
+    hub_set = {n for n in hub_nodes if n is not None}
+    node_hub_counts: Dict[Any, int] = {}
+    hub_component_sizes: List[int] = []
+    seen: set[Any] = set()
+
+    for start in G.nodes:
+        if start in seen:
+            continue
+        component_nodes: List[Any] = []
+        component_hubs = 0
+        queue = deque([start])
+        seen.add(start)
+        while queue:
+            node = queue.popleft()
+            component_nodes.append(node)
+            if node in hub_set:
+                component_hubs += 1
+            for neighbour, edge in iter_adjacent_edges(G, node):
+                if neighbour in seen or is_edge_blocked(edge, blocked_edges):
+                    continue
+                seen.add(neighbour)
+                queue.append(neighbour)
+
+        if component_hubs:
+            hub_component_sizes.append(component_hubs)
+            for node in component_nodes:
+                node_hub_counts[node] = component_hubs
+
+    return node_hub_counts, sorted(hub_component_sizes, reverse=True)
+
+
+def summarise_hub_components(component_sizes: Sequence[int]) -> Dict[str, Any]:
+    return {
+        "components_with_hubs": len(component_sizes),
+        "largest_hub_component_size": max(component_sizes) if component_sizes else 0,
+        "single_hub_components": sum(1 for size in component_sizes if size == 1),
+    }
 
 
 def snap_places_to_graph(
@@ -1694,6 +1827,9 @@ def classify_places(
     reachable_before: set[Any],
     reachable_impassable: set[Any],
     reachable_all: set[Any],
+    hub_counts_before: Dict[Any, int],
+    hub_counts_impassable: Dict[Any, int],
+    hub_counts_all: Dict[Any, int],
     matched_impassable_closures: Sequence[Closure],
     matched_all_blocking_closures: Sequence[Closure],
 ) -> List[Dict[str, Any]]:
@@ -1705,6 +1841,14 @@ def classify_places(
         before = bool(node in reachable_before) if node is not None else False
         imp = bool(node in reachable_impassable) if node is not None else False
         allb = bool(node in reachable_all) if node is not None else False
+        before_hubs = hub_counts_before.get(node, 0) if node is not None else 0
+        imp_hubs = hub_counts_impassable.get(node, 0) if node is not None else 0
+        all_hubs = hub_counts_all.get(node, 0) if node is not None else 0
+        hub_warning = ""
+        if allb and all_hubs == 1:
+            hub_warning = "Place can reach only one hub when restricted/conditional closures are also blocked; that hub cannot reach another modelled hub under this scenario."
+        elif imp and imp_hubs == 1:
+            hub_warning = "Place can reach only one hub when full closures are blocked; that hub cannot reach another modelled hub under this scenario."
 
         if node is None:
             category = "unknown_place_not_snapped"
@@ -1751,6 +1895,10 @@ def classify_places(
                 "hub_access_before": before,
                 "hub_access_impassable_only": imp,
                 "hub_access_all_blocking": allb,
+                "reachable_hubs_before": before_hubs,
+                "reachable_hubs_impassable_only": imp_hubs,
+                "reachable_hubs_all_blocking": all_hubs,
+                "hub_network_warning": hub_warning,
                 "isolation_category": category,
                 "isolation_confidence": confidence,
                 "isolation_reason": reason,
@@ -1893,16 +2041,19 @@ def run_analysis(args: argparse.Namespace) -> Dict[str, Any]:
 
     # Reachability before and after closures.
     t0 = time.perf_counter()
-    reachable_before = reachable_from_hubs(G, hub_nodes, blocked_edges=set())
-    print(f"[REACH] before closures reachable_nodes={len(reachable_before):,} elapsed={time.perf_counter() - t0:.1f}s")
+    hub_counts_before, hub_components_before = hub_component_access(G, hub_nodes, blocked_edges=set())
+    reachable_before = set(hub_counts_before)
+    print(f"[REACH] before closures reachable_nodes={len(reachable_before):,} hub_components={len(hub_components_before):,} elapsed={time.perf_counter() - t0:.1f}s")
 
     t0 = time.perf_counter()
-    reachable_imp = reachable_from_hubs(G, hub_nodes, blocked_edges=blocked_imp)
-    print(f"[REACH] impassable_only reachable_nodes={len(reachable_imp):,} elapsed={time.perf_counter() - t0:.1f}s")
+    hub_counts_imp, hub_components_imp = hub_component_access(G, hub_nodes, blocked_edges=blocked_imp)
+    reachable_imp = set(hub_counts_imp)
+    print(f"[REACH] impassable_only reachable_nodes={len(reachable_imp):,} hub_components={len(hub_components_imp):,} elapsed={time.perf_counter() - t0:.1f}s")
 
     t0 = time.perf_counter()
-    reachable_all = reachable_from_hubs(G, hub_nodes, blocked_edges=blocked_all)
-    print(f"[REACH] all_blocking reachable_nodes={len(reachable_all):,} elapsed={time.perf_counter() - t0:.1f}s")
+    hub_counts_all, hub_components_all = hub_component_access(G, hub_nodes, blocked_edges=blocked_all)
+    reachable_all = set(hub_counts_all)
+    print(f"[REACH] all_blocking reachable_nodes={len(reachable_all):,} hub_components={len(hub_components_all):,} elapsed={time.perf_counter() - t0:.1f}s")
 
     place_rows = classify_places(
         places,
@@ -1911,6 +2062,9 @@ def run_analysis(args: argparse.Namespace) -> Dict[str, Any]:
         reachable_before,
         reachable_imp,
         reachable_all,
+        hub_counts_before,
+        hub_counts_imp,
+        hub_counts_all,
         matched_imp_closures,
         matched_all_closures,
     )
@@ -1956,6 +2110,9 @@ def run_analysis(args: argparse.Namespace) -> Dict[str, Any]:
             "reachable_nodes_before": len(reachable_before),
             "reachable_nodes_impassable_only": len(reachable_imp),
             "reachable_nodes_all_blocking": len(reachable_all),
+            "hub_components_before": summarise_hub_components(hub_components_before),
+            "hub_components_impassable_only": summarise_hub_components(hub_components_imp),
+            "hub_components_all_blocking": summarise_hub_components(hub_components_all),
             "place_categories": counts_by_category,
             "unmatched_closure_rows": len(unmatched_rows),
         },
@@ -1973,6 +2130,7 @@ def run_analysis(args: argparse.Namespace) -> Dict[str, Any]:
         "notes": [
             "isolated_full_closures means the place had hub access before closures but not after impassable closures were blocked.",
             "isolated_with_restrictions means the place still has access under full-closure blocking, but loses access when restricted/conditional-access events are also blocked.",
+            "hub_network_warning is set when a place can reach only one modelled hub in the relevant closure scenario, meaning that hub cannot reach another modelled hub even though the place still has local hub access.",
             "unknown_preexisting_disconnected means the place could not reach a hub even before applying current closures, so it is not safe to attribute isolation to current closures.",
             "This is an automated graph estimate, not an authoritative emergency-services isolation declaration.",
         ],
