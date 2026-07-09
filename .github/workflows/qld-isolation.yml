@@ -35,8 +35,10 @@ jobs:
         id: graph-cache
         uses: actions/cache@v4
         with:
-          path: graph/qld_drive.graphml
-          key: qld-drive-graph-v1
+          path: |
+            graph/qld_drive.graphml
+            graph/qld_boundary_mask_*.pkl
+          key: qld-drive-graph-v2
 
       - name: Download graph from GitHub Release
         if: steps.graph-cache.outputs.cache-hit != 'true'
