@@ -859,18 +859,23 @@ def qld_traversal_edges_from_boundary(
     qld_geom = boundary.qld_geom.buffer(1e-6) if boundary.qld_geom is not None else None
     prepared_qld_geom = prep(qld_geom) if qld_geom is not None else None
     boundary_zone = None
-    if qld_geom is not None:
-        # Most roads are far from the state border/coastline.  If an edge's full
-        # geometry is not even near the Queensland boundary, and both endpoints
-        # have already passed the node mask, accept it without the much more
-        # expensive polygon-covers-geometry test.  Edges near the border still
-        # get the exact covers() check that prevents interstate detours.
-        try:
-            linework = [line for _label, line in boundary.border_lines_wgs if line is not None and not line.is_empty]
-            boundary_linework = unary_union(linework) if linework else qld_geom.boundary
+    # Most roads are far from the state border/coastline. If an edge's full
+    # geometry is not even near the supplied boundary linework, and both endpoints
+    # have already passed the node mask, accept it without the much more expensive
+    # exact crossing/side or polygon-covers-geometry checks. Edges near the border
+    # still get exact checks that prevent interstate detours.
+    try:
+        linework = [line for _label, line in boundary.border_lines_wgs if line is not None and not line.is_empty]
+        if linework:
+            boundary_linework = unary_union(linework)
+        elif qld_geom is not None:
+            boundary_linework = qld_geom.boundary
+        else:
+            boundary_linework = None
+        if boundary_linework is not None and not boundary_linework.is_empty:
             boundary_zone = prep(boundary_linework.buffer(0.02))
-        except Exception:
-            boundary_zone = None
+    except Exception:
+        boundary_zone = None
     allowed_edges: set[Tuple[Any, Any, Any]] = set()
     exact_checks = 0
     fast_accepts = 0
@@ -892,6 +897,11 @@ def qld_traversal_edges_from_boundary(
                 if prepared_qld_geom is not None and prepared_qld_geom.covers(geom):
                     allowed_edges.add((u, v, k))
                 continue
+            if boundary_zone is not None and not boundary_zone.intersects(geom):
+                allowed_edges.add((u, v, k))
+                fast_accepts += 1
+                continue
+            exact_checks += 1
             if any(geom.crosses(border_line) for _label, border_line in boundary.border_lines_wgs):
                 continue
             if isinstance(geom, MultiLineString):
@@ -915,11 +925,18 @@ def qld_traversal_edges_from_boundary(
                 exact_checks += 1
                 if prepared_qld_geom is not None and prepared_qld_geom.covers(line):
                     allowed_edges.add((u, v, k))
-        elif (
-            is_qld_side_of_state_border(a[1], a[0], boundary.border_lines_wgs)
-            and is_qld_side_of_state_border(b[1], b[0], boundary.border_lines_wgs)
-        ):
-            allowed_edges.add((u, v, k))
+        else:
+            line = LineString([a, b])
+            if boundary_zone is not None and not boundary_zone.intersects(line):
+                allowed_edges.add((u, v, k))
+                fast_accepts += 1
+            else:
+                exact_checks += 1
+                if (
+                    is_qld_side_of_state_border(a[1], a[0], boundary.border_lines_wgs)
+                    and is_qld_side_of_state_border(b[1], b[0], boundary.border_lines_wgs)
+                ):
+                    allowed_edges.add((u, v, k))
 
     print(
         f"[BORDER] Queensland traversal edges={len(allowed_edges):,}/{G.number_of_edges():,} "
