@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+  <title id="title">Queensland Road Isolation Dashboard logo</title>
+  <desc id="desc">Red location pin connected to a road-closure barrier inside a rounded square.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#fff7f7"/>
+      <stop offset="1" stop-color="#ffe3e7"/>
+    </linearGradient>
+    <linearGradient id="red" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#ff2630"/>
+      <stop offset="1" stop-color="#d90429"/>
+    </linearGradient>
+  </defs>
+  <rect x="6" y="6" width="116" height="116" rx="24" fill="url(#bg)" stroke="url(#red)" stroke-width="7"/>
+  <ellipse cx="45" cy="84" rx="28" ry="11" fill="#d90429" opacity="0.12"/>
+  <path d="M45 75 L78 92" fill="none" stroke="url(#red)" stroke-width="9" stroke-linecap="round"/>
+  <path d="M45 24 C29 24 18 36 18 51 C18 69 37 75 45 95 C53 75 72 69 72 51 C72 36 61 24 45 24 Z" fill="none" stroke="url(#red)" stroke-width="9" stroke-linejoin="round"/>
+  <circle cx="45" cy="51" r="12" fill="none" stroke="url(#red)" stroke-width="8"/>
+  <rect x="73" y="64" width="38" height="18" rx="4" fill="#fff6f6" stroke="url(#red)" stroke-width="7"/>
+  <path d="M80 79 L91 64 M96 82 L109 64" stroke="#ff7d86" stroke-width="6" stroke-linecap="round"/>
+  <path d="M82 83 V100 M103 83 V100" stroke="url(#red)" stroke-width="8" stroke-linecap="round"/>
+  <ellipse cx="82" cy="105" rx="12" ry="6" fill="#fff6f6" stroke="url(#red)" stroke-width="5"/>
+  <ellipse cx="103" cy="105" rx="12" ry="6" fill="#fff6f6" stroke="url(#red)" stroke-width="5"/>
+</svg>
