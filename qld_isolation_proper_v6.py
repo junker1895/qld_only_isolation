@@ -1552,6 +1552,109 @@ def shortest_hub_route(
     }
 
 
+def build_route_geometry_from_next_hops(
+    G: nx.Graph,
+    start: Any,
+    end: Any,
+    next_hop: Dict[Any, Tuple[Any, Any, Dict[str, Any]]],
+    *,
+    max_points: int = 1200,
+) -> Dict[str, Any]:
+    """Reconstruct route geometry from a node-to-hub next-hop table."""
+    if start is None or end is None or start == end:
+        return {}
+
+    pieces: List[List[Tuple[float, float]]] = []
+    node = start
+    seen: set[Any] = set()
+
+    while node != end:
+        if node in seen:
+            return {}
+        seen.add(node)
+        hop = next_hop.get(node)
+        if hop is None:
+            return {}
+        neighbour, _key, data = hop
+        geom = parse_edge_geometry(G, node, neighbour, data)
+        if geom is not None and not geom.is_empty:
+            if isinstance(geom, MultiLineString):
+                coords = list(max(geom.geoms, key=lambda g: g.length).coords)
+            else:
+                coords = list(geom.coords)
+            a = node_lonlat(G, node)
+            b = node_lonlat(G, neighbour)
+            if a is not None and b is not None and coords:
+                if haversine_m(a[1], a[0], coords[0][1], coords[0][0]) > haversine_m(a[1], a[0], coords[-1][1], coords[-1][0]):
+                    coords = list(reversed(coords))
+            pieces.append([(float(x), float(y)) for x, y in coords])
+        else:
+            a = node_lonlat(G, node)
+            b = node_lonlat(G, neighbour)
+            if a is not None and b is not None:
+                pieces.append([a, b])
+        node = neighbour
+
+    coords_out: List[Tuple[float, float]] = []
+    for coords in pieces:
+        if coords_out and coords and coords_out[-1] == coords[0]:
+            coords_out.extend(coords[1:])
+        else:
+            coords_out.extend(coords)
+    if len(coords_out) > max_points:
+        step = max(1, math.ceil(len(coords_out) / max_points))
+        coords_out = coords_out[::step] + ([coords_out[-1]] if coords_out[-1] != coords_out[::step][-1] else [])
+    return {"type": "LineString", "coordinates": coords_out} if coords_out else {}
+
+
+def multi_source_hub_routes(
+    G: nx.Graph,
+    hub_node_names: Dict[Any, str],
+    blocked_edges: set[Tuple[Any, Any, Any]],
+) -> Tuple[Dict[Any, float], Dict[Any, Any], Dict[Any, Tuple[Any, Any, Dict[str, Any]]]]:
+    """Return nearest-hub distances and next hops for all nodes in one Dijkstra pass."""
+    blocked = blocked_edges or set()
+    route_counter = 0
+    queue: List[Tuple[float, int, Any, Any]] = []
+    dist: Dict[Any, float] = {}
+    nearest_hub: Dict[Any, Any] = {}
+    next_hop: Dict[Any, Tuple[Any, Any, Dict[str, Any]]] = {}
+
+    for hub_node in hub_node_names:
+        if hub_node is None or hub_node not in G or hub_node in dist:
+            continue
+        dist[hub_node] = 0.0
+        nearest_hub[hub_node] = hub_node
+        heapq.heappush(queue, (0.0, route_counter, hub_node, hub_node))
+        route_counter += 1
+
+    seen: set[Any] = set()
+    while queue:
+        cost, _order, node, hub_node = heapq.heappop(queue)
+        if node in seen:
+            continue
+        seen.add(node)
+
+        for neighbour, edge in iter_adjacent_edges(G, node):
+            if neighbour in seen:
+                continue
+            candidates = edge_records_between(G, edge[0], edge[1]) or edge_records_between(G, edge[1], edge[0])
+            candidates = [(key, data) for key, data in candidates if not is_edge_blocked((edge[0], edge[1], key), blocked)]
+            if not candidates:
+                continue
+            key, data = min(candidates, key=lambda item: graph_edge_length_m(G, edge[0], edge[1], item[1]))
+            step = graph_edge_length_m(G, edge[0], edge[1], data)
+            new_cost = cost + step
+            if new_cost < dist.get(neighbour, float("inf")):
+                dist[neighbour] = new_cost
+                nearest_hub[neighbour] = hub_node
+                next_hop[neighbour] = (node, key, data)
+                route_counter += 1
+                heapq.heappush(queue, (new_cost, route_counter, neighbour, hub_node))
+
+    return dist, nearest_hub, next_hop
+
+
 def build_hub_access_routes(
     G: nx.Graph,
     places: Sequence[Place],
@@ -1567,14 +1670,23 @@ def build_hub_access_routes(
             continue
         hub_place = place_by_id.get(place_id)
         hub_node_names.setdefault(node, hub_place.name if hub_place else str(place_id))
+    hub_distances, nearest_hubs, next_hop = multi_source_hub_routes(G, hub_node_names, blocked_edges)
     routes: Dict[str, Dict[str, Any]] = {}
     for row in place_rows:
         if row.get("isolation_category") != "not_isolated" or str(row.get("is_hub", "")).strip().lower() in YES_VALUES:
             continue
         place_id = str(row.get("place_id") or "")
-        route = shortest_hub_route(G, place_nodes.get(place_id), hub_node_names, blocked_edges=blocked_edges)
-        if route:
-            routes[place_id] = route
+        start = place_nodes.get(place_id)
+        hub_node = nearest_hubs.get(start)
+        if start is None or hub_node is None or start == hub_node:
+            continue
+        geometry = build_route_geometry_from_next_hops(G, start, hub_node, next_hop)
+        if geometry:
+            routes[place_id] = {
+                "hub_name": hub_node_names.get(hub_node, str(hub_node)),
+                "distance_m": hub_distances.get(start, 0.0),
+                "geometry": geometry,
+            }
     return routes
 
 # ---------------------------------------------------------------------
@@ -2781,9 +2893,10 @@ def run_analysis(args: argparse.Namespace) -> Dict[str, Any]:
         matched_all_closures,
     )
 
+    t0 = time.perf_counter()
     hub_routes = build_hub_access_routes(G, places, place_nodes, hub_nodes_by_place_id, place_rows, blocked_all)
+    print(f"[ROUTES] current open hub routes generated for not-isolated places: {len(hub_routes):,} elapsed={time.perf_counter() - t0:.1f}s")
     if hub_routes:
-        print(f"[ROUTES] current open hub routes generated for not-isolated places: {len(hub_routes):,}")
         place_rows = classify_places(
             places,
             place_nodes,
