@@ -3273,7 +3273,12 @@ def run_analysis(args: argparse.Namespace) -> Dict[str, Any]:
     state_border_path = resolve_state_border_path(getattr(args, "state_border_kmz", ""))
     print(f"[BORDER] state_border_kmz={state_border_path}")
     boundary = load_qld_boundary_data(state_border_path)
-    qld_traversal_nodes, qld_traversal_edges = qld_traversal_mask_from_boundary_cache(G, boundary, graph_path)
+    if getattr(args, "enforce_state_border_routing", False):
+        qld_traversal_nodes, qld_traversal_edges = qld_traversal_mask_from_boundary_cache(G, boundary, graph_path)
+    else:
+        qld_traversal_nodes = None
+        qld_traversal_edges = None
+        print("[BORDER] state-border routing enforcement disabled; using graph as provided")
     node_index = build_node_index(G)
     edge_index = build_edge_index(G)
 
@@ -3464,6 +3469,7 @@ def run_analysis(args: argparse.Namespace) -> Dict[str, Any]:
             "smart_resnap_k_nearest": args.smart_resnap_k_nearest,
             "state_border_access_distance_m": args.state_border_access_distance_m,
             "state_border_kmz": str(state_border_path or ""),
+            "state_border_routing_enforced": bool(args.enforce_state_border_routing),
         },
         "closure_source": source_meta,
         "counts": {
@@ -3552,7 +3558,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--smart-resnap-max-distance-m", type=float, default=2000.0, help="Maximum distance to a hub-connected node for smart re-snapping.")
     parser.add_argument("--smart-resnap-k-nearest", type=int, default=250, help="Number of nearby graph nodes to inspect during smart re-snapping.")
     parser.add_argument("--state-border-access-distance-m", type=float, default=5000.0, help="Distance from the SA/NT/NSW border used to label non-hub-connected components with state-border access.")
-    parser.add_argument("--state-border-kmz", default="Stateborder.kmz", help="KML/KMZ containing Queensland boundary/state-border geometry for Queensland-only routing and border diagnostics.")
+    parser.add_argument("--state-border-kmz", default="Stateborder.kmz", help="KML/KMZ containing Queensland boundary/state-border geometry for border diagnostics and optional boundary routing enforcement.")
+    parser.add_argument("--enforce-state-border-routing", action="store_true", help="Filter graph traversal through the supplied state-border KMZ/KML. Leave disabled when the GraphML is already QLD-only.")
     parser.add_argument("--manual-connectors", default="", help="Optional CSV of audited manual graph connector edges to apply before analysis.")
     return parser
 
