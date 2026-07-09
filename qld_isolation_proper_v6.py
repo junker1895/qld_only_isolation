@@ -75,6 +75,7 @@ import argparse
 import csv
 import datetime as dt
 import hashlib
+import heapq
 import json
 import math
 import numbers
@@ -234,6 +235,9 @@ PLACE_CSV_FIELDS = [
     "isolation_confidence",
     "isolation_reason",
     "nearby_blocking_closures_json",
+    "hub_route_name",
+    "hub_route_distance_m",
+    "hub_route_geojson",
 ]
 
 MATCH_CSV_FIELDS = [
@@ -1425,6 +1429,150 @@ def nearby_nodes(
     return [(node_index.node_ids[i], math.sqrt(d2)) for d2, i in ranked[:k_nearest]]
 
 
+
+def graph_edge_length_m(G: nx.Graph, u: Any, v: Any, data: Dict[str, Any]) -> float:
+    for key in ("length", "length_m", "distance", "distance_m"):
+        try:
+            value = data.get(key)
+            if value not in (None, ""):
+                length = float(value)
+                if math.isfinite(length) and length > 0:
+                    return length
+        except Exception:
+            pass
+    geom = parse_edge_geometry(G, u, v, data)
+    if geom is not None and not geom.is_empty:
+        try:
+            return float(geom_to_m(geom).length)
+        except Exception:
+            pass
+    a = node_lonlat(G, u)
+    b = node_lonlat(G, v)
+    if a is not None and b is not None:
+        return haversine_m(a[1], a[0], b[1], b[0])
+    return 1.0
+
+
+def edge_records_between(G: nx.Graph, u: Any, v: Any) -> List[Tuple[Any, Dict[str, Any]]]:
+    if G.is_multigraph():
+        try:
+            edge_data = G.get_edge_data(u, v) or {}
+            return [(k, data) for k, data in edge_data.items()]
+        except Exception:
+            return []
+    data = G.get_edge_data(u, v)
+    return [(0, data)] if data else []
+
+
+def shortest_hub_route(
+    G: nx.Graph,
+    start: Any,
+    hub_node_names: Dict[Any, str],
+    *,
+    max_points: int = 1200,
+) -> Dict[str, Any]:
+    """Return a shortest pre-closure route from a place node to the nearest hub node."""
+    if start is None or start not in G or not hub_node_names:
+        return {}
+
+    targets = set(hub_node_names)
+    route_counter = 0
+    queue: List[Tuple[float, int, Any]] = [(0.0, route_counter, start)]
+    dist: Dict[Any, float] = {start: 0.0}
+    prev: Dict[Any, Tuple[Any, Any, Dict[str, Any]]] = {}
+    seen: set[Any] = set()
+    end = None
+
+    while queue:
+        cost, _order, node = heapq.heappop(queue)
+        if node in seen:
+            continue
+        seen.add(node)
+        if node in targets:
+            end = node
+            break
+        for neighbour, edge in iter_adjacent_edges(G, node):
+            if neighbour in seen:
+                continue
+            candidates = edge_records_between(G, edge[0], edge[1]) or edge_records_between(G, edge[1], edge[0])
+            if not candidates:
+                continue
+            key, data = min(candidates, key=lambda item: graph_edge_length_m(G, edge[0], edge[1], item[1]))
+            step = graph_edge_length_m(G, edge[0], edge[1], data)
+            new_cost = cost + step
+            if new_cost < dist.get(neighbour, float("inf")):
+                dist[neighbour] = new_cost
+                prev[neighbour] = (node, key, data)
+                route_counter += 1
+                heapq.heappush(queue, (new_cost, route_counter, neighbour))
+
+    if end is None:
+        return {}
+
+    pieces: List[List[Tuple[float, float]]] = []
+    node = end
+    while node != start:
+        prior, _key, data = prev[node]
+        geom = parse_edge_geometry(G, prior, node, data)
+        if geom is not None and not geom.is_empty:
+            if isinstance(geom, MultiLineString):
+                coords = list(max(geom.geoms, key=lambda g: g.length).coords)
+            else:
+                coords = list(geom.coords)
+            a = node_lonlat(G, prior)
+            b = node_lonlat(G, node)
+            if a is not None and b is not None and coords:
+                if haversine_m(a[1], a[0], coords[0][1], coords[0][0]) > haversine_m(a[1], a[0], coords[-1][1], coords[-1][0]):
+                    coords = list(reversed(coords))
+            pieces.append([(float(x), float(y)) for x, y in coords])
+        else:
+            a = node_lonlat(G, prior)
+            b = node_lonlat(G, node)
+            if a is not None and b is not None:
+                pieces.append([a, b])
+        node = prior
+
+    coords_out: List[Tuple[float, float]] = []
+    for coords in reversed(pieces):
+        if coords_out and coords and coords_out[-1] == coords[0]:
+            coords_out.extend(coords[1:])
+        else:
+            coords_out.extend(coords)
+    if len(coords_out) > max_points:
+        step = max(1, math.ceil(len(coords_out) / max_points))
+        coords_out = coords_out[::step] + ([coords_out[-1]] if coords_out[-1] != coords_out[::step][-1] else [])
+
+    return {
+        "hub_name": hub_node_names.get(end, str(end)),
+        "distance_m": dist[end],
+        "geometry": {"type": "LineString", "coordinates": coords_out},
+    }
+
+
+def build_isolation_hub_routes(
+    G: nx.Graph,
+    places: Sequence[Place],
+    place_nodes: Dict[str, Any],
+    hub_nodes_by_place_id: Dict[str, Any],
+    place_rows: Sequence[Dict[str, Any]],
+) -> Dict[str, Dict[str, Any]]:
+    hub_node_names: Dict[Any, str] = {}
+    place_by_id = {p.place_id: p for p in places}
+    for place_id, node in hub_nodes_by_place_id.items():
+        if node is None:
+            continue
+        hub_place = place_by_id.get(place_id)
+        hub_node_names.setdefault(node, hub_place.name if hub_place else str(place_id))
+    routes: Dict[str, Dict[str, Any]] = {}
+    for row in place_rows:
+        if row.get("isolation_category") not in {"isolated_full_closures", "isolated_with_restrictions"}:
+            continue
+        place_id = str(row.get("place_id") or "")
+        route = shortest_hub_route(G, place_nodes.get(place_id), hub_node_names)
+        if route:
+            routes[place_id] = route
+    return routes
+
 # ---------------------------------------------------------------------
 # Closure blocking logic
 # ---------------------------------------------------------------------
@@ -2341,6 +2489,7 @@ def classify_places(
     border_names_before: Dict[Any, str],
     matched_impassable_closures: Sequence[Closure],
     matched_all_blocking_closures: Sequence[Closure],
+    hub_routes: Optional[Dict[str, Dict[str, Any]]] = None,
 ) -> List[Dict[str, Any]]:
     rows: List[Dict[str, Any]] = []
     for p in places:
@@ -2399,6 +2548,8 @@ def classify_places(
             reason = "Place still has hub access under both closure scenarios."
             nearest = []
 
+        route = (hub_routes or {}).get(p.place_id, {})
+
         rows.append(
             {
                 "place_id": p.place_id,
@@ -2426,6 +2577,9 @@ def classify_places(
                 "isolation_confidence": confidence,
                 "isolation_reason": reason,
                 "nearby_blocking_closures_json": json.dumps(nearest, ensure_ascii=False),
+                "hub_route_name": route.get("hub_name", ""),
+                "hub_route_distance_m": round(float(route.get("distance_m", 0)), 1) if route else "",
+                "hub_route_geojson": json.dumps(route.get("geometry"), ensure_ascii=False) if route else "",
             }
         )
     return rows
@@ -2535,7 +2689,8 @@ def run_analysis(args: argparse.Namespace) -> Dict[str, Any]:
     # Snap places and hubs. Hubs use the same max distance so bad hub coords are
     # visible rather than silently snapped hundreds of kilometres away.
     place_nodes, place_dist = snap_places_to_graph(places, node_index, max_snap_distance_m=args.max_place_snap_m)
-    hub_nodes = [place_nodes.get(h.place_id) for h in hubs if place_nodes.get(h.place_id) is not None]
+    hub_nodes_by_place_id = {h.place_id: place_nodes.get(h.place_id) for h in hubs if place_nodes.get(h.place_id) is not None}
+    hub_nodes = list(hub_nodes_by_place_id.values())
     if not hub_nodes:
         raise RuntimeError("No hubs snapped to the graph. Increase --max-place-snap-m or check hub coordinates.")
     print(f"[SNAP] snapped_hubs={len(hub_nodes):,}/{len(hubs):,}")
@@ -2622,6 +2777,28 @@ def run_analysis(args: argparse.Namespace) -> Dict[str, Any]:
         matched_all_closures,
     )
 
+    hub_routes = build_isolation_hub_routes(G, places, place_nodes, hub_nodes_by_place_id, place_rows)
+    if hub_routes:
+        print(f"[ROUTES] pre-closure hub routes generated for isolated places: {len(hub_routes):,}")
+        place_rows = classify_places(
+            places,
+            place_nodes,
+            place_dist,
+            snap_strategy,
+            snap_note,
+            reachable_before,
+            reachable_imp,
+            reachable_all,
+            hub_counts_before,
+            hub_counts_imp,
+            hub_counts_all,
+            border_counts_before,
+            border_names_before,
+            matched_imp_closures,
+            matched_all_closures,
+            hub_routes,
+        )
+
     counts_by_category: Dict[str, int] = {}
     for r in place_rows:
         key = str(r.get("isolation_category"))
@@ -2674,6 +2851,7 @@ def run_analysis(args: argparse.Namespace) -> Dict[str, Any]:
             "hub_components_impassable_only": summarise_hub_components(hub_components_imp),
             "hub_components_all_blocking": summarise_hub_components(hub_components_all),
             "smart_resnapped_places": smart_count,
+            "isolated_hub_routes": len(hub_routes),
             "place_categories": counts_by_category,
             "unmatched_closure_rows": len(unmatched_rows),
         },
