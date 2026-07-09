@@ -82,10 +82,12 @@ import numbers
 import re
 import sys
 import time
+import zipfile
 from collections import deque
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Tuple
+from typing import Any, Callable, Dict, Iterable, List, Optional, Sequence, Set, Tuple
+import xml.etree.ElementTree as ET
 
 import networkx as nx
 import requests
@@ -102,7 +104,8 @@ from shapely.geometry import (
     mapping,
     shape,
 )
-from shapely.ops import transform
+from shapely.ops import transform, unary_union
+from shapely.prepared import prep
 from shapely.strtree import STRtree
 
 # ---------------------------------------------------------------------
@@ -425,6 +428,14 @@ class NodeIndex:
 
 
 @dataclass
+class QldBoundaryData:
+    qld_geom: Optional[Any] = None
+    border_lines_wgs: List[Tuple[str, Any]] = field(default_factory=list)
+    border_lines_m: List[Tuple[str, Any]] = field(default_factory=list)
+    source_path: str = ""
+
+
+@dataclass
 class ScenarioResult:
     name: str
     blocked_edges: set[Tuple[Any, Any, Any]]
@@ -551,6 +562,276 @@ def in_qld_bbox(lat: float, lon: float) -> bool:
 
 def geom_to_m(geom: Any) -> Any:
     return transform(TO_M3857.transform, geom)
+
+
+def _kml_local_name(tag: str) -> str:
+    return tag.rsplit("}", 1)[-1] if "}" in tag else tag
+
+
+def _kml_child_text(element: ET.Element, local_name: str) -> str:
+    for child in element.iter():
+        if _kml_local_name(child.tag) == local_name and child.text:
+            return child.text.strip()
+    return ""
+
+
+def _parse_kml_coordinates(text: str) -> List[Tuple[float, float]]:
+    coords: List[Tuple[float, float]] = []
+    for token in re.split(r"\s+", text.strip()):
+        if not token:
+            continue
+        parts = token.split(",")
+        if len(parts) < 2:
+            continue
+        try:
+            lon = float(parts[0])
+            lat = float(parts[1])
+        except Exception:
+            continue
+        if math.isfinite(lon) and math.isfinite(lat):
+            coords.append((lon, lat))
+    return coords
+
+
+def _kml_geometries_from_placemark(placemark: ET.Element) -> Tuple[List[Any], List[Any]]:
+    polygons: List[Any] = []
+    lines: List[Any] = []
+    for geom in placemark.iter():
+        local = _kml_local_name(geom.tag)
+        if local == "Polygon":
+            rings: List[List[Tuple[float, float]]] = []
+            for coords_el in geom.iter():
+                if _kml_local_name(coords_el.tag) == "coordinates" and coords_el.text:
+                    ring = _parse_kml_coordinates(coords_el.text)
+                    if len(ring) >= 4:
+                        rings.append(ring)
+            if rings:
+                try:
+                    polygons.append(Polygon(rings[0], holes=rings[1:] or None))
+                except Exception:
+                    pass
+        elif local == "LineString":
+            coords_text = _kml_child_text(geom, "coordinates")
+            coords = _parse_kml_coordinates(coords_text)
+            if len(coords) >= 2:
+                try:
+                    lines.append(LineString(coords))
+                except Exception:
+                    pass
+    return polygons, lines
+
+
+def _read_kmz_kml_texts(path: Path) -> List[str]:
+    if path.suffix.lower() == ".kmz":
+        texts: List[str] = []
+        with zipfile.ZipFile(path) as archive:
+            for name in archive.namelist():
+                if name.lower().endswith(".kml"):
+                    texts.append(archive.read(name).decode("utf-8-sig"))
+        return texts
+    return [path.read_text(encoding="utf-8-sig")]
+
+
+def resolve_state_border_path(path_value: Optional[str], *, base_dir: Optional[Path] = None) -> Optional[Path]:
+    """Resolve the configured state-border KML/KMZ, searching the repo if needed."""
+    if path_value is None or not str(path_value).strip():
+        return None
+
+    requested = Path(str(path_value).strip()).expanduser()
+    candidates: List[Path] = []
+    if requested.is_absolute():
+        candidates.append(requested)
+    else:
+        cwd = Path.cwd()
+        script_dir = base_dir or Path(__file__).resolve().parent
+        candidates.extend([cwd / requested, script_dir / requested])
+
+    seen: Set[Path] = set()
+    for candidate in candidates:
+        try:
+            key = candidate.resolve()
+        except Exception:
+            key = candidate
+        if key in seen:
+            continue
+        seen.add(key)
+        if candidate.exists():
+            return candidate
+
+    # The workflow can run from a different working directory, and users often put
+    # the KMZ under a data/assets folder.  If the direct path did not resolve,
+    # search from the script/repo directory for a matching KML/KMZ basename.
+    if requested.is_absolute():
+        return requested
+
+    script_dir = base_dir or Path(__file__).resolve().parent
+    requested_name = requested.name.lower()
+    kmz_kml_files = [p for pattern in ("*.kmz", "*.kml") for p in script_dir.rglob(pattern)]
+    for candidate in kmz_kml_files:
+        if candidate.name.lower() == requested_name:
+            return candidate
+
+    # Be forgiving for minor naming differences such as state_border.kmz,
+    # state-border.kmz, or State Border.kmz when the default Stateborder.kmz is used.
+    requested_stem_norm = re.sub(r"[^a-z0-9]+", "", requested.stem.lower())
+    for candidate in kmz_kml_files:
+        stem_norm = re.sub(r"[^a-z0-9]+", "", candidate.stem.lower())
+        if requested_stem_norm and requested_stem_norm == stem_norm:
+            return candidate
+        if requested_stem_norm == "stateborder" and "state" in stem_norm and "border" in stem_norm:
+            return candidate
+
+    return candidates[0] if candidates else requested
+
+
+def load_qld_boundary_data(path: Optional[Path]) -> QldBoundaryData:
+    """Load Queensland polygon/border-line geometry from a KML/KMZ state border file."""
+    if not path or not str(path).strip():
+        return QldBoundaryData()
+    if not path.exists():
+        raise FileNotFoundError(f"State border KMZ/KML not found: {path}")
+
+    qld_polygons: List[Any] = []
+    candidate_polygons: List[Any] = []
+    border_lines_wgs: List[Tuple[str, Any]] = []
+    for text in _read_kmz_kml_texts(path):
+        root = ET.fromstring(text)
+        for placemark in root.iter():
+            if _kml_local_name(placemark.tag) != "Placemark":
+                continue
+            name = _kml_child_text(placemark, "name")
+            label_text = " ".join(t.strip() for t in placemark.itertext() if t and t.strip()).lower()
+            polygons, lines = _kml_geometries_from_placemark(placemark)
+            candidate_polygons.extend(polygons)
+
+            is_qld = "queensland" in label_text or re.search(r"\bqld\b", label_text) is not None
+            if is_qld:
+                qld_polygons.extend(polygons)
+
+            label = name or "state border"
+            for line in lines:
+                border_lines_wgs.append((label, line))
+
+    if not qld_polygons:
+        for polygon in candidate_polygons:
+            try:
+                point = polygon.representative_point()
+                if in_qld_bbox(float(point.y), float(point.x)):
+                    qld_polygons.append(polygon)
+            except Exception:
+                continue
+    qld_geom = unary_union(qld_polygons) if qld_polygons else None
+    border_lines_m = [(label, geom_to_m(line)) for label, line in border_lines_wgs]
+    print(
+        "[BORDER] loaded state border data "
+        f"source={path} qld_polygon={'yes' if qld_geom is not None else 'no'} border_lines={len(border_lines_wgs):,}"
+    )
+    return QldBoundaryData(qld_geom=qld_geom, border_lines_wgs=border_lines_wgs, border_lines_m=border_lines_m, source_path=str(path))
+
+
+def qld_traversal_nodes_from_boundary(G: nx.Graph, boundary: QldBoundaryData) -> Optional[set[Any]]:
+    """Return nodes on the Queensland side of the supplied boundary data."""
+    if boundary.qld_geom is None and not boundary.border_lines_wgs:
+        return None
+    prepared = prep(boundary.qld_geom) if boundary.qld_geom is not None else None
+    qld_nodes: set[Any] = set()
+    for node, data in G.nodes(data=True):
+        try:
+            lon = float(data["x"])
+            lat = float(data["y"])
+        except Exception:
+            continue
+        if prepared is not None and prepared.intersects(Point(lon, lat)):
+            qld_nodes.add(node)
+        elif prepared is None and is_qld_side_of_state_border(lat, lon, boundary.border_lines_wgs):
+            qld_nodes.add(node)
+    print(f"[BORDER] Queensland traversal nodes={len(qld_nodes):,}/{G.number_of_nodes():,}")
+    return qld_nodes
+
+
+def qld_traversal_edges_from_boundary(
+    G: nx.Graph,
+    boundary: QldBoundaryData,
+    allowed_nodes: Optional[set[Any]],
+) -> Optional[set[Tuple[Any, Any, Any]]]:
+    """Return edges whose geometry stays on the Queensland side of the boundary data."""
+    if boundary.qld_geom is None and not boundary.border_lines_wgs:
+        return None
+
+    qld_geom = boundary.qld_geom.buffer(1e-6) if boundary.qld_geom is not None else None
+    allowed_edges: set[Tuple[Any, Any, Any]] = set()
+    for u, v, k, data in iter_graph_edges(G):
+        if allowed_nodes is not None and (u not in allowed_nodes or v not in allowed_nodes):
+            continue
+        try:
+            geom = parse_edge_geometry(G, u, v, data)
+        except Exception:
+            geom = None
+
+        if geom is not None and not geom.is_empty:
+            if qld_geom is not None:
+                if qld_geom.covers(geom):
+                    allowed_edges.add((u, v, k))
+                continue
+            if any(geom.crosses(border_line) for _label, border_line in boundary.border_lines_wgs):
+                continue
+            if isinstance(geom, MultiLineString):
+                coords_to_check = [coord for part in geom.geoms for coord in part.coords]
+            else:
+                coords_to_check = list(geom.coords)
+            if all(is_qld_side_of_state_border(float(y), float(x), boundary.border_lines_wgs) for x, y in coords_to_check):
+                allowed_edges.add((u, v, k))
+            continue
+
+        a = node_lonlat(G, u)
+        b = node_lonlat(G, v)
+        if a is None or b is None:
+            continue
+        if qld_geom is not None:
+            if qld_geom.covers(LineString([a, b])):
+                allowed_edges.add((u, v, k))
+        elif (
+            is_qld_side_of_state_border(a[1], a[0], boundary.border_lines_wgs)
+            and is_qld_side_of_state_border(b[1], b[0], boundary.border_lines_wgs)
+        ):
+            allowed_edges.add((u, v, k))
+
+    print(f"[BORDER] Queensland traversal edges={len(allowed_edges):,}/{G.number_of_edges():,}")
+    return allowed_edges
+
+
+def is_qld_side_of_state_border(lat: float, lon: float, border_lines_wgs: Sequence[Tuple[str, Any]]) -> bool:
+    """Best-effort QLD-side test when the KMZ supplies state-border lines but no polygon."""
+    if not in_qld_bbox(lat, lon):
+        return False
+
+    # The NT border is effectively the western QLD border; any graph node west of
+    # that line is interstate for this model.
+    vertical_border_lons: List[float] = []
+    southern_border_lats_at_lon: List[float] = []
+    for _label, line in border_lines_wgs:
+        coords = list(line.coords)
+        for a, b in zip(coords, coords[1:]):
+            ax, ay = float(a[0]), float(a[1])
+            bx, by = float(b[0]), float(b[1])
+            if abs(ax - bx) < 1e-9:
+                if min(ay, by) - 0.01 <= lat <= max(ay, by) + 0.01:
+                    vertical_border_lons.append(ax)
+                continue
+            if min(ax, bx) - 0.01 <= lon <= max(ax, bx) + 0.01:
+                t = (lon - ax) / (bx - ax)
+                if -0.01 <= t <= 1.01:
+                    border_lat = ay + t * (by - ay)
+                    # Only southern borders are useful for this fallback; ignore
+                    # unrelated/internal linework if the source KMZ includes it.
+                    if border_lat < -20.0:
+                        southern_border_lats_at_lon.append(border_lat)
+
+    if vertical_border_lons and lon < max(vertical_border_lons) - 0.005:
+        return False
+    if southern_border_lats_at_lon and lat < max(southern_border_lats_at_lon) - 0.005:
+        return False
+    return True
 
 
 def point_wgs_to_m(lon: float, lat: float) -> Tuple[float, float]:
@@ -1552,6 +1833,120 @@ def shortest_hub_route(
     }
 
 
+def build_route_geometry_from_next_hops(
+    G: nx.Graph,
+    start: Any,
+    end: Any,
+    next_hop: Dict[Any, Tuple[Any, Any, Dict[str, Any]]],
+    *,
+    max_points: int = 1200,
+) -> Dict[str, Any]:
+    """Reconstruct route geometry from a node-to-hub next-hop table."""
+    if start is None or end is None or start == end:
+        return {}
+
+    pieces: List[List[Tuple[float, float]]] = []
+    node = start
+    seen: set[Any] = set()
+
+    while node != end:
+        if node in seen:
+            return {}
+        seen.add(node)
+        hop = next_hop.get(node)
+        if hop is None:
+            return {}
+        neighbour, _key, data = hop
+        geom = parse_edge_geometry(G, node, neighbour, data)
+        if geom is not None and not geom.is_empty:
+            if isinstance(geom, MultiLineString):
+                coords = list(max(geom.geoms, key=lambda g: g.length).coords)
+            else:
+                coords = list(geom.coords)
+            a = node_lonlat(G, node)
+            b = node_lonlat(G, neighbour)
+            if a is not None and b is not None and coords:
+                if haversine_m(a[1], a[0], coords[0][1], coords[0][0]) > haversine_m(a[1], a[0], coords[-1][1], coords[-1][0]):
+                    coords = list(reversed(coords))
+            pieces.append([(float(x), float(y)) for x, y in coords])
+        else:
+            a = node_lonlat(G, node)
+            b = node_lonlat(G, neighbour)
+            if a is not None and b is not None:
+                pieces.append([a, b])
+        node = neighbour
+
+    coords_out: List[Tuple[float, float]] = []
+    for coords in pieces:
+        if coords_out and coords and coords_out[-1] == coords[0]:
+            coords_out.extend(coords[1:])
+        else:
+            coords_out.extend(coords)
+    if len(coords_out) > max_points:
+        step = max(1, math.ceil(len(coords_out) / max_points))
+        coords_out = coords_out[::step] + ([coords_out[-1]] if coords_out[-1] != coords_out[::step][-1] else [])
+    return {"type": "LineString", "coordinates": coords_out} if coords_out else {}
+
+
+def multi_source_hub_routes(
+    G: nx.Graph,
+    hub_node_names: Dict[Any, str],
+    blocked_edges: set[Tuple[Any, Any, Any]],
+    allowed_nodes: Optional[set[Any]] = None,
+    allowed_edges: Optional[set[Tuple[Any, Any, Any]]] = None,
+) -> Tuple[Dict[Any, float], Dict[Any, Any], Dict[Any, Tuple[Any, Any, Dict[str, Any]]]]:
+    """Return nearest-hub distances and next hops for all nodes in one Dijkstra pass."""
+    blocked = blocked_edges or set()
+    route_counter = 0
+    queue: List[Tuple[float, int, Any, Any]] = []
+    dist: Dict[Any, float] = {}
+    nearest_hub: Dict[Any, Any] = {}
+    next_hop: Dict[Any, Tuple[Any, Any, Dict[str, Any]]] = {}
+
+    for hub_node in hub_node_names:
+        if hub_node is None or hub_node not in G or hub_node in dist:
+            continue
+        if allowed_nodes is not None and hub_node not in allowed_nodes:
+            continue
+        dist[hub_node] = 0.0
+        nearest_hub[hub_node] = hub_node
+        heapq.heappush(queue, (0.0, route_counter, hub_node, hub_node))
+        route_counter += 1
+
+    seen: set[Any] = set()
+    while queue:
+        cost, _order, node, hub_node = heapq.heappop(queue)
+        if node in seen:
+            continue
+        seen.add(node)
+
+        for neighbour, edge in iter_adjacent_edges(G, node):
+            if neighbour in seen:
+                continue
+            if allowed_nodes is not None and neighbour not in allowed_nodes:
+                continue
+            candidates = edge_records_between(G, edge[0], edge[1]) or edge_records_between(G, edge[1], edge[0])
+            candidates = [
+                (key, data)
+                for key, data in candidates
+                if is_edge_allowed((edge[0], edge[1], key), allowed_edges)
+                and not is_edge_blocked((edge[0], edge[1], key), blocked)
+            ]
+            if not candidates:
+                continue
+            key, data = min(candidates, key=lambda item: graph_edge_length_m(G, edge[0], edge[1], item[1]))
+            step = graph_edge_length_m(G, edge[0], edge[1], data)
+            new_cost = cost + step
+            if new_cost < dist.get(neighbour, float("inf")):
+                dist[neighbour] = new_cost
+                nearest_hub[neighbour] = hub_node
+                next_hop[neighbour] = (node, key, data)
+                route_counter += 1
+                heapq.heappush(queue, (new_cost, route_counter, neighbour, hub_node))
+
+    return dist, nearest_hub, next_hop
+
+
 def build_hub_access_routes(
     G: nx.Graph,
     places: Sequence[Place],
@@ -1559,6 +1954,8 @@ def build_hub_access_routes(
     hub_nodes_by_place_id: Dict[str, Any],
     place_rows: Sequence[Dict[str, Any]],
     blocked_edges: set[Tuple[Any, Any, Any]],
+    allowed_nodes: Optional[set[Any]] = None,
+    allowed_edges: Optional[set[Tuple[Any, Any, Any]]] = None,
 ) -> Dict[str, Dict[str, Any]]:
     hub_node_names: Dict[Any, str] = {}
     place_by_id = {p.place_id: p for p in places}
@@ -1567,14 +1964,25 @@ def build_hub_access_routes(
             continue
         hub_place = place_by_id.get(place_id)
         hub_node_names.setdefault(node, hub_place.name if hub_place else str(place_id))
+    hub_distances, nearest_hubs, next_hop = multi_source_hub_routes(G, hub_node_names, blocked_edges, allowed_nodes, allowed_edges)
     routes: Dict[str, Dict[str, Any]] = {}
     for row in place_rows:
         if row.get("isolation_category") != "not_isolated" or str(row.get("is_hub", "")).strip().lower() in YES_VALUES:
             continue
         place_id = str(row.get("place_id") or "")
-        route = shortest_hub_route(G, place_nodes.get(place_id), hub_node_names, blocked_edges=blocked_edges)
-        if route:
-            routes[place_id] = route
+        start = place_nodes.get(place_id)
+        if allowed_nodes is not None and start not in allowed_nodes:
+            continue
+        hub_node = nearest_hubs.get(start)
+        if start is None or hub_node is None or start == hub_node:
+            continue
+        geometry = build_route_geometry_from_next_hops(G, start, hub_node, next_hop)
+        if geometry:
+            routes[place_id] = {
+                "hub_name": hub_node_names.get(hub_node, str(hub_node)),
+                "distance_m": hub_distances.get(start, 0.0),
+                "geometry": geometry,
+            }
     return routes
 
 # ---------------------------------------------------------------------
@@ -2163,6 +2571,12 @@ def is_edge_blocked(edge: Tuple[Any, Any, Any], blocked_edges: set[Tuple[Any, An
     return (edge[1], edge[0], edge[2]) in blocked_edges
 
 
+def is_edge_allowed(edge: Tuple[Any, Any, Any], allowed_edges: Optional[set[Tuple[Any, Any, Any]]]) -> bool:
+    if allowed_edges is None:
+        return True
+    return edge in allowed_edges or (edge[1], edge[0], edge[2]) in allowed_edges
+
+
 def reachable_from_hubs(G: nx.Graph, hub_nodes: Sequence[Any], blocked_edges: set[Tuple[Any, Any, Any]]) -> set[Any]:
     queue = deque(n for n in hub_nodes if n is not None)
     seen: set[Any] = set()
@@ -2184,14 +2598,17 @@ def hub_component_access(
     G: nx.Graph,
     hub_nodes: Sequence[Any],
     blocked_edges: set[Tuple[Any, Any, Any]],
+    allowed_nodes: Optional[set[Any]] = None,
+    allowed_edges: Optional[set[Tuple[Any, Any, Any]]] = None,
 ) -> Tuple[Dict[Any, int], List[int]]:
     """Return each node's reachable hub count and all hub-containing component sizes."""
-    hub_set = {n for n in hub_nodes if n is not None}
+    hub_set = {n for n in hub_nodes if n is not None and (allowed_nodes is None or n in allowed_nodes)}
     node_hub_counts: Dict[Any, int] = {}
     hub_component_sizes: List[int] = []
     seen: set[Any] = set()
 
-    for start in G.nodes:
+    nodes_to_scan = allowed_nodes if allowed_nodes is not None else G.nodes
+    for start in nodes_to_scan:
         if start in seen:
             continue
         component_nodes: List[Any] = []
@@ -2204,7 +2621,9 @@ def hub_component_access(
             if node in hub_set:
                 component_hubs += 1
             for neighbour, edge in iter_adjacent_edges(G, node):
-                if neighbour in seen or is_edge_blocked(edge, blocked_edges):
+                if neighbour in seen or is_edge_blocked(edge, blocked_edges) or not is_edge_allowed(edge, allowed_edges):
+                    continue
+                if allowed_nodes is not None and neighbour not in allowed_nodes:
                     continue
                 seen.add(neighbour)
                 queue.append(neighbour)
@@ -2220,12 +2639,15 @@ def hub_component_access(
 def graph_component_node_sizes(
     G: nx.Graph,
     blocked_edges: set[Tuple[Any, Any, Any]],
+    allowed_nodes: Optional[set[Any]] = None,
+    allowed_edges: Optional[set[Tuple[Any, Any, Any]]] = None,
 ) -> Dict[Any, int]:
     """Return the graph component size for each node under a blocking scenario."""
     node_component_sizes: Dict[Any, int] = {}
     seen: set[Any] = set()
 
-    for start in G.nodes:
+    nodes_to_scan = allowed_nodes if allowed_nodes is not None else G.nodes
+    for start in nodes_to_scan:
         if start in seen:
             continue
         component_nodes: List[Any] = []
@@ -2235,7 +2657,9 @@ def graph_component_node_sizes(
             node = queue.popleft()
             component_nodes.append(node)
             for neighbour, edge in iter_adjacent_edges(G, node):
-                if neighbour in seen or is_edge_blocked(edge, blocked_edges):
+                if neighbour in seen or is_edge_blocked(edge, blocked_edges) or not is_edge_allowed(edge, allowed_edges):
+                    continue
+                if allowed_nodes is not None and neighbour not in allowed_nodes:
                     continue
                 seen.add(neighbour)
                 queue.append(neighbour)
@@ -2257,16 +2681,24 @@ QLD_STATE_BORDER_SEGMENTS: List[Tuple[str, Tuple[float, float], Tuple[float, flo
 ]
 
 
-def state_border_node_labels(G: nx.Graph, max_distance_m: float) -> Dict[Any, List[str]]:
+def state_border_node_labels(
+    G: nx.Graph,
+    max_distance_m: float,
+    boundary: Optional[QldBoundaryData] = None,
+    allowed_nodes: Optional[set[Any]] = None,
+) -> Dict[Any, List[str]]:
     """Return graph nodes that are close enough to the SA/NT/NSW borders."""
-    border_lines = []
-    for name, a, b in QLD_STATE_BORDER_SEGMENTS:
-        ax, ay = point_wgs_to_m(a[0], a[1])
-        bx, by = point_wgs_to_m(b[0], b[1])
-        border_lines.append((name, LineString([(ax, ay), (bx, by)])))
+    border_lines = list(boundary.border_lines_m) if boundary and boundary.border_lines_m else []
+    if not border_lines:
+        for name, a, b in QLD_STATE_BORDER_SEGMENTS:
+            ax, ay = point_wgs_to_m(a[0], a[1])
+            bx, by = point_wgs_to_m(b[0], b[1])
+            border_lines.append((name, LineString([(ax, ay), (bx, by)])))
 
     out: Dict[Any, List[str]] = {}
-    for node, data in G.nodes(data=True):
+    nodes_to_scan = allowed_nodes if allowed_nodes is not None else G.nodes
+    for node in nodes_to_scan:
+        data = G.nodes[node]
         try:
             lon = float(data["x"])
             lat = float(data["y"])
@@ -2284,13 +2716,16 @@ def border_component_access(
     G: nx.Graph,
     border_node_labels: Dict[Any, List[str]],
     blocked_edges: set[Tuple[Any, Any, Any]],
+    allowed_nodes: Optional[set[Any]] = None,
+    allowed_edges: Optional[set[Tuple[Any, Any, Any]]] = None,
 ) -> Tuple[Dict[Any, int], Dict[Any, str]]:
     """Return each node's reachable border count/names under a blocking scenario."""
     node_border_counts: Dict[Any, int] = {}
     node_border_names: Dict[Any, str] = {}
     seen: set[Any] = set()
 
-    for start in G.nodes:
+    nodes_to_scan = allowed_nodes if allowed_nodes is not None else G.nodes
+    for start in nodes_to_scan:
         if start in seen:
             continue
         component_nodes: List[Any] = []
@@ -2302,7 +2737,9 @@ def border_component_access(
             component_nodes.append(node)
             component_borders.update(border_node_labels.get(node, []))
             for neighbour, edge in iter_adjacent_edges(G, node):
-                if neighbour in seen or is_edge_blocked(edge, blocked_edges):
+                if neighbour in seen or is_edge_blocked(edge, blocked_edges) or not is_edge_allowed(edge, allowed_edges):
+                    continue
+                if allowed_nodes is not None and neighbour not in allowed_nodes:
                     continue
                 seen.add(neighbour)
                 queue.append(neighbour)
@@ -2687,6 +3124,11 @@ def run_analysis(args: argparse.Namespace) -> Dict[str, Any]:
     G = load_graph(Path(args.graph))
     if getattr(args, "manual_connectors", ""):
         apply_manual_connectors(G, Path(args.manual_connectors))
+    state_border_path = resolve_state_border_path(getattr(args, "state_border_kmz", ""))
+    print(f"[BORDER] state_border_kmz={state_border_path}")
+    boundary = load_qld_boundary_data(state_border_path)
+    qld_traversal_nodes = qld_traversal_nodes_from_boundary(G, boundary)
+    qld_traversal_edges = qld_traversal_edges_from_boundary(G, boundary, qld_traversal_nodes)
     node_index = build_node_index(G)
     edge_index = build_edge_index(G)
 
@@ -2729,21 +3171,55 @@ def run_analysis(args: argparse.Namespace) -> Dict[str, Any]:
 
     # Reachability before and after closures.
     t0 = time.perf_counter()
-    hub_counts_before, hub_components_before = hub_component_access(G, hub_nodes, blocked_edges=set())
+    hub_counts_before, hub_components_before = hub_component_access(
+        G,
+        hub_nodes,
+        blocked_edges=set(),
+        allowed_nodes=qld_traversal_nodes,
+        allowed_edges=qld_traversal_edges,
+    )
     reachable_before = set(hub_counts_before)
     print(f"[REACH] before closures reachable_nodes={len(reachable_before):,} hub_components={len(hub_components_before):,} elapsed={time.perf_counter() - t0:.1f}s")
-    component_node_sizes_before = graph_component_node_sizes(G, blocked_edges=set())
-    border_node_labels = state_border_node_labels(G, max_distance_m=args.state_border_access_distance_m)
-    border_counts_before, border_names_before = border_component_access(G, border_node_labels, blocked_edges=set())
+    component_node_sizes_before = graph_component_node_sizes(
+        G,
+        blocked_edges=set(),
+        allowed_nodes=qld_traversal_nodes,
+        allowed_edges=qld_traversal_edges,
+    )
+    border_node_labels = state_border_node_labels(
+        G,
+        max_distance_m=args.state_border_access_distance_m,
+        boundary=boundary,
+        allowed_nodes=qld_traversal_nodes,
+    )
+    border_counts_before, border_names_before = border_component_access(
+        G,
+        border_node_labels,
+        blocked_edges=set(),
+        allowed_nodes=qld_traversal_nodes,
+        allowed_edges=qld_traversal_edges,
+    )
     print(f"[REACH] state_border_access border_nodes={len(border_node_labels):,} reachable_nodes={len(border_counts_before):,}")
 
     t0 = time.perf_counter()
-    hub_counts_imp, hub_components_imp = hub_component_access(G, hub_nodes, blocked_edges=blocked_imp)
+    hub_counts_imp, hub_components_imp = hub_component_access(
+        G,
+        hub_nodes,
+        blocked_edges=blocked_imp,
+        allowed_nodes=qld_traversal_nodes,
+        allowed_edges=qld_traversal_edges,
+    )
     reachable_imp = set(hub_counts_imp)
     print(f"[REACH] impassable_only reachable_nodes={len(reachable_imp):,} hub_components={len(hub_components_imp):,} elapsed={time.perf_counter() - t0:.1f}s")
 
     t0 = time.perf_counter()
-    hub_counts_all, hub_components_all = hub_component_access(G, hub_nodes, blocked_edges=blocked_all)
+    hub_counts_all, hub_components_all = hub_component_access(
+        G,
+        hub_nodes,
+        blocked_edges=blocked_all,
+        allowed_nodes=qld_traversal_nodes,
+        allowed_edges=qld_traversal_edges,
+    )
     reachable_all = set(hub_counts_all)
     print(f"[REACH] all_blocking reachable_nodes={len(reachable_all):,} hub_components={len(hub_components_all):,} elapsed={time.perf_counter() - t0:.1f}s")
 
@@ -2781,9 +3257,19 @@ def run_analysis(args: argparse.Namespace) -> Dict[str, Any]:
         matched_all_closures,
     )
 
-    hub_routes = build_hub_access_routes(G, places, place_nodes, hub_nodes_by_place_id, place_rows, blocked_all)
+    t0 = time.perf_counter()
+    hub_routes = build_hub_access_routes(
+        G,
+        places,
+        place_nodes,
+        hub_nodes_by_place_id,
+        place_rows,
+        blocked_all,
+        qld_traversal_nodes,
+        qld_traversal_edges,
+    )
+    print(f"[ROUTES] current open hub routes generated for not-isolated places: {len(hub_routes):,} elapsed={time.perf_counter() - t0:.1f}s")
     if hub_routes:
-        print(f"[ROUTES] current open hub routes generated for not-isolated places: {len(hub_routes):,}")
         place_rows = classify_places(
             places,
             place_nodes,
@@ -2832,6 +3318,7 @@ def run_analysis(args: argparse.Namespace) -> Dict[str, Any]:
             "smart_resnap_max_distance_m": args.smart_resnap_max_distance_m,
             "smart_resnap_k_nearest": args.smart_resnap_k_nearest,
             "state_border_access_distance_m": args.state_border_access_distance_m,
+            "state_border_kmz": str(state_border_path or ""),
         },
         "closure_source": source_meta,
         "counts": {
@@ -2844,6 +3331,8 @@ def run_analysis(args: argparse.Namespace) -> Dict[str, Any]:
             "snapped_hubs": len(hub_nodes),
             "graph_nodes": G.number_of_nodes(),
             "graph_edges": G.number_of_edges(),
+            "qld_traversal_nodes": len(qld_traversal_nodes) if qld_traversal_nodes is not None else "",
+            "qld_traversal_edges": len(qld_traversal_edges) if qld_traversal_edges is not None else "",
             "blocked_edges_impassable_only": len(blocked_imp),
             "blocked_edges_all_blocking": len(blocked_all),
             "reachable_nodes_before": len(reachable_before),
@@ -2918,6 +3407,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--smart-resnap-max-distance-m", type=float, default=2000.0, help="Maximum distance to a hub-connected node for smart re-snapping.")
     parser.add_argument("--smart-resnap-k-nearest", type=int, default=250, help="Number of nearby graph nodes to inspect during smart re-snapping.")
     parser.add_argument("--state-border-access-distance-m", type=float, default=5000.0, help="Distance from the SA/NT/NSW border used to label non-hub-connected components with state-border access.")
+    parser.add_argument("--state-border-kmz", default="Stateborder.kmz", help="KML/KMZ containing Queensland boundary/state-border geometry for Queensland-only routing and border diagnostics.")
     parser.add_argument("--manual-connectors", default="", help="Optional CSV of audited manual graph connector edges to apply before analysis.")
     return parser
 
