@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Queensland Road Isolation Dashboard</title>
-  <!-- Dashboard build v19: no load zoom, auto data refresh, selected blocking closure highlight -->
+  <!-- Dashboard build v20: subtle selected blocking closure pulse with click-off clearing -->
   <meta name="description" content="Leaflet dashboard for Queensland road closure and place-isolation outputs." />
   <link crossorigin="" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" rel="stylesheet" />
   <script crossorigin="" src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -109,11 +109,11 @@
     const p=f.properties||{}; const cls=closureClass(p); const c=closureColorByClass(cls); const w=closureWeightByClass(cls); const selected=isSelectedBlockingClosure(p);
     return {
       pane:'closurePane',
-      color:selected?(refs.highlightOn?'#00e5ff':'#ffff00'):c,
-      weight:selected?w+4:w,
-      opacity:selected?1:(cls==='other'?.55:.82),
-      fillColor:selected?'#00e5ff':c,
-      fillOpacity:selected ? .22 : .10,
+      color:selected?'#00bcd4':c,
+      weight:selected?w+(refs.highlightOn?2.4:1.1):w,
+      opacity:selected?(refs.highlightOn ? .95 : .72):(cls==='other'?.55:.82),
+      fillColor:selected?'#00bcd4':c,
+      fillOpacity:selected ? (refs.highlightOn ? .18 : .08) : .10,
       dashArray:selected?null:(cls==='restricted'?'6 5':cls==='other'?'4 6':null),
       lineCap:'round',
       lineJoin:'round'
@@ -123,9 +123,9 @@
     const p=f.properties||{}; const cls=closureClass(p); const w=closureWeightByClass(cls); const selected=isSelectedBlockingClosure(p);
     return {
       pane:'closureCasePane',
-      color:selected?(refs.highlightOn?'#ffff00':'#00e5ff'):'#ffffff',
-      weight:selected?w+8:w+2.2,
-      opacity:selected ? .95 : (cls==='other'?.32:.55),
+      color:'#ffffff',
+      weight:selected?w+(refs.highlightOn?5.2:3.2):w+2.2,
+      opacity:selected ? (refs.highlightOn ? .72 : .38) : (cls==='other'?.32:.55),
       fillOpacity:0,
       dashArray:cls==='restricted'?'6 5':cls==='other'?'4 6':null,
       lineCap:'round',
@@ -227,7 +227,7 @@
   }
   function parseNearbyBlockingClosures(p){try{return JSON.parse(val(p,'nearby_blocking_closures_json')||'[]')||[]}catch{return []}}
   function blockingIdsForPlace(p){return parseNearbyBlockingClosures(p).map(c=>String(c.source_event_id||c.event_id||c.id||'').trim()).filter(Boolean);}
-  function onPlace(f,l){const p=f.properties||{},key=String(val(p,'place_id','name')); refs.placeLayers.set(key,l); if(isIso(val(p,'isolation_category'))) isolatedGroup.addLayer(l); l.bindTooltip(esc(val(p,'name')), {className:'place-label',direction:'top',offset:[0,-8],opacity:.95}); l.bindPopup(placePopup(p)); l.on('popupopen',()=>selectPlace(p)); l.on('click',()=>selectPlace(p));}
+  function onPlace(f,l){const p=f.properties||{},key=String(val(p,'place_id','name')); refs.placeLayers.set(key,l); if(isIso(val(p,'isolation_category'))) isolatedGroup.addLayer(l); l.bindTooltip(esc(val(p,'name')), {className:'place-label',direction:'top',offset:[0,-8],opacity:.95}); l.bindPopup(placePopup(p)); l.on('popupopen',()=>selectPlace(p)); l.on('popupclose',()=>clearSelection()); l.on('click',()=>selectPlace(p));}
   function onClosure(f,l){const p=f.properties||{},id=closureId(p); if(id){if(!refs.closureLayers.has(id))refs.closureLayers.set(id,[]); refs.closureLayers.get(id).push(l);} l.bindPopup(closurePopup(p));}
   function placePopup(p){let nearby=parseNearbyBlockingClosures(p); return `<div class="popup-title">${esc(val(p,'name'))}</div><div class="popup-meta"><b>Status:</b> ${esc(val(p,'isolation_category'))}<br><b>Confidence:</b> ${esc(val(p,'isolation_confidence'))}<br><b>Snap:</b> ${esc(val(p,'snap_distance_m'))} m<br><b>Reason:</b> ${esc(val(p,'isolation_reason'))}${val(p,'hub_network_warning')?`<br><b>Hub network:</b> ${esc(val(p,'hub_network_warning'))}`:''}${nearby.length?'<hr><b>Nearby blocking closures</b><br>'+nearby.slice(0,5).map(c=>`${esc(c.source_event_id||'')} — ${esc(c.road_name||c.description||'closure')}`).join('<br>'):''}</div>`;}
   function closurePopup(p){const id=val(p,'source_event_id','event_id'); const road=val(p,'road_name'); const desc=val(p,'description','title'); const url=val(p,'url'); return `<div class="popup-title">${esc(road||desc||'Road event')}</div><div class="popup-meta"><b>Event:</b> ${esc(id)}<br><b>Category:</b> ${esc(val(p,'category_norm'))} / ${esc(val(p,'passability_norm'))}<br><b>Isolation blocking:</b> ${esc(closureBlocksIsolation(p))}<br><b>Locality:</b> ${esc(val(p,'locality'))}<br><b>Advice:</b> ${esc(val(p,'raw_advice','restrictions_text'))}<br><b>Description:</b> ${esc(desc)}${url?`<br><a href="${esc(url)}" target="_blank" rel="noopener">Open QLD Traffic event</a>`:''}</div>`;}
@@ -239,7 +239,8 @@
   function updateStatus(){const closureShown=refs.allClosures.filter(closureMatches); const excluded=$('clipQld').checked?refs.allClosures.length-refs.allClosures.filter(isQldClosureFeature).length:0; const roads=$('showRoads').checked?(refs.roadsLoading?' · loading QLD road context':(refs.roadsLabel?` · road context: ${refs.roadsLabel}`:' · road overlay on')):''; const err=refs.roadsError?` · ${esc(refs.roadsError)}`:''; $('status').innerHTML=`<b>${refs.allPlaces.filter(f=>isIso(val(f.properties,'isolation_category'))).length}</b> isolated place · ${refs.allPlaces.filter(f=>placeMatches(f.properties||{})).length} places shown · ${closureShown.length} closure geometries shown${roads}${excluded?` · ${excluded} non-QLD geometries filtered`:''}${err}`;}
   function applyClosureHighlights(){closureCaseGroup.eachLayer(l=>{if(l.feature) l.setStyle(closureCaseStyle(l.feature));}); closureGroup.eachLayer(l=>{if(l.feature) l.setStyle(closureStyle(l.feature));});}
   function stopHighlightTimer(){if(refs.highlightTimer){clearInterval(refs.highlightTimer); refs.highlightTimer=null;} refs.highlightOn=true;}
-  function startHighlightTimer(){stopHighlightTimer(); if(!refs.selectedBlockingIds.size)return; refs.highlightTimer=setInterval(()=>{refs.highlightOn=!refs.highlightOn; applyClosureHighlights();},700);}
+  function startHighlightTimer(){stopHighlightTimer(); if(!refs.selectedBlockingIds.size)return; refs.highlightTimer=setInterval(()=>{refs.highlightOn=!refs.highlightOn; applyClosureHighlights();},950);}
+  function clearSelection(){if(!refs.selectedPlaceKey&&!refs.selectedBlockingIds.size)return; refs.selectedPlaceKey=''; refs.selectedBlockingIds.clear(); stopHighlightTimer(); applyClosureHighlights(); updateStatus();}
   function selectPlace(p){refs.selectedPlaceKey=String(val(p,'place_id','name')); refs.selectedBlockingIds=new Set(blockingIdsForPlace(p)); refs.highlightOn=true; applyClosureHighlights(); startHighlightTimer(); updateStatus();}
   function render(){placeGroup.clearLayers(); closureCaseGroup.clearLayers(); closureGroup.clearLayers(); isolatedGroup.clearLayers(); refs.placeLayers.clear(); refs.closureLayers.clear(); const closureShown=refs.allClosures.filter(closureMatches); if($('showClosures').checked){ const fc={type:'FeatureCollection',features:closureShown}; closureCaseGroup.addData(fc); closureGroup.addData(fc);} if($('showPlaces').checked) placeGroup.addData({type:'FeatureCollection',features:refs.allPlaces.filter(f=>placeMatches(f.properties||{}))}); if(!$('showRoads').checked){ if(roadOverlay){map.removeLayer(roadOverlay); roadOverlay=null;} } else loadRoadNetwork(); if(closureCaseGroup.bringToFront) closureCaseGroup.bringToFront(); if(closureGroup.bringToFront) closureGroup.bringToFront(); if(placeGroup.bringToFront) placeGroup.bringToFront(); renderTable(); updateStatus();}
   function badge(cat){if(isIso(cat))return '<span class="badge iso">ISOLATED</span>'; if(isQa(cat))return '<span class="badge qa">QA</span>'; return '<span class="badge ok">OK</span>';}
@@ -248,6 +249,7 @@
   async function load(){try{$('error').classList.add('hidden'); $('status').textContent=refs.allPlaces.length?'Refreshing data…':'Loading data…'; const [summary,closures,places]=await Promise.all([fetchJson(DATA_DIR+'qld_isolation_summary.json'),fetchJson(DATA_DIR+'closures_qld_current.geojson'),fetchJson(DATA_DIR+'qld_place_isolation_current.geojson')]); const sig=dataSignature(summary); refs.summary=summary; refs.allClosures=closures.features||[]; refs.allPlaces=places.features||[]; refs.lastDataSignature=sig; updateSummary(); render(); if(refs.selectedPlaceKey){const f=refs.allPlaces.find(x=>String(val(x.properties||{},'place_id','name'))===refs.selectedPlaceKey); if(f) selectPlace(f.properties||{});} setTimeout(()=>map.invalidateSize(true),50);}catch(err){console.error(err); const msg=location.protocol==='file:'?'Data load failed because this page is open as file://. Use GitHub Pages or run `py -m http.server 8000` from the repo folder.':'Data load failed: '+err.message; $('error').textContent=msg; $('error').classList.remove('hidden'); $('status').textContent='Data load failed'; }}
   function fitIsolatedOrQld(){if(isolatedGroup.getLayers().length){map.fitBounds(isolatedGroup.getBounds(),{padding:[70,70],maxZoom:11});}else map.fitBounds(QLD_BOUNDS,{padding:[20,20]});}
   let roadMoveTimer=null; map.on('moveend',()=>{if(!$('showRoads').checked)return; clearTimeout(roadMoveTimer); roadMoveTimer=setTimeout(()=>loadRoadNetwork(true),250);});
+  map.on('popupclose',()=>clearSelection());
   $('fitIso').onclick=fitIsolatedOrQld; $('fitQld').onclick=()=>map.fitBounds(QLD_BOUNDS,{padding:[20,20]}); $('reload').onclick=load; $('theme').onclick=()=>{document.body.classList.toggle('dark'); $('theme').textContent=document.body.classList.contains('dark')?'Light mode':'Dark mode'; setTimeout(()=>map.invalidateSize(true),50);}; ['statusFilter','closureFilter','search','showPlaces','showClosures','clipQld','hideNonBlocking'].forEach(id=>$(id).addEventListener(id==='search'?'input':'change',render)); $('showRoads').addEventListener('change',()=>{refs.lastRoadKey='';render();});
   load();
   setInterval(load,AUTO_REFRESH_MS);
