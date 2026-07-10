@@ -1,5 +1,5 @@
 {
-  "created_at": "2026-07-10T00:57:15.971645+00:00",
+  "created_at": "2026-07-10T05:01:55.757504+00:00",
   "script": "qld_isolation_proper_v6.py",
   "inputs": {
     "graph": "graph/qld_drive.graphml",
@@ -26,17 +26,17 @@
     "source_mode": "live_qldtraffic",
     "url": "https://data.qldtraffic.qld.gov.au/events_v2.geojson",
     "http_status": 200,
-    "fetched_at": "2026-07-10T00:52:04.564420+00:00",
-    "raw_count": 516,
-    "normalised_count": 272,
+    "fetched_at": "2026-07-10T04:56:43.313826+00:00",
+    "raw_count": 523,
+    "normalised_count": 279,
     "skipped_planned": 244,
     "errors": []
   },
   "counts": {
-    "closures_normalised": 272,
-    "closures_active": 272,
-    "closures_impassable_blocking": 53,
-    "closures_all_blocking": 64,
+    "closures_normalised": 279,
+    "closures_active": 279,
+    "closures_impassable_blocking": 50,
+    "closures_all_blocking": 61,
     "places": 2057,
     "hubs": 9,
     "snapped_hubs": 9,
@@ -44,13 +44,13 @@
     "graph_edges": 1324734,
     "qld_traversal_nodes": "",
     "qld_traversal_edges": "",
-    "blocked_edges_impassable_only": 558,
-    "blocked_edges_all_blocking": 698,
+    "blocked_edges_impassable_only": 470,
+    "blocked_edges_all_blocking": 610,
     "reachable_nodes_before": 518785,
     "state_border_nodes": 11494,
     "state_border_reachable_nodes_before": 518877,
-    "reachable_nodes_impassable_only": 518465,
-    "reachable_nodes_all_blocking": 518292,
+    "reachable_nodes_impassable_only": 518525,
+    "reachable_nodes_all_blocking": 518460,
     "hub_components_before": {
       "components_with_hubs": 1,
       "largest_hub_component_size": 9,
@@ -67,11 +67,10 @@
       "single_hub_components": 0
     },
     "smart_resnapped_places": 2,
-    "not_isolated_hub_routes": 2045,
+    "not_isolated_hub_routes": 2047,
     "place_categories": {
-      "not_isolated": 2054,
-      "isolated_full_closures": 2,
-      "isolated_with_restrictions": 1
+      "not_isolated": 2056,
+      "isolated_full_closures": 1
     },
     "unmatched_closure_rows": 7
   },

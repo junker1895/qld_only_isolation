@@ -6,44 +6,6 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          144.4083811,
-          -28.9966179
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_3880",
-        "name": "Hungerford",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Bulloo Shire",
-        "is_hub": false,
-        "nearest_node": "717185",
-        "snap_distance_m": 0.0,
-        "snap_strategy": "nearest",
-        "snap_note": "Nearest graph node is already in a pre-closure hub-connected component.",
-        "hub_access_before": true,
-        "hub_access_impassable_only": false,
-        "hub_access_all_blocking": false,
-        "reachable_hubs_before": 9,
-        "reachable_hubs_impassable_only": 0,
-        "reachable_hubs_all_blocking": 0,
-        "state_border_access_before": true,
-        "reachable_state_borders_before": "State Border",
-        "hub_network_warning": "",
-        "isolation_category": "isolated_full_closures",
-        "isolation_confidence": "high",
-        "isolation_reason": "Place could reach a hub before closures, but cannot reach any hub after active impassable closures are blocked.",
-        "nearby_blocking_closures_json": "[{\"closure_id\": \"qld.qldtraffic.04d08b5883407cc18f60\", \"source_event_id\": \"809708\", \"distance_m\": 162.1, \"category_norm\": \"road_closed\", \"passability_norm\": \"impassable\", \"status_norm\": \"active\", \"reason_norm\": \"flood\", \"title\": \"\", \"description\": \"From NSW border to 37km north of Hungerford towards Eulo | Road closed to all traffic\", \"road_name\": \"Hanson Street / Hungerford Eulo Road / Hungerford Road\", \"locality\": \"Hungerford\", \"restrictions_text\": \"Do not drive in flood waters\", \"raw_advice\": \"Do not drive in flood waters\", \"raw_event_type\": \"Flooding\", \"raw_event_subtype\": \"Long-term flooding\", \"raw_impact_type\": \"Closures\", \"raw_impact_subtype\": \"Road closed to all traffic\", \"url\": \"https://api.qldtraffic.qld.gov.au/v2/events/809708\"}, {\"closure_id\": \"qld.qldtraffic.045b7e0944a3a3be2cd3\", \"source_event_id\": \"802290\", \"distance_m\": 67319.8, \"category_norm\": \"road_closed\", \"passability_norm\": \"impassable\", \"status_norm\": \"active\", \"reason_norm\": \"unknown\", \"title\": \"\", \"description\": \"Avoid the area | Road closed to all traffic\", \"road_name\": \"New Hamilton Gate Road\", \"locality\": \"Hungerford\", \"restrictions_text\": \"Avoid the area\", \"raw_advice\": \"Avoid the area\", \"raw_event_type\": \"Hazard\", \"raw_event_subtype\": \"Road damage\", \"raw_impact_type\": \"Closures\", \"raw_impact_subtype\": \"Road closed to all traffic\", \"url\": \"https://api.qldtraffic.qld.gov.au/v2/events/802290\"}, {\"closure_id\": \"qld.qldtraffic.370652658d091f8b5c59\", \"source_event_id\": \"809707\", \"distance_m\": 140439.5, \"category_norm\": \"road_closed\", \"passability_norm\": \"impassable\", \"status_norm\": \"active\", \"reason_norm\": \"unknown\", \"title\": \"\", \"description\": \"Avoid the area | Road closed to all traffic\", \"road_name\": \"Bulloo Downs Road / Bulloo Developmental Road / Tickalara Road\", \"locality\": \"Bulloo Downs / Cameron Corner / Thargomindah\", \"restrictions_text\": \"Avoid the area\", \"raw_advice\": \"Avoid the area\", \"raw_event_type\": \"Hazard\", \"raw_event_subtype\": \"Road damage\", \"raw_impact_type\": \"Closures\", \"raw_impact_subtype\": \"Road closed to all traffic\", \"url\": \"https://api.qldtraffic.qld.gov.au/v2/events/809707\"}, {\"closure_id\": \"qld.qldtraffic.8babf191f89b024968e6\", \"source_event_id\": \"808959\", \"distance_m\": 141983.4, \"category_norm\": \"road_closed\", \"passability_norm\": \"impassable\", \"status_norm\": \"active\", \"reason_norm\": \"unknown\", \"title\": \"\", \"description\": \"Avoid the area | Road closed to all traffic\", \"road_name\": \"Thargomindah Bypass\", \"locality\": \"Thargomindah\", \"restrictions_text\": \"Avoid the area\", \"raw_advice\": \"Avoid the area\", \"raw_event_type\": \"Hazard\", \"raw_event_subtype\": \"Road damage\", \"raw_impact_type\": \"Closures\", \"raw_impact_subtype\": \"Road closed to all traffic\", \"url\": \"https://api.qldtraffic.qld.gov.au/v2/events/808959\"}, {\"closure_id\": \"qld.qldtraffic.5393f81f02ce8a92cbb0\", \"source_event_id\": \"812363\", \"distance_m\": 144048.8, \"category_norm\": \"road_closed\", \"passability_norm\": \"impassable\", \"status_norm\": \"active\", \"reason_norm\": \"flood\", \"title\": \"\", \"description\": \"Between Thargomindah and Cooper Dev Road | Road closed to all traffic\", \"road_name\": \"Bulloo Developmental Road / Bulloo Developmental Road (Cooper Developmental Road)\", \"locality\": \"Durham / Thargomindah\", \"restrictions_text\": \"Do not drive in flood waters\", \"raw_advice\": \"Do not drive in flood waters\", \"raw_event_type\": \"Flooding\", \"raw_event_subtype\": \"Long-term flooding\", \"raw_impact_type\": \"Closures\", \"raw_impact_subtype\": \"Road closed to all traffic\", \"url\": \"https://api.qldtraffic.qld.gov.au/v2/events/812363\"}]",
-        "hub_route_name": "",
-        "hub_route_distance_m": "",
-        "hub_route_geojson": ""
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
           142.5896484,
           -27.81624777
         ]
@@ -72,44 +34,6 @@
         "isolation_confidence": "high",
         "isolation_reason": "Place could reach a hub before closures, but cannot reach any hub after active impassable closures are blocked.",
         "nearby_blocking_closures_json": "[{\"closure_id\": \"qld.qldtraffic.c3e605131ec96a70d07f\", \"source_event_id\": \"811999\", \"distance_m\": 266.1, \"category_norm\": \"road_closed\", \"passability_norm\": \"impassable\", \"status_norm\": \"active\", \"reason_norm\": \"unknown\", \"title\": \"\", \"description\": \"Avoid the area | Road closed to all traffic\", \"road_name\": \"Warri Gate Road / Wilson Street / Warri Gate Road\", \"locality\": \"Cameron Corner / Noccundra\", \"restrictions_text\": \"Avoid the area\", \"raw_advice\": \"Avoid the area\", \"raw_event_type\": \"Hazard\", \"raw_event_subtype\": \"Road damage\", \"raw_impact_type\": \"Closures\", \"raw_impact_subtype\": \"Road closed to all traffic\", \"url\": \"https://api.qldtraffic.qld.gov.au/v2/events/811999\"}, {\"closure_id\": \"qld.qldtraffic.5393f81f02ce8a92cbb0\", \"source_event_id\": \"812363\", \"distance_m\": 20605.4, \"category_norm\": \"road_closed\", \"passability_norm\": \"impassable\", \"status_norm\": \"active\", \"reason_norm\": \"flood\", \"title\": \"\", \"description\": \"Between Thargomindah and Cooper Dev Road | Road closed to all traffic\", \"road_name\": \"Bulloo Developmental Road / Bulloo Developmental Road (Cooper Developmental Road)\", \"locality\": \"Durham / Thargomindah\", \"restrictions_text\": \"Do not drive in flood waters\", \"raw_advice\": \"Do not drive in flood waters\", \"raw_event_type\": \"Flooding\", \"raw_event_subtype\": \"Long-term flooding\", \"raw_impact_type\": \"Closures\", \"raw_impact_subtype\": \"Road closed to all traffic\", \"url\": \"https://api.qldtraffic.qld.gov.au/v2/events/812363\"}, {\"closure_id\": \"qld.qldtraffic.13924b56c12e1de202b1\", \"source_event_id\": \"779553\", \"distance_m\": 57514.2, \"category_norm\": \"road_closed\", \"passability_norm\": \"impassable\", \"status_norm\": \"active\", \"reason_norm\": \"unknown\", \"title\": \"\", \"description\": \"Avoid the area | Road closed to all traffic\", \"road_name\": \"Woonanooka Road / Woonanooka Road / Durham Downs Road\", \"locality\": \"Durham\", \"restrictions_text\": \"Avoid the area\", \"raw_advice\": \"Avoid the area\", \"raw_event_type\": \"Hazard\", \"raw_event_subtype\": \"Road damage\", \"raw_impact_type\": \"Closures\", \"raw_impact_subtype\": \"Road closed to all traffic\", \"url\": \"https://api.qldtraffic.qld.gov.au/v2/events/779553\"}, {\"closure_id\": \"qld.qldtraffic.7df18ac9444a9e7e61c4\", \"source_event_id\": \"802281\", \"distance_m\": 69210.7, \"category_norm\": \"road_closed\", \"passability_norm\": \"impassable\", \"status_norm\": \"active\", \"reason_norm\": \"unknown\", \"title\": \"\", \"description\": \"Avoid the area | Road closed to all traffic\", \"road_name\": \"Durham Downs Road / Woonanooka Road\", \"locality\": \"Durham\", \"restrictions_text\": \"Avoid the area\", \"raw_advice\": \"Avoid the area\", \"raw_event_type\": \"Hazard\", \"raw_event_subtype\": \"Road damage\", \"raw_impact_type\": \"Closures\", \"raw_impact_subtype\": \"Road closed to all traffic\", \"url\": \"https://api.qldtraffic.qld.gov.au/v2/events/802281\"}, {\"closure_id\": \"qld.qldtraffic.370652658d091f8b5c59\", \"source_event_id\": \"809707\", \"distance_m\": 81018.0, \"category_norm\": \"road_closed\", \"passability_norm\": \"impassable\", \"status_norm\": \"active\", \"reason_norm\": \"unknown\", \"title\": \"\", \"description\": \"Avoid the area | Road closed to all traffic\", \"road_name\": \"Bulloo Downs Road / Bulloo Developmental Road / Tickalara Road\", \"locality\": \"Bulloo Downs / Cameron Corner / Thargomindah\", \"restrictions_text\": \"Avoid the area\", \"raw_advice\": \"Avoid the area\", \"raw_event_type\": \"Hazard\", \"raw_event_subtype\": \"Road damage\", \"raw_impact_type\": \"Closures\", \"raw_impact_subtype\": \"Road closed to all traffic\", \"url\": \"https://api.qldtraffic.qld.gov.au/v2/events/809707\"}]",
-        "hub_route_name": "",
-        "hub_route_distance_m": "",
-        "hub_route_geojson": ""
-      }
-    },
-    {
-      "type": "Feature",
-      "geometry": {
-        "type": "Point",
-        "coordinates": [
-          142.6546409,
-          -25.42069062
-        ]
-      },
-      "properties": {
-        "place_id": "qld_locality_2974",
-        "name": "Windorah",
-        "place_type": "locality_road_representative_point",
-        "state": "QLD",
-        "lga": "Barcoo Shire",
-        "is_hub": false,
-        "nearest_node": "590423",
-        "snap_distance_m": 32.7,
-        "snap_strategy": "nearest",
-        "snap_note": "Nearest graph node is already in a pre-closure hub-connected component.",
-        "hub_access_before": true,
-        "hub_access_impassable_only": true,
-        "hub_access_all_blocking": false,
-        "reachable_hubs_before": 9,
-        "reachable_hubs_impassable_only": 9,
-        "reachable_hubs_all_blocking": 0,
-        "state_border_access_before": true,
-        "reachable_state_borders_before": "State Border",
-        "hub_network_warning": "",
-        "isolation_category": "isolated_with_restrictions",
-        "isolation_confidence": "medium",
-        "isolation_reason": "Place can still reach a hub with only impassable closures blocked, but not when restricted/conditional-access closures are also blocked.",
-        "nearby_blocking_closures_json": "[{\"closure_id\": \"qld.qldtraffic.72f281e3f4810b450f8d\", \"source_event_id\": \"807700\", \"distance_m\": 273.6, \"category_norm\": \"road_closed\", \"passability_norm\": \"impassable\", \"status_norm\": \"active\", \"reason_norm\": \"flood\", \"title\": \"\", \"description\": \"Windorah to Quilpie (to Quilpie Council boundary) | Road closed to all traffic\", \"road_name\": \"Diamantina Developmental Road\", \"locality\": \"Windorah\", \"restrictions_text\": \"Do not drive in flood waters\", \"raw_advice\": \"Do not drive in flood waters\", \"raw_event_type\": \"Flooding\", \"raw_event_subtype\": \"Long-term flooding\", \"raw_impact_type\": \"Closures\", \"raw_impact_subtype\": \"Road closed to all traffic\", \"url\": \"https://api.qldtraffic.qld.gov.au/v2/events/807700\"}, {\"closure_id\": \"qld.qldtraffic.2e6af3482b04d5b03df4\", \"source_event_id\": \"807697\", \"distance_m\": 6213.7, \"category_norm\": \"road_closed\", \"passability_norm\": \"impassable\", \"status_norm\": \"active\", \"reason_norm\": \"flood\", \"title\": \"\", \"description\": \"Jundah to Windorah | Road closed to all traffic\", \"road_name\": \"Thomson Developmental Road\", \"locality\": \"Jundah / Windorah\", \"restrictions_text\": \"Do not drive in flood waters\", \"raw_advice\": \"Do not drive in flood waters\", \"raw_event_type\": \"Flooding\", \"raw_event_subtype\": \"Long-term flooding\", \"raw_impact_type\": \"Closures\", \"raw_impact_subtype\": \"Road closed to all traffic\", \"url\": \"https://api.qldtraffic.qld.gov.au/v2/events/807697\"}, {\"closure_id\": \"qld.qldtraffic.a2ff175bbae1fcfdb5da\", \"source_event_id\": \"802308\", \"distance_m\": 17559.0, \"category_norm\": \"road_closed\", \"passability_norm\": \"impassable\", \"status_norm\": \"active\", \"reason_norm\": \"flood\", \"title\": \"\", \"description\": \"Windorah to Yakara Retreat Rd | Road closed to all traffic\", \"road_name\": \"Hammond Downs Road\", \"locality\": \"Jundah / Windorah\", \"restrictions_text\": \"Do not drive in flood waters\", \"raw_advice\": \"Do not drive in flood waters\", \"raw_event_type\": \"Flooding\", \"raw_event_subtype\": \"Long-term flooding\", \"raw_impact_type\": \"Closures\", \"raw_impact_subtype\": \"Road closed to all traffic\", \"url\": \"https://api.qldtraffic.qld.gov.au/v2/events/802308\"}, {\"closure_id\": \"qld.qldtraffic.5b4014c9eab4b40e07b9\", \"source_event_id\": \"808006\", \"distance_m\": 46611.3, \"category_norm\": \"road_closed\", \"passability_norm\": \"impassable\", \"status_norm\": \"active\", \"reason_norm\": \"flood\", \"title\": \"\", \"description\": \"From Yaraka Retreat Rd to Qulipie Windorah Rd | Road closed to all traffic\", \"road_name\": \"Jundah Quilpie Road\", \"locality\": \"Jundah / Windorah\", \"restrictions_text\": \"Do not drive in flood waters\", \"raw_advice\": \"Do not drive in flood waters\", \"raw_event_type\": \"Flooding\", \"raw_event_subtype\": \"Long-term flooding\", \"raw_impact_type\": \"Closures\", \"raw_impact_subtype\": \"Road closed to all traffic\", \"url\": \"https://api.qldtraffic.qld.gov.au/v2/events/808006\"}, {\"closure_id\": \"qld.qldtraffic.abd96e83302d93941ad2\", \"source_event_id\": \"802300\", \"distance_m\": 69439.9, \"category_norm\": \"road_closed\", \"passability_norm\": \"impassable\", \"status_norm\": \"active\", \"reason_norm\": \"flood\", \"title\": \"\", \"description\": \"Jundah to Yakara Retreat Rd | Road closed to all traffic\", \"road_name\": \"Jundah Quilpie Road\", \"locality\": \"Jundah\", \"restrictions_text\": \"Do not drive in flood waters\", \"raw_advice\": \"Do not drive in flood waters\", \"raw_event_type\": \"Flooding\", \"raw_event_subtype\": \"Long-term flooding\", \"raw_impact_type\": \"Closures\", \"raw_impact_subtype\": \"Road closed to all traffic\", \"url\": \"https://api.qldtraffic.qld.gov.au/v2/events/802300\"}]",
         "hub_route_name": "",
         "hub_route_distance_m": "",
         "hub_route_geojson": ""
