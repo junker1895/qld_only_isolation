@@ -1,5 +1,5 @@
 {
-  "created_at": "2026-07-19T21:01:22.440751+00:00",
+  "created_at": "2026-07-19T22:05:55.864931+00:00",
   "script": "qld_isolation_proper_v6.py",
   "inputs": {
     "graph": "graph/qld_drive.graphml",
@@ -26,17 +26,17 @@
     "source_mode": "live_qldtraffic",
     "url": "https://data.qldtraffic.qld.gov.au/events_v2.geojson",
     "http_status": 200,
-    "fetched_at": "2026-07-19T20:56:43.964562+00:00",
-    "raw_count": 484,
-    "normalised_count": 249,
-    "skipped_planned": 235,
+    "fetched_at": "2026-07-19T22:00:01.566537+00:00",
+    "raw_count": 497,
+    "normalised_count": 254,
+    "skipped_planned": 243,
     "errors": []
   },
   "counts": {
-    "closures_normalised": 249,
-    "closures_active": 249,
-    "closures_impassable_blocking": 43,
-    "closures_all_blocking": 52,
+    "closures_normalised": 254,
+    "closures_active": 254,
+    "closures_impassable_blocking": 42,
+    "closures_all_blocking": 51,
     "places": 2057,
     "hubs": 9,
     "snapped_hubs": 9,
@@ -44,13 +44,13 @@
     "graph_edges": 1324734,
     "qld_traversal_nodes": "",
     "qld_traversal_edges": "",
-    "blocked_edges_impassable_only": 314,
-    "blocked_edges_all_blocking": 414,
+    "blocked_edges_impassable_only": 313,
+    "blocked_edges_all_blocking": 413,
     "reachable_nodes_before": 518785,
     "state_border_nodes": 11494,
     "state_border_reachable_nodes_before": 518877,
-    "reachable_nodes_impassable_only": 518645,
-    "reachable_nodes_all_blocking": 518594,
+    "reachable_nodes_impassable_only": 518644,
+    "reachable_nodes_all_blocking": 518593,
     "hub_components_before": {
       "components_with_hubs": 1,
       "largest_hub_component_size": 9,
@@ -71,7 +71,7 @@
     "place_categories": {
       "not_isolated": 2057
     },
-    "unmatched_closure_rows": 7
+    "unmatched_closure_rows": 5
   },
   "outputs": {
     "closures_csv": "out_isolation_current/closures_qld_current.csv",
