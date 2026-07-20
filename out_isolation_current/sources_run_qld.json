@@ -2,9 +2,9 @@
   "source_mode": "live_qldtraffic",
   "url": "https://data.qldtraffic.qld.gov.au/events_v2.geojson",
   "http_status": 200,
-  "fetched_at": "2026-07-20T06:52:36.811582+00:00",
-  "raw_count": 514,
-  "normalised_count": 259,
-  "skipped_planned": 255,
+  "fetched_at": "2026-07-20T10:16:37.373029+00:00",
+  "raw_count": 507,
+  "normalised_count": 249,
+  "skipped_planned": 258,
   "errors": []
 }
